@@ -1,0 +1,49 @@
+# Python & uv
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+.pytest_cache/
+*.egg-info/
+
+# Local firmware backups & extracted Sony proprietary files (NEVER COMMIT)
+firmware/*
+!firmware/README.md
+!firmware/backup/
+!firmware/backup/.gitkeep
+!firmware/gen4/
+!firmware/gen4/.gitkeep
+!firmware/gen5/
+!firmware/gen5/.gitkeep
+
+# Build outputs & intermediate artifacts
+build_out/*
+!build_out/.gitkeep
+
+# Proprietary binaries, archives, images & logs
+*.bin
+*.so
+*.so.*
+*.elf
+*.cpio
+*.ko
+*.img
+*.dmg
+*.tar.gz
+*.tar.xz
+*.tar.bz2
+*.log
+*.bak
+*.tmp
+*_progress.json
+
+# Explicitly allowed non-proprietary flashing payloads
+!tools/flash/stage2.bin
+!tools/flash/stage2_turbo_cmd25.bin
+!tools/flash/hardware/fastboot_zve10.bin
+
+# Runtime capture & local camtool evidence
+tools/flash/camtool/data/
+tools/flash/diagnostic/
+tools/flash/blackbox_reads/
+work/

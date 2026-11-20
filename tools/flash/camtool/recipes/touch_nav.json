@@ -1,0 +1,30 @@
+{
+  "name": "touch_nav",
+  "title": "ZV-E10 全界面/菜单触控手势导航 (Touch Gesture Navigation)",
+  "target_file": "/usr/lib/libObj.so",
+  "expected_file_size": 21305456,
+  "expected_sha256": "bc0deb2f0e94218752e42ce6f5a3576d7456971eb63fbde705ffbd9b3a7fdeea",
+  "local_firmware_relpath": "firmware/gen4/lib/libObj.so",
+  "patches": [
+    {
+      "name": "callback_tp_hook_trampoline",
+      "offset": 1179232,
+      "offset_hex": "0x11FE60",
+      "orig": "2de9f04f",
+      "patch": "48f072b8",
+      "ctx_before": "bde88040ebf758bf",
+      "ctx_after": "8bb05a4d00af0846",
+      "desc": "触控事件挂钩蹦床跳转 (b.w _ZN13BackupManager14view_test_blogEasssssss)"
+    },
+    {
+      "name": "touch_gesture_cave",
+      "offset": 1474376,
+      "offset_hex": "0x167F48",
+      "orig": "2de9f04f8bb000af2f4c8b46b8600021fa6007f1140014229946b7f950807c44b7f95460b7f95850b7f95ca0a3f7b4e9264be3581b686bb1db685bb15b694bb118467b60fff75ffe7b6804461846fff756fe02e04ff0ff300446ba684fea1b2387f8230007f11401bb753a75fa6887f817b087f81b90130a3b764fea1923bb764fea18233b77330abb77230a87f82030030a052087f822302b0a7a7687f824304fea1a2387f81d80fe7787f8214087f8255087f8263087f827a0a3f706ea07f12c07bd46bde8f08f76fc260100490000",
+      "patch": "2de9f04f8bb003b486b0002958d04e68896821f0004140f69673c0f233137b44012927d0022929d0002949d15a68002a46d01f68b0b2b9b2401a024648bf4242310c3f0cc91b0f4648bf4f423c2ab8bf3c2f35db02245c601e60ba4205db0028ccbf40f2af1015201ce00029ccbf3020032017e01e6001225a6021e05a6800215960012a1cd11e68b1b2320c962904da782a15da40f2ab1004e0b1f5407f0fdb40f2ac100022009001920392049205920124029469460020b7f76efd641ef8d506b003bcb7f72bbf00bf00bf00bf00bf",
+      "ctx_before": "b8fc2601486f0000",
+      "ctx_after": "034b044a7b4480b5",
+      "desc": "安全代码洞穴手势导航与按键合成状态机 (208 字节原地覆写)"
+    }
+  ]
+}

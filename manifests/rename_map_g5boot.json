@@ -1,0 +1,14 @@
+{
+  "_ZN2ux4core2ID4ZEROE": "_ZN2ux4core2ID4ZERNf",
+  "_ZN2ux6gfxeng14GraphicsEngine15sys_getInstanceEv": "_ZN2ux6gfxeng14GraphicsEngine15sys_getInstanceFU",
+  "_ZN2ux6gfxeng14GraphicsEngine28getAreaCheckExtensionManagerEv": "_ZN2ux6gfxeng14GraphicsEngine28getAreaCheckExtensionManagerFU",
+  "_ZN2ux6gfxeng14GraphicsEngine30setOverflowResizeFontAttributeEhh": "_ZN2ux6gfxeng14GraphicsEngine30setOverflowResizeFontAttributeEiG",
+  "_ZN2ux6gfxeng14GraphicsEngine32setOverflowResizeLayoutAttributeEh": "_ZN2ux6gfxeng14GraphicsEngine32setOverflowResizeLayoutAttributeFG",
+  "_ZN2ux6gfxeng25AreaCheckExtensionManager10setLogPathEPKc": "_ZN2ux6gfxeng25AreaCheckExtensionManager10setLogPathEPLB",
+  "_ZN2ux6gfxeng25AreaCheckExtensionManager16setCheckDataPathEPKc": "_ZN2ux6gfxeng25AreaCheckExtensionManager16setCheckDataPathEPLB",
+  "_ZN2ux6resmgr15ResourceManager11setDatabaseEPKc": "_ZN2ux6resmgr15ResourceManager11setDatabaseEPLB",
+  "_ZN2ux6resmgr15ResourceManager28sys_setFontNameWithNamespaceEt": "_ZN2ux6resmgr15ResourceManager28sys_setFontNameWithNamespaceFS",
+  "_ZN8UXEngine6gfxengEv": "_ZN8UXEngine6gfxengFU",
+  "_ZN8UXEngine6resmgrEv": "_ZN8UXEngine6resmgrFU",
+  "stella_print_log": "suDlla_print_log"
+}

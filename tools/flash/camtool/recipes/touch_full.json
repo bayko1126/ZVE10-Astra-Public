@@ -1,0 +1,52 @@
+{
+  "name": "touch_full",
+  "title": "ZV-E10 全界面触控能力激活 (Touch & TouchPad)",
+  "target_file": "/usr/lib/viewUnified2.so",
+  "expected_file_size": 14284732,
+  "expected_sha256": "bdf0690fbeef898bba1114c5804e88fdb437b5e31598eac32df05925504f6e1a",
+  "local_firmware_relpath": "firmware/gen4/lib/viewUnified2.so",
+  "factory_ext2_image": "firmware/backup/nflasha15.bin",
+  "factory_ext2_path": "/lib/viewUnified2.so",
+  "patches": [
+    {
+      "name": "isTouchToggleSupported",
+      "offset": 5899262,
+      "offset_hex": "0x5A0BFE",
+      "orig": "80b500af",
+      "patch": "01207047",
+      "ctx_before": "0e0080bd",
+      "ctx_after": "97f6cdfe",
+      "desc": "开启触控总开关能力判定 (return 1)"
+    },
+    {
+      "name": "isTouchPanelPadSupported",
+      "offset": 5899284,
+      "offset_hex": "0x5A0C14",
+      "orig": "80b500af",
+      "patch": "04207047",
+      "ctx_before": "0c0080bd",
+      "ctx_after": "20f4c4fb",
+      "desc": "开启触控板 (TouchPad) 能力判定 (return 4)"
+    },
+    {
+      "name": "PAS_MenuSelectMode::setTouchable",
+      "offset": 9136972,
+      "offset_hex": "0x8B6B4C",
+      "orig": "0221",
+      "patch": "0021",
+      "ctx_before": "d3f80c31",
+      "ctx_after": "984780bd",
+      "desc": "强制主菜单选择模式进入可触控状态 (参数 0)"
+    },
+    {
+      "name": "PAS_BarCtrlDial::setTouchable",
+      "offset": 8915664,
+      "offset_hex": "0x880AD0",
+      "orig": "0221",
+      "patch": "0021",
+      "ctx_before": "d3f80c31",
+      "ctx_after": "984780bd",
+      "desc": "强制控制转盘栏进入可触控状态 (参数 0)"
+    }
+  ]
+}

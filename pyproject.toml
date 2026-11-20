@@ -1,0 +1,21 @@
+[project]
+name = "zve10-astra-port"
+version = "0.1.0"
+description = "Cross-generation porting toolkit, QEMU simulator, and flashing tools to run Sony ZV-1M2 (Gen 5 ASTRA) menu UI and touch interaction on Sony ZV-E10 (Gen 4)."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "pyelftools>=0.31",
+    "capstone>=5.0.0",
+    "pillow>=10.0.0",
+    "pyusb>=1.2.1",
+    "libusb-package>=1.0.26.2",
+    "pyserial>=3.5",
+    "pycryptodome>=3.20.0",
+]
+
+[project.optional-dependencies]
+build = [
+    "ziglang>=0.13.0",
+]

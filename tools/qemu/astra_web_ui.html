@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sony ZV-1M2 ASTRA 网页触控模拟器</title>
+  <style>
+    :root {
+      color-scheme: dark light;
+      --bg: #0f1115;
+      --surface: #181c24;
+      --surface-2: #202632;
+      --border: #3a4254;
+      --text: #f3f5f8;
+      --muted: #b7c0d0;
+      --accent: #ea5b1b;
+      --accent-hover: #ff7130;
+      --accent-text: #ffffff;
+      --ok: #3ad17a;
+      --warn: #f5b942;
+      --focus: #ffd166;
+    }
+
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #eef1f6;
+        --surface: #ffffff;
+        --surface-2: #f5f7fa;
+        --border: #6b7485;
+        --text: #141820;
+        --muted: #465063;
+        --accent: #c9460c;
+        --accent-hover: #ad3a08;
+        --accent-text: #ffffff;
+        --ok: #137a41;
+        --warn: #8a5600;
+        --focus: #005fcc;
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    :where(button, [tabindex="0"]):focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .app-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-tag {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      font-size: 0.88rem;
+      font-weight: 600;
+    }
+
+    .status-icon[data-state="ready"] { color: var(--ok); }
+    .status-icon[data-state="booting"] { color: var(--warn); }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(320px, 760px) minmax(280px, 380px);
+      gap: 20px;
+      padding: 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .workspace { grid-template-columns: 1fr; }
+    }
+
+    .camera-shell {
+      background: var(--surface);
+      border: 2px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .lcd-stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background: #000000;
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      content-visibility: auto;
+      contain-intrinsic-size: auto 640px auto 480px;
+    }
+
+    #lcdCanvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .touch-ripple {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      margin: -14px 0 0 -14px;
+      border-radius: 50%;
+      border: 2px solid #ff6b2b;
+      background: rgba(255, 107, 43, 0.25);
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.6);
+      transition: opacity 0.22s ease-out, transform 0.22s ease-out;
+    }
+
+    .touch-ripple.active {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    .boot-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px;
+      background: rgba(12, 14, 18, 0.84);
+      color: #f3f5f8;
+      text-align: center;
+    }
+
+    .boot-overlay[hidden] { display: none; }
+
+    .boot-overlay progress {
+      width: min(280px, 80%);
+      height: 14px;
+    }
+
+    .telemetry-bar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .side-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 0.98rem;
+      font-weight: 700;
+    }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    button.ctrl-btn {
+      min-block-size: 44px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--text);
+      font: inherit;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button.ctrl-btn:hover {
+      border-color: var(--text);
+    }
+
+    button.ctrl-btn.primary {
+      background: var(--accent);
+      color: var(--accent-text);
+      border-color: var(--accent);
+    }
+
+    button.ctrl-btn.primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .hint-text {
+      margin: 10px 0 0;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    .log-box {
+      margin: 0;
+      padding: 10px;
+      height: 240px;
+      overflow: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      font-size: 0.76rem;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+
+    @media (forced-colors: active) {
+      .camera-shell, .lcd-stage, .card, button.ctrl-btn, .status-pill, .log-box {
+        border: 2px solid CanvasText;
+      }
+      button.ctrl-btn.primary {
+        background: Highlight;
+        color: HighlightText;
+        border-color: HighlightText;
+      }
+      .touch-ripple {
+        border: 3px solid Highlight;
+      }
+      :where(button, [tabindex="0"]):focus-visible {
+        outline: 3px solid Highlight;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="brand">
+      <h1>Sony ZV-1M2 (ASTRA Gen 5) QEMU 触屏工作台</h1>
+      <span class="brand-tag">640×480 实时帧缓冲 + UART 直通触控</span>
+    </div>
+    <div class="status-pill" aria-live="polite">
+      <span id="statusIcon" class="status-icon" data-state="booting" aria-hidden="true">●</span>
+      <span id="statusText">正在连接 QEMU...</span>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="camera-shell" aria-label="相机 LCD 触控屏">
+      <div id="lcdStage" class="lcd-stage">
+        <canvas id="lcdCanvas" width="640" height="480" tabindex="0"
+                aria-label="ZV-1M2 相机触控显示屏，支持鼠标与手指点击拖拽"></canvas>
+        <div id="touchRipple" class="touch-ripple" aria-hidden="true"></div>
+        <div id="bootOverlay" class="boot-overlay">
+          <strong id="bootStageLabel">正在启动 ASTRA 系统内核与图形引擎…</strong>
+          <progress id="bootProgress" max="100"></progress>
+          <span style="font-size:0.84rem;color:#c7d0df;">约需 20–30 秒点亮首帧，首帧就绪后即可直接点击或滑动屏幕</span>
+        </div>
+      </div>
+      <div class="telemetry-bar">
+        <span id="coordReadout">触控坐标: —</span>
+        <span id="frameReadout">帧序号: 0</span>
+        <span id="touchReadout">触控回执: 0 / 0</span>
+      </div>
+    </section>
+
+    <aside class="side-panel" aria-label="快捷控制与运行日志">
+      <section class="card">
+        <h2>快捷触控与系统控制</h2>
+        <div class="btn-grid">
+          <button type="button" class="ctrl-btn primary" id="btnOpenMenu">直接进入 MENU 界面</button>
+          <button type="button" class="ctrl-btn" id="btnKeyMenu">物理 [MENU] 键</button>
+          <button type="button" class="ctrl-btn" id="btnOpenShoot">进入拍摄界面</button>
+          <button type="button" class="ctrl-btn" data-tap="320,240">点击中央 (320,240)</button>
+          <button type="button" class="ctrl-btn" data-tap="595,455">触控 [MENU] 返回</button>
+          <button type="button" class="ctrl-btn" id="btnRefreshFrame">立即重抓显存</button>
+          <button type="button" class="ctrl-btn" id="btnDownloadPng">保存当前截图</button>
+          <button type="button" class="ctrl-btn" id="btnRestartQemu">重启 QEMU</button>
+        </div>
+        <p class="hint-text">
+          直接在左侧 640×480 屏幕上点击、长按或滑动拖拽即可实时操作五代 UI。焦点在屏幕时按 Enter 可点击当前悬停或中央位置。
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>Guest 串口关键日志</h2>
+        <pre id="logBox" class="log-box">等待串口输出...</pre>
+      </section>
+    </aside>
+  </main>
+
+  <script>
+    (() => {
+      const lcdStage = document.getElementById('lcdStage');
+      const canvas = document.getElementById('lcdCanvas');
+      const ctx = canvas.getContext('2d');
+      const ripple = document.getElementById('touchRipple');
+      const bootOverlay = document.getElementById('bootOverlay');
+      const bootStageLabel = document.getElementById('bootStageLabel');
+      const statusIcon = document.getElementById('statusIcon');
+      const statusText = document.getElementById('statusText');
+      const coordReadout = document.getElementById('coordReadout');
+      const frameReadout = document.getElementById('frameReadout');
+      const touchReadout = document.getElementById('touchReadout');
+      const logBox = document.getElementById('logBox');
+
+      let frameSeq = 0;
+      let streaming = true;
+      let streamAbort = null;
+      let pointerDown = false;
+      let lastMoveMs = 0;
+      let lastHover = { x: 320, y: 240 };
+
+      function mapToLcd(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        const rx = (clientX - rect.left) / Math.max(rect.width, 1);
+        const ry = (clientY - rect.top) / Math.max(rect.height, 1);
+        const x = Math.max(0, Math.min(639, Math.round(rx * 639)));
+        const y = Math.max(0, Math.min(479, Math.round(ry * 479)));
+        return { x, y, pctX: rx * 100, pctY: ry * 100 };
+      }
+
+      function showRipple(pctX, pctY, hold) {
+        ripple.style.left = pctX.toFixed(2) + '%';
+        ripple.style.top = pctY.toFixed(2) + '%';
+        ripple.classList.add('active');
+        if (!hold) {
+          setTimeout(() => ripple.classList.remove('active'), 220);
+        }
+      }
+
+      async function postJsonChecked(url, payload, label) {
+        try {
+          const resp = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          let data = null;
+          try { data = await resp.json(); } catch (_) {}
+          if (!resp.ok || (data && data.ok === false)) {
+            const msg = (data && data.error) ? data.error : `HTTP ${resp.status}`;
+            statusText.textContent = `${label}失败: ${msg}`;
+          }
+          return data;
+        } catch (err) {
+          statusText.textContent = `${label}网络错误: ${err && err.message ? err.message : err}`;
+          return null;
+        }
+      }
+
+      async function sendTouch(op, x, y) {
+        coordReadout.textContent = `触控坐标: (${x}, ${y}) [${op}]`;
+        await postJsonChecked('/api/touch', { op, x, y }, '触控发送');
+      }
+
+      canvas.addEventListener('pointerdown', (e) => {
+        if (e.button !== 0 && e.pointerType === 'mouse') return;
+        e.preventDefault();
+        canvas.focus({ preventScroll: true });
+        try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+        pointerDown = true;
+        const pt = mapToLcd(e.clientX, e.clientY);
+        lastHover = { x: pt.x, y: pt.y };
+        showRipple(pt.pctX, pt.pctY, true);
+        sendTouch('down', pt.x, pt.y);
+      });
+
+      canvas.addEventListener('pointermove', (e) => {
+        const pt = mapToLcd(e.clientX, e.clientY);
+        lastHover = { x: pt.x, y: pt.y };
+        if (!pointerDown) {
+          coordReadout.textContent = `悬停坐标: (${pt.x}, ${pt.y})`;
+          return;
+        }
+        e.preventDefault();
+        const now = performance.now();
+        showRipple(pt.pctX, pt.pctY, true);
+        if (now - lastMoveMs >= 28) {
+          lastMoveMs = now;
+          sendTouch('move', pt.x, pt.y);
+        }
+      });
+
+      function endPointer(e) {
+        if (!pointerDown) return;
+        pointerDown = false;
+        ripple.classList.remove('active');
+        try { canvas.releasePointerCapture(e.pointerId); } catch (_) {}
+        const pt = mapToLcd(e.clientX, e.clientY);
+        sendTouch('up', pt.x, pt.y);
+      }
+
+      canvas.addEventListener('pointerup', endPointer);
+      canvas.addEventListener('pointercancel', endPointer);
+      canvas.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          showRipple((lastHover.x / 639) * 100, (lastHover.y / 479) * 100, false);
+          sendTouch('tap', lastHover.x, lastHover.y);
+        }
+      });
+
+      document.querySelectorAll('button[data-tap]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const [xs, ys] = btn.dataset.tap.split(',');
+          const x = Number(xs), y = Number(ys);
+          showRipple((x / 639) * 100, (y / 479) * 100, false);
+          sendTouch('tap', x, y);
+        });
+      });
+
+      document.getElementById('btnOpenMenu').addEventListener('click', async () => {
+        await postJsonChecked('/api/control', { action: 'open_menu' }, '切入菜单');
+      });
+
+      document.getElementById('btnKeyMenu').addEventListener('click', async () => {
+        await postJsonChecked('/api/key', { key: 'MENU', mode: 'PRESS' }, '发送 MENU 按键');
+      });
+
+      document.getElementById('btnOpenShoot').addEventListener('click', async () => {
+        await postJsonChecked('/api/control', { action: 'open_shoot' }, '切入拍摄');
+      });
+
+      document.getElementById('btnRefreshFrame').addEventListener('click', async () => {
+        await postJsonChecked('/api/control', { action: 'refresh' }, '刷新帧');
+      });
+
+      document.getElementById('btnDownloadPng').addEventListener('click', () => {
+        const a = document.createElement('a');
+        a.href = `/api/snapshot.png?ts=${Date.now()}`;
+        a.download = `zve10-astra-frame-${frameSeq}.png`;
+        a.click();
+      });
+
+      document.getElementById('btnRestartQemu').addEventListener('click', async () => {
+        frameSeq = 0;
+        bootOverlay.hidden = false;
+        await postJsonChecked('/api/control', { action: 'restart' }, '重启 QEMU');
+      });
+
+      async function drawPngBlob(blob, seqHeader) {
+        if (seqHeader) frameSeq = Number(seqHeader);
+        const bmp = await createImageBitmap(blob);
+        ctx.clearRect(0, 0, 640, 480);
+        ctx.drawImage(bmp, 0, 0, 640, 480);
+        bmp.close();
+        if (frameSeq > 0) {
+          bootOverlay.hidden = true;
+          frameReadout.textContent = `帧序号: #${frameSeq}`;
+        }
+      }
+
+      async function frameLoop() {
+        while (streaming) {
+          streamAbort = new AbortController();
+          try {
+            const resp = await fetch(`/api/frame.png?after=${frameSeq}&wait=4`, {
+              cache: 'no-store',
+              signal: streamAbort.signal
+            });
+            if (resp.status === 200) {
+              const seqH = resp.headers.get('X-Frame-Seq');
+              const blob = await resp.blob();
+              if (blob.size > 0) await drawPngBlob(blob, seqH);
+            } else {
+              await new Promise((r) => setTimeout(r, 150));
+            }
+          } catch (err) {
+            if (!streaming) break;
+            await new Promise((r) => setTimeout(r, 300));
+          }
+        }
+      }
+
+      function pauseStreaming() {
+        if (!streaming) return;
+        streaming = false;
+        if (streamAbort) streamAbort.abort();
+      }
+
+      function resumeStreaming() {
+        if (streaming) return;
+        streaming = true;
+        frameLoop();
+      }
+
+      lcdStage.addEventListener('contentvisibilityautostatechange', (e) => {
+        if (e.skipped) pauseStreaming();
+        else resumeStreaming();
+      });
+
+      if (!('contentVisibility' in document.documentElement.style)) {
+        const io = new IntersectionObserver((entries) => {
+          if (entries.some((it) => it.isIntersecting)) resumeStreaming();
+          else pauseStreaming();
+        }, { rootMargin: '200px' });
+        io.observe(lcdStage);
+      }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) pauseStreaming();
+        else resumeStreaming();
+      });
+
+      async function pollState() {
+        try {
+          const resp = await fetch('/api/state', { cache: 'no-store' });
+          if (resp.ok) {
+            const st = await resp.json();
+            const ready = st.phase === 'ready';
+            statusIcon.dataset.state = ready ? 'ready' : 'booting';
+            statusIcon.textContent = ready ? '●' : '◐';
+            statusText.textContent = st.status_text || st.phase;
+            bootStageLabel.textContent = st.status_text || '正在启动系统…';
+            touchReadout.textContent = `触控回执: ${st.touch_ack} / ${st.touch_sent}`;
+            if (st.frame_seq > 0) bootOverlay.hidden = true;
+            if (Array.isArray(st.logs)) {
+              const nearBottom = logBox.scrollTop + logBox.clientHeight >= logBox.scrollHeight - 24;
+              logBox.textContent = st.logs.join('\n');
+              if (nearBottom) logBox.scrollTop = logBox.scrollHeight;
+            }
+          }
+        } catch (_) {}
+        setTimeout(pollState, 650);
+      }
+
+      frameLoop();
+      pollState();
+    })();
+  </script>
+</body>
+</html>

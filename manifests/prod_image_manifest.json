@@ -1,0 +1,112 @@
+{
+  "version": "1.0",
+  "description": "ZVE10 ASTRA Phase 3 ext2 image modification manifest",
+  "target_partition_bytes": 314572800,
+  "target_block_count": 307200,
+  "block_size": 1024,
+  "deletions": {
+    "libraries": [
+      "/lib/viewUnified2.so",
+      "/lib/viewUnified3.so",
+      "/lib/viewUnified4.so",
+      "/lib/viewUnified5.so",
+      "/lib/viewUnified6.so",
+      "/lib/viewUnified7.so",
+      "/lib/viewUnified8.so",
+      "/lib/CautionConfig.so",
+      "/lib/CautionRsrcConfig.so",
+      "/lib/ModelCautionConfig.so"
+    ],
+    "directories_recursive": [
+      "/share/app"
+    ]
+  },
+  "injections": {
+    "binaries": [
+      {
+        "host_path": "build_out/libMWF.so",
+        "image_path": "/lib/libMWF.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "影子管理器继承补丁版 libMWF.so (247,776 B)"
+      },
+      {
+        "host_path": "build_out/libIMDB_g5.so",
+        "image_path": "/lib/libIMDB.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "精准裁剪版 libIMDB.so (37,044 B)"
+      },
+      {
+        "host_path": "build_out/appFwBoot.so",
+        "image_path": "/lib/appFwBoot.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "独立16MB专属栈版引导器 appFwBoot.so"
+      },
+      {
+        "host_path": "build_out/libappFwBoot_g5.so",
+        "image_path": "/lib/libappFwBoot_g5.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "五代原版引导器备份 libappFwBoot_g5.so (8,312 B)"
+      },
+      {
+        "host_path": "build_out/libOb5.so",
+        "image_path": "/lib/libOb5.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "五代 UI 引擎核心 libOb5.so (3,931,624 B)"
+      },
+      {
+        "host_path": "build_out/libmp5.so",
+        "image_path": "/lib/libmp5.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "五代 mpr 支撑库 libmp5.so (3,038,540 B)"
+      },
+      {
+        "host_path": "build_out/libObjShim.so",
+        "image_path": "/lib/libObjShim.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "五代符号桩 libObjShim.so (10,608 B)"
+      },
+      {
+        "host_path": "build_out/AdjChkConfig.so",
+        "image_path": "/lib/AdjChkConfig.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "五代 AdjChkConfig.so (82,440 B)"
+      },
+      {
+        "host_path": "build_out/appFw.so",
+        "image_path": "/lib/appFw.so",
+        "mode": "0755",
+        "uid": 0,
+        "gid": 0,
+        "description": "五代核心 UI appFw.so (64,273,528 B)"
+      }
+    ],
+    "share_app_root": "firmware/gen5/share/app",
+    "share_app_target": "/share/app",
+    "symlinks": [
+      {
+        "target": "libOb5.so",
+        "link_path": "/lib/libuxengine.so"
+      },
+      {
+        "target": "libOb5.so",
+        "link_path": "/lib/libgrm.so"
+      }
+    ]
+  }
+}
