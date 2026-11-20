@@ -4,7 +4,14 @@
 
 > 將 **Sony ZV-1M2（Gen 5 ASTRA）** 新版觸控選單 UI 與完整互動體系跨代移植至 **Sony ZV-E10（Gen 4）** 的工程工具鏈、QEMU 模擬環境、建置腳本、方法論與 AI Agent Skills。
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p>
+  <img src="https://img.shields.io/badge/Audience-Developers%20Only-critical" height="20" alt="Audience: Developers Only">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" height="20" alt="License: MIT"></a>
+  <a href="https://github.com/nolan2628/ZVE10-Astra-Public/stargazers"><img src="https://img.shields.io/github/stars/nolan2628/ZVE10-Astra-Public?style=flat" height="20" alt="GitHub Stars"></a>
+  <a href="https://github.com/nolan2628/ZVE10-Astra-Public/issues"><img src="https://img.shields.io/github/issues/nolan2628/ZVE10-Astra-Public" height="20" alt="GitHub Issues"></a>
+  <a href="https://discord.gg/wdF3y3xCYR"><img src="https://img.shields.io/badge/Discord-Join%20Dev%20Chat-5865F2?logo=discord&logoColor=white" height="20" alt="Discord"></a>
+  <a href="#贊助支持--sponsor"><img src="https://img.shields.io/badge/Sponsor-Token%20Support-ff69b4?logo=githubsponsors&logoColor=white" height="20" alt="Sponsor"></a>
+</p>
 
 > [!CAUTION]
 > **僅面向開發者 · 禁止一般使用者刷入（防變磚警示）**
@@ -149,6 +156,16 @@ uv run python tools/flash/flash_robust.py `
   - [`zve10-astra-qemu`](.agents/skills/zve10-astra-qemu/SKILL.md)
   - [`zve10-astra-porting`](.agents/skills/zve10-astra-porting/SKILL.md)
   - [`zve10-astra-methodology`](.agents/skills/zve10-astra-methodology/SKILL.md)
+
+---
+
+## 開發者交流 / Community
+
+歡迎對索尼相機逆向、QEMU 模擬與跨代移植感興趣的開發者加入 Discord 頻道交流除錯經驗（**註：本群僅面向開發者技術討論，不提供一鍵刷機包或代刷服務，入群前請務必閱讀上方安全紅線**）：
+
+<p>
+  <a href="https://discord.gg/wdF3y3xCYR"><img src="https://img.shields.io/badge/Discord-Join%20Dev%20Chat-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="28" alt="Discord"></a>
+</p>
 
 ---
 

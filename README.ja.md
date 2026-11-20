@@ -4,7 +4,14 @@
 
 > **Sony ZV-1M2（Gen 5 ASTRA）** の新タッチメニュー UI とフル操作系を **Sony ZV-E10（Gen 4）** へ世代を超えて移植するためのエンジニアリング・ツールチェーン、QEMU エミュレーション環境、ビルド／パッチスクリプト、開発手法、および AI Agent Skills です。
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+<p>
+  <img src="https://img.shields.io/badge/Audience-Developers%20Only-critical" height="20" alt="Audience: Developers Only">
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-blue.svg" height="20" alt="License: MIT"></a>
+  <a href="https://github.com/nolan2628/ZVE10-Astra-Public/stargazers"><img src="https://img.shields.io/github/stars/nolan2628/ZVE10-Astra-Public?style=flat" height="20" alt="GitHub Stars"></a>
+  <a href="https://github.com/nolan2628/ZVE10-Astra-Public/issues"><img src="https://img.shields.io/github/issues/nolan2628/ZVE10-Astra-Public" height="20" alt="GitHub Issues"></a>
+  <a href="https://discord.gg/wdF3y3xCYR"><img src="https://img.shields.io/badge/Discord-Join%20Dev%20Chat-5865F2?logo=discord&logoColor=white" height="20" alt="Discord"></a>
+  <a href="#スポンサー--sponsor"><img src="https://img.shields.io/badge/Sponsor-Token%20Support-ff69b4?logo=githubsponsors&logoColor=white" height="20" alt="Sponsor"></a>
+</p>
 
 > [!CAUTION]
 > **開発者専用 · 一般ユーザーの実機フラッシュ厳禁（文鎮化防止の警告）**
@@ -149,6 +156,16 @@ uv run python tools/flash/flash_robust.py `
   - [`zve10-astra-qemu`](.agents/skills/zve10-astra-qemu/SKILL.md)
   - [`zve10-astra-porting`](.agents/skills/zve10-astra-porting/SKILL.md)
   - [`zve10-astra-methodology`](.agents/skills/zve10-astra-methodology/SKILL.md)
+
+---
+
+## 開発者コミュニティ / Community
+
+ソニー製カメラのリバースエンジニアリング、QEMU エミュレーション、世代間移植に関心のある開発者の方は、Discord サーバーでの技術交流にぜひご参加ください（**注意：本コミュニティは開発者向けの技術議論専用です。一般向けのワンクリック導入パッケージや代行フラッシュは提供していません。参加前に上記の安全ガイドラインを必ずお読みください**）：
+
+<p>
+  <a href="https://discord.gg/wdF3y3xCYR"><img src="https://img.shields.io/badge/Discord-Join%20Dev%20Chat-5865F2?style=for-the-badge&logo=discord&logoColor=white" height="28" alt="Discord"></a>
+</p>
 
 ---
 
