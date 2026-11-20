@@ -14,7 +14,9 @@
 | **ZV-1M2 (Gen 5 ASTRA) 解包目录** | 从你合法持有的 ZV-1M2 官方固件解包提取，包含 `lib/appFw.so`、`lib/appFwBoot.so`、`lib/libObj.so`、`lib/libmpr.so`、`lib/AdjChkConfig.so` 及 `share/app/` | 本地任意解包目录（如 `D:\fw\zv1m2_unpacked`） |
 
 > [!TIP]
-> 关于 Sony 固件更新包（`.dmg` / `.dat`）的解包工具与脚本，可参考前置开源仓库：
+> 关于 Sony 固件更新包（`.dmg` / `.dat` / `"FDAT"`）的解包工具与脚本，可参考前置开源仓库：
+> - [ma1co/fwtool.py](https://github.com/ma1co/fwtool.py)（经典四代 `CXD90045_k0` 固件解包工具，适用于 `ZV-E10` 等机型）
+> - [ma1co/fwtool.py#52 (Support CXD90057)](https://github.com/ma1co/fwtool.py/pull/52) / [DavidBuchanan314/fwtool.py (`a7iv` 分支)](https://github.com/DavidBuchanan314/fwtool.py/tree/a7iv)（补充五代 `CXD90057` 与 `CXD90045_k8` 新密钥解包支持及 `ext2` 识别修复）
 > - [DavidBuchanan314/ILCE-7M4-RE](https://github.com/DavidBuchanan314/ILCE-7M4-RE)
 > - [erlla/sony-a7m4-custom-firmware](https://github.com/erlla/sony-a7m4-custom-firmware)
 

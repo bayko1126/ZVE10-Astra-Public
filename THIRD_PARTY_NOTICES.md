@@ -20,6 +20,7 @@ repository.
 
 - **zve10-qemu**: https://github.com/chocotan/zve10-qemu (`-M zve10` QEMU machine model & ZV-E10 emulation environment)
 - **a7c2-qemu**: https://github.com/chocotan/a7c2-qemu (QEMU machine model / Sony camera emulation reference)
+- **fwtool.py / PR #52**: https://github.com/ma1co/fwtool.py & https://github.com/ma1co/fwtool.py/pull/52 (Sony `"FDAT"` firmware unpacking tool, including `CXD90057` and `CXD90045_k8` support by DavidBuchanan314)
 - **ILCE-7M4-RE**: https://github.com/DavidBuchanan314/ILCE-7M4-RE (Sony Gen4/Gen5 reverse engineering research & tooling)
 - **sony-a7m4-custom-firmware**: https://github.com/erlla/sony-a7m4-custom-firmware (Sony custom firmware, flashing workflows, and custom LUT training)
 - **sony-look-bridge**: https://github.com/751K/sony-look-bridge (Creative Look `FL`/`VV` extraction & bridging from other Sony models)
