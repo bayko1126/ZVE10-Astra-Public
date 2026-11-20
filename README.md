@@ -1,5 +1,7 @@
 # ZV-E10 ASTRA Port
 
+**简体中文** | [English](README.en.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
+
 > 将 **Sony ZV-1M2（Gen 5 ASTRA）** 新版触控菜单 UI 与全交互体系跨代移植至 **Sony ZV-E10（Gen 4）** 的工程工具链、QEMU 仿真环境、构建脚本、方法论与 AI Agent Skills。
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
