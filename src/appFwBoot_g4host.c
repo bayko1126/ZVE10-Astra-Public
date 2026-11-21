@@ -3345,7 +3345,7 @@ static void install_g4_key_intercept(uintptr_t libobj_base);
 
 static void init_libobj_context_stub(void)
 {
-    /* 1. 初始化虚表与大容量全零安全对象结构 */
+    /* 1. 初始化虚表与大容量全零安全对象结构 (ASTRA-06 彻底免疫修复) */
     memset(s_dummy_context_blob, 0, sizeof(s_dummy_context_blob));
     for (int i = 0; i < 256; i++) {
         s_dummy_vtable[i] = (uint32_t)(uintptr_t)dummy_vfunc_noop;
@@ -3355,15 +3355,40 @@ static void init_libobj_context_stub(void)
     /* context 自身头部作为拥有虚表的对象 */
     ctx[0] = (uint32_t)(uintptr_t)s_dummy_vtable;
 
-    /* context 偏移 0x10 指向一个足够大的全零子对象池 (4KB~8KB 区域) */
-    uint32_t *sub_obj_10 = (uint32_t *)(s_dummy_context_blob + 4096);
-    sub_obj_10[0] = (uint32_t)(uintptr_t)s_dummy_vtable;
-    ctx[0x10 / 4] = (uint32_t)(uintptr_t)sub_obj_10;
+    /* context 内部划分出足够大的全零子对象池 (每个区域 4KB，头部均带有安全虚表) */
+    uint32_t *sub_obj_common = (uint32_t *)(s_dummy_context_blob + 4096);
+    sub_obj_common[0] = (uint32_t)(uintptr_t)s_dummy_vtable;
 
-    /* context 偏移 0x30 处的 sub_obj 也指向拥有虚表的子对象 (8KB~12KB 区域) */
-    uint32_t *sub_obj_30 = (uint32_t *)(s_dummy_context_blob + 8192);
+    uint32_t *sub_obj_10 = (uint32_t *)(s_dummy_context_blob + 8192);
+    sub_obj_10[0] = (uint32_t)(uintptr_t)s_dummy_vtable;
+
+    uint32_t *sub_obj_30 = (uint32_t *)(s_dummy_context_blob + 12288);
     sub_obj_30[0] = (uint32_t)(uintptr_t)s_dummy_vtable;
+
+    /* 16KB 区域作为 0x40 系列 sub_obj (用于 +0x40, +0x44，彻底杜绝 0x85374c SIGSEGV 空指针！) */
+    uint32_t *sub_obj_40 = (uint32_t *)(s_dummy_context_blob + 16384);
+    sub_obj_40[0] = (uint32_t)(uintptr_t)s_dummy_vtable;
+
+    /* 补齐 libObj+0x85470c..0x85474a 等全部 getter 访问的指针槽位 */
+    ctx[0x04 / 4] = (uint32_t)(uintptr_t)sub_obj_common;
+    ctx[0x08 / 4] = (uint32_t)(uintptr_t)sub_obj_common;
+    ctx[0x0c / 4] = (uint32_t)(uintptr_t)sub_obj_common;
+    ctx[0x10 / 4] = (uint32_t)(uintptr_t)sub_obj_10;
+    ctx[0x14 / 4] = (uint32_t)(uintptr_t)sub_obj_common;
+    ctx[0x18 / 4] = (uint32_t)(uintptr_t)sub_obj_common;
+    ctx[0x1c / 4] = (uint32_t)(uintptr_t)sub_obj_common;
+
+    /* 严格保持 +0x20 字节为 0，防止 0x8547c6 ldrb r4, [r0, #0x20] 触发数组循环越界 */
+    *((uint8_t *)s_dummy_context_blob + 0x20) = 0;
+
     ctx[0x30 / 4] = (uint32_t)(uintptr_t)sub_obj_30;
+    ctx[0x34 / 4] = (uint32_t)(uintptr_t)sub_obj_30;
+    ctx[0x38 / 4] = (uint32_t)(uintptr_t)sub_obj_30;
+    ctx[0x3c / 4] = (uint32_t)(uintptr_t)sub_obj_30;
+
+    /* +0x40 与 +0x44 (ASTRA-06 崩溃直接诱因：0x85374c ldr r3, [r5]) */
+    ctx[0x40 / 4] = (uint32_t)(uintptr_t)sub_obj_40;
+    ctx[0x44 / 4] = (uint32_t)(uintptr_t)sub_obj_40;
 
     /* 2. 获取 libObj.so 加载句柄 */
     void *hObj = dlopen(LIBDIR "libObj.so", RTLD_NOLOAD | RTLD_LAZY);
@@ -3392,16 +3417,20 @@ static void init_libobj_context_stub(void)
 #endif
     logf_("STUB: libObj.so 探测成功: pInjS=%p, base=%p", pInjS, (void *)base);
 
-    /* 3. 直接写入 Context Getter 函数指针 (偏移 0x148a6bc) */
-    void **pGetterVar = (void **)(base + 0x148a6bcu);
-    *pGetterVar = (void *)dummy_context_getter;
-    logf_("STUB: 成功写入 0x148a6bc getter 指针 -> %p", (void *)dummy_context_getter);
-
-    /* 4. 同时调用 SetContextGetter (偏移 0x854670, Thumb 0x854671) */
-    typedef void (*set_getter_fn)(void *(*)(void));
-    set_getter_fn set_getter = (set_getter_fn)(base + 0x854671u);
-    set_getter(dummy_context_getter);
-    logf_("STUB: 调用 SetContextGetter(0x854671) 成功，空指针防护已全面就绪");
+    /* 3. 动态验证并调用 SetContextGetter (偏移 0x854670, Thumb 0x854671)
+     * 避免直接硬编码写 base + 0x148a6bc，杜绝在不同字节尺寸/变种的 libObj 固件上踩踏邻近数据 */
+    uintptr_t set_getter_va = base + 0x854670u;
+    const uint8_t *cg_code = (const uint8_t *)set_getter_va;
+    if (cg_code[0] == 0x02 && cg_code[1] == 0x4b && cg_code[2] == 0x80 && cg_code[3] == 0xb5) {
+        typedef void (*set_getter_fn)(void *(*)(void));
+        set_getter_fn set_getter = (set_getter_fn)(set_getter_va + 1u);
+        set_getter(dummy_context_getter);
+        logf_("STUB: 前言特征匹配，调用 SetContextGetter(0x854671) 成功，空指针防护已全面就绪");
+    } else {
+        logf_("STUB_WARN: 0x854670 前言指令不匹配，回退写入基准 getter 变量 (0x148a6bc)");
+        void **pGetterVar = (void **)(base + 0x148a6bcu);
+        *pGetterVar = (void *)dummy_context_getter;
+    }
 
     /* 5. 唤醒并安全停靠四代 libObj.so 遗留的 RM 阻塞线程，释放核内 mlock(2) */
     park_libobj_rm_thread(base);

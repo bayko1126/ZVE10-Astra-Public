@@ -664,19 +664,37 @@ static int g4usb_hook_GetMediaIDByAttribute(uint32_t *attr_in, uint32_t *resp_0x
         uint32_t err   = resp_0x48[17]; /* +0x44 */
         g4usb_log("GetMediaIDByAttribute(attr=0x%x) -> rc=%d count=%u id=[0x%x,0x%x] err=0x%x",
                   attr, rc, count, id0, id1, err);
-        if (count > 0u && id0 != 0u && id0 != 0xffffffffu) {
+        if (attr != 9u && count > 0u && id0 != 0u && id0 != 0xffffffffu) {
             g_g4usb_cached_slot1_media_id = id0;
             g_g4usb_real_media_seen = 1;
             g4usb_log("缓存真实 Slot1 media_id=0x%x (attr=0x%x)", id0, attr);
-        } else if (attr == 8u && g_g4usb_real_media_seen != 0) {
-            /* 仅当确认有卡或已缓存真实媒体时对五代 attr=8 回填，兼容无卡场景 */
-            resp_0x48[0]  = 1u;
-            resp_0x48[1]  = g_g4usb_cached_slot1_media_id;
-            resp_0x48[17] = 0u;
-            err = 0u;
-            g4usb_log("GetMediaIDByAttribute(attr=0x8) 跨代校准: 回填 count=1 id0=0x%x",
-                      g_g4usb_cached_slot1_media_id);
+        } else if (attr == 8u) {
+            /* 首次查 Slot1(attr=0x8) 且尚未缓存真实卡时，内部先以 attr=0x27 探测真实是否有卡 */
+            if (g_g4usb_real_media_seen == 0) {
+                uint32_t probe_attr = 0x27u;
+                uint32_t probe_resp[18];
+                memset(probe_resp, 0, sizeof(probe_resp));
+                (void)g4usb_orig_GetMediaIDByAttribute(&probe_attr, probe_resp);
+                if (probe_resp[0] > 0u && probe_resp[1] != 0u && probe_resp[1] != 0xffffffffu) {
+                    g_g4usb_cached_slot1_media_id = probe_resp[1];
+                    g_g4usb_real_media_seen = 1;
+                    g4usb_log("GetMediaIDByAttribute(attr=0x8) 预探测 attr=0x27 发现 Slot1 真实 media_id=0x%x",
+                              probe_resp[1]);
+                } else {
+                    g4usb_log("GetMediaIDByAttribute(attr=0x8) 预探测 attr=0x27 无卡 (count=%u id0=0x%x)",
+                              probe_resp[0], probe_resp[1]);
+                }
+            }
+            if (g_g4usb_real_media_seen != 0) {
+                resp_0x48[0]  = 1u;
+                resp_0x48[1]  = g_g4usb_cached_slot1_media_id;
+                resp_0x48[17] = 0u;
+                err = 0u;
+                g4usb_log("GetMediaIDByAttribute(attr=0x8) 跨代校准: 回填 count=1 id0=0x%x",
+                          g_g4usb_cached_slot1_media_id);
+            }
         }
+        /* 严禁为 attr == 9 (Slot2) 伪造卡；仅对所有属性兜底清零 err 规避断言 */
         if (err != 0u) {
             g4usb_log("警告: GetMediaIDByAttribute(attr=0x%x) 返回 err=0x%x，兜底清零 err 规避 0x02aeadd8 断言",
                       attr, err);
@@ -1041,21 +1059,36 @@ static inline int g4usb_is_usb_seq_id(uint32_t sid)
     return (sid == 0x297u || sid == 0x294u || sid == 0x298u);
 }
 
+/* 读取 seq_obj + 0xec/0xf0 的 12B 结构体 wait_list (stride=0xc，+8 直接为 conflict_seq_id) */
+static inline uint32_t g4usb_read_wait_list(const void *seq_obj, uint32_t *out_cids, uint32_t max_cids)
+{
+    if (!seq_obj) {
+        return 0u;
+    }
+    uintptr_t beg = *(const volatile uintptr_t *)((uintptr_t)seq_obj + 0xecu);
+    uintptr_t end = *(const volatile uintptr_t *)((uintptr_t)seq_obj + 0xf0u);
+    if (beg <= 0x10000u || end <= beg || (end - beg) > 0x1000u || ((end - beg) % 12u) != 0u) {
+        return 0u;
+    }
+    uint32_t cnt = (uint32_t)((end - beg) / 12u);
+    if (out_cids && max_cids > 0u) {
+        uint32_t show = (cnt > max_cids) ? max_cids : cnt;
+        for (uint32_t i = 0u; i < show; i++) {
+            out_cids[i] = *(const volatile uint32_t *)(beg + (uintptr_t)i * 12u + 8u);
+        }
+    }
+    return cnt;
+}
+
 /* appFw.so @ 0x02a0e4f0 -> 完整 5 参数 add_runq(mgr, seq_obj, seq_id, arg3, arg4) */
 static int g4usb_hook_add_runq(void *mgr, void *seq_obj, uint32_t seq_id, uintptr_t arg3, uint32_t arg4)
 {
     int rc = g4usb_orig_add_runq ? g4usb_orig_add_runq(mgr, seq_obj, seq_id, arg3, arg4) : 0;
     if (g4usb_is_usb_seq_id(seq_id)) {
-        uint32_t wcnt = 0u;
-        if (seq_obj) {
-            uintptr_t beg = *(const volatile uintptr_t *)((uintptr_t)seq_obj + 0xecu);
-            uintptr_t end = *(const volatile uintptr_t *)((uintptr_t)seq_obj + 0xf0u);
-            if (beg > 0x10000u && end >= beg && (end - beg) <= 0x1000u) {
-                wcnt = (uint32_t)((end - beg) >> 2);
-            }
-        }
-        g4usb_log("add_runq(0x02a0e4f0): seq_id=0x%x seq_obj=%p arg3=0x%lx arg4=%u -> wait_list_cnt=%u rc=%d",
-                  seq_id, seq_obj, (unsigned long)arg3, arg4, wcnt, rc);
+        uint32_t cids[4] = { 0u, 0u, 0u, 0u };
+        uint32_t wcnt = g4usb_read_wait_list(seq_obj, cids, 4u);
+        g4usb_log("add_runq(0x02a0e4f0): seq_id=0x%x seq_obj=%p arg3=0x%lx arg4=%u -> wait_list_cnt=%u [0x%x,0x%x] rc=%d",
+                  seq_id, seq_obj, (unsigned long)arg3, arg4, wcnt, cids[0], cids[1], rc);
     }
     return rc;
 }
@@ -1068,22 +1101,13 @@ static int g4usb_hook_wait_conflict(void *seq_obj)
         return g4usb_orig_wait_conflict ? g4usb_orig_wait_conflict(seq_obj) : 0;
     }
 
-    uintptr_t beg = *(const volatile uintptr_t *)((uintptr_t)seq_obj + 0xecu);
-    uintptr_t end = *(const volatile uintptr_t *)((uintptr_t)seq_obj + 0xf0u);
-    uint32_t wcnt = (end >= beg) ? (uint32_t)((end - beg) >> 2) : 0u;
+    uint32_t cids[4] = { 0u, 0u, 0u, 0u };
+    uint32_t wcnt = g4usb_read_wait_list(seq_obj, cids, 4u);
     if (wcnt == 0u) {
         g4usb_log("wait_conflict(0x028747a8): seq_id=0x%x 无冲突等待，直接放行 run()", sid);
         return g4usb_orig_wait_conflict ? g4usb_orig_wait_conflict(seq_obj) : 0;
     }
 
-    uint32_t cids[4] = { 0u, 0u, 0u, 0u };
-    uint32_t show = (wcnt > 4u) ? 4u : wcnt;
-    for (uint32_t i = 0u; i < show; i++) {
-        uintptr_t elem = *(const volatile uintptr_t *)(beg + i * 4u);
-        if (elem) {
-            cids[i] = *(const volatile uint32_t *)(elem + 8u);
-        }
-    }
     g4usb_log("wait_conflict(0x028747a8): 检测到 seq_id=0x%x 被 %u 个冲突序列阻塞 [0x%x,0x%x,0x%x,0x%x]，让出 80ms 后绕过 0x02c2d0b0 死等",
               sid, wcnt, cids[0], cids[1], cids[2], cids[3]);
     usleep(80000);
