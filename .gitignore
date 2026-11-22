@@ -41,6 +41,8 @@ build_out/*
 !tools/flash/stage2.bin
 !tools/flash/stage2_turbo_cmd25.bin
 !tools/flash/hardware/fastboot_zve10.bin
+!tools/flash/hardware/stage1.bin
+!tools/flash/toolkit_fastboot/prebuilt/*.bin
 
 # Runtime capture & local camtool evidence
 tools/flash/camtool/data/

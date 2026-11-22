@@ -1,6 +1,6 @@
 # ZV-E10 ASTRA Port
 
-**简体中文** | [English](README.en.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
+[English](README.en.md) | **简体中文** | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
 > 将 **Sony ZV-1M2（Gen 5 ASTRA）** 新版触控菜单 UI 与全交互体系跨代移植至 **Sony ZV-E10（Gen 4）** 的工程工具链、QEMU 仿真环境、构建脚本、方法论与 AI Agent Skills。
 
@@ -83,6 +83,7 @@ flowchart LR
 | **ARM 交叉工具链** | [Bootlin armv7-eabihf，2020.08-1](https://toolchains.bootlin.com/downloads/releases/toolchains/armv7-eabihf/tarballs/armv7-eabihf--glibc--stable-2020.08-1.tar.bz2) | `work/armv7-toolchain.tar.bz2` |
 | **前置开源研究仓库** | [chocotan/zve10-qemu](https://github.com/chocotan/zve10-qemu)<br>[chocotan/a7c2-qemu](https://github.com/chocotan/a7c2-qemu)<br>[DavidBuchanan314/ILCE-7M4-RE](https://github.com/DavidBuchanan314/ILCE-7M4-RE)<br>[erlla/sony-a7m4-custom-firmware](https://github.com/erlla/sony-a7m4-custom-firmware)<br>[751K/sony-look-bridge](https://github.com/751K/sony-look-bridge) | 用于搭建 `-M zve10` QEMU 机器模型、固件解包、自定义 LUT 训练与创意外观（`FL`/`VV`）提取适配 |
 | **USB 调试与 Camtool 工具链** | [nolan2628/Sony-ZVE-10-Camtool](https://github.com/nolan2628/Sony-ZVE-10-Camtool) | 真机 USB Jiritsu/MSC 通信、在线调试与补丁套件上游（内置于 `tools/flash/camtool/`） |
+| **Fastboot 与硬件刷写工具链** | [dino2048/zv-e10-toolkit](https://github.com/dino2048/zv-e10-toolkit) | 索尼微单 Fastboot 协议与刷写架构上游：`stage1.bin` + `stage2-flash.bin` 1 MiB Sparse 分片刷写、Darwin `0x16` 硬件看门狗保活长会话，与 Windows `libusb-package` 原生直连（内置于 `tools/flash/toolkit_fastboot/`） |
 | **Python & Zig 工具链** | [`uv`](https://docs.astral.sh/uv/)（自动按需拉取 `ziglang`、`pyelftools`、`pyusb` 等） | 宿主机安装 `uv` 与 WSL2（用于 `e2fsck`/`debugfs`/QEMU） |
 
 ---

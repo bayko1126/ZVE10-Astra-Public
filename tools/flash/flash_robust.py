@@ -2,209 +2,184 @@
 # /// script
 # dependencies = ["pyusb>=1.2.1", "libusb-package>=1.0.26.2"]
 # ///
-"""稳健刷写器：支持 CMD25 极速写入、断点续传与差量刷写。
+"""稳健极速刷写器（基于 dino2048/zv-e10-toolkit stage2-flash Sparse + Darwin 0x16 长会话）。
 
-与旧版实验脚本的三个关键差异：
-
-  1. **绝不触碰扇区 0x2C000**
-     那是 nflasha5 的 "WBI1" 头部（原厂值只有 25 个非零字节）。
-     旧脚本的 clear_wbi() 每次都往里写 512 个零，把签名抹掉 ——
-     若该扇区受损，需通过 restore_wbi_auto.py 从 nflasha5 原厂备份恢复引导头。
-
-  2. **USB 掉线自动重连**
-     整轮写入包在 while 循环里，任何 USB 异常都只是「本轮中断」，
-     进度已落盘，重连后从断点继续。
-
-  3. **每块落一次进度**
-     掉线最多损失 1 块（而不是 25 块）。
+核心特性：
+  1. **stage2-flash Darwin 0x16 硬件保活**：入口自动解除电源 MCU 约 4 分钟自动复位，彻底消除看门狗断连；
+  2. **1 MiB Sparse 分片极速写入（CHUNK_SKIP + CHUNK_RAW）**：
+     - 全量 300 MB 镜像仅约 302 次传输（~40 秒完成）；
+     - 差量模式合并相邻变动块，仅发送变动区间，几秒完成；
+  3. **分区边界硬锁 + WBI1 保护**：
+     - 通过 stage2 分区表核对目标分区（默认 nflasha15）起始地址与长度，绝不越界写入 nflasha5 (0x2C000 WBI1)；
+  4. **写后自动回读校验（fetch:）**：默认开启，差量逐段比对字节，全量核验整分区 SHA-256。
 
 用法：
-  uv run --with pyusb --with libusb-package python tools/flash/flash_robust.py --image <path> --dry-run
-  uv run --with pyusb --with libusb-package python tools/flash/flash_robust.py --image <path> --flash [--chunk-kb 256]
-  uv run --with pyusb --with libusb-package python tools/flash/flash_robust.py --image <path> --flash --reset-progress
+  uv run --with pyusb --with libusb-package python 04_tools_and_flash/flash_robust.py --image <path> --dry-run
+  uv run --with pyusb --with libusb-package python 04_tools_and_flash/flash_robust.py --image <path> --diff-from <base> --flash
+  uv run --with pyusb --with libusb-package python 04_tools_and_flash/flash_robust.py --image <path> --flash --reset-progress
 """
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import sys
 import time
 from pathlib import Path
 
-import usb.core
-import usb.util
-import libusb_package
-
 WORKSPACE = Path(__file__).resolve().parent
-STAGE2_TURBO_BIN = WORKSPACE / "stage2_turbo_cmd25.bin"
+sys.path.insert(0, str(WORKSPACE))
+
+from toolkit_session import (  # noqa: E402
+    MAX_RAW_BYTES_PER_SLICE,
+    SPARSE_BLK,
+    FatalConfigError,
+    ToolkitFastbootClient,
+    atomic_save_json,
+    format_duration,
+    slice_ranges_for_sparse,
+)
+
 PROGRESS_FILE = WORKSPACE / "diagnostic" / "flash_robust_progress.json"
 PARTITION_START_BLOCK = 0x16C000
-FORBIDDEN_SECTOR = 0x2C000          # nflasha5 WBI1 头部，绝对不许写
+FORBIDDEN_SECTOR = 0x2C000  # nflasha5 WBI1 头部，绝对不许写
 
 
-class FastbootDevice:
-    def __init__(self):
-        self.dev = None
-        self.ep_out = None
-        self.ep_in = None
-
-    def connect(self, timeout=None):
-        backend = libusb_package.get_libusb1_backend()
-        start = time.time()
-        first = True
-        while True:
-            dev = usb.core.find(idVendor=0x18d1, idProduct=0x4ee0, backend=backend)
-            if dev is not None:
-                try:
-                    try:
-                        dev.set_configuration()
-                    except Exception:
-                        pass
-                    cfg = dev.get_active_configuration()
-                    intf = cfg[(0, 0)]
-                    usb.util.claim_interface(dev, intf)
-                    self.dev = dev
-                    self.ep_out = usb.util.find_descriptor(
-                        intf, custom_match=lambda e: usb.util.endpoint_direction(
-                            e.bEndpointAddress) == usb.util.ENDPOINT_OUT)
-                    self.ep_in = usb.util.find_descriptor(
-                        intf, custom_match=lambda e: usb.util.endpoint_direction(
-                            e.bEndpointAddress) == usb.util.ENDPOINT_IN)
-                    return True
-                except Exception:
-                    pass
-            if first:
-                print("[-] 等待 Fastboot 设备 (18d1:4ee0)...", flush=True)
-                first = False
-            if timeout and (time.time() - start > timeout):
-                return False
-            time.sleep(min(0.2, timeout) if timeout else 0.5)
-
-    def close(self):
-        if self.dev:
-            try:
-                usb.util.dispose_resources(self.dev)
-            except Exception:
-                pass
-            self.dev = None
-
-    def send_cmd(self, c, timeout=10000):
-        if isinstance(c, str):
-            c = c.encode()
-        self.ep_out.write(c, timeout=timeout)
-        info = []
-        while True:
-            resp = bytes(self.ep_in.read(64, timeout=timeout))
-            tag, body = resp[:4], resp[4:]
-            if tag == b"INFO":
-                info.append(body.decode("utf-8", "replace"))
-                continue
-            return tag.decode("latin1"), body, info
-
-    def do_download(self, blob, timeout=10000):
-        st, msg, _ = self.send_cmd(f"download:{len(blob):08x}", timeout=timeout)
-        if st != "DATA":
-            raise RuntimeError(f"Download rejected: {st} {msg}")
-        PIECE = 16384
-        sent = 0
-        while sent < len(blob):
-            self.ep_out.write(blob[sent:sent + PIECE], timeout=timeout)
-            sent += PIECE
-        while True:
-            resp = bytes(self.ep_in.read(64, timeout=timeout))
-            tag, body = resp[:4], resp[4:]
-            if tag == b"INFO":
-                continue
-            if tag != b"OKAY":
-                raise RuntimeError(f"Data phase failed: {tag} {body}")
-            break
-
-
-def load_progress(image_name: str) -> set[int]:
+def load_progress(key: str) -> set[int]:
     if PROGRESS_FILE.exists():
         try:
             d = json.loads(PROGRESS_FILE.read_text(encoding="utf-8"))
-            if d.get("image") == image_name:
-                return set(d.get("completed", []))
-        except Exception as e:
-            print(f"[WARN] 进度文件读取失败: {e}")
+            if d.get("key") == key:
+                return set(d.get("done", []))
+        except Exception:
+            pass
     return set()
 
 
-def save_progress(image_name: str, done: set[int]) -> None:
-    PROGRESS_FILE.parent.mkdir(parents=True, exist_ok=True)
-    tmp = PROGRESS_FILE.with_suffix(".tmp")
-    tmp.write_text(json.dumps({"image": image_name,
-                               "completed": sorted(done)}, indent=2))
-    os.replace(tmp, PROGRESS_FILE)
+def save_progress(key: str, done: set[int]) -> None:
+    atomic_save_json(PROGRESS_FILE, {"key": key, "done": sorted(done)})
 
 
-def fmt(sec: float) -> str:
-    m, s = divmod(int(sec), 60)
-    h, m = divmod(m, 60)
-    return f"{h}h {m:02d}m {s:02d}s" if h else f"{m}m {s:02d}s"
+def sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        while chunk := f.read(4 * 1024 * 1024):
+            h.update(chunk)
+    return h.hexdigest().lower()
+
+
+def build_slices_for_chunks(
+    img_path: Path,
+    chunk_indices: list[int],
+    chunk_size: int,
+    max_slice_bytes: int = MAX_RAW_BYTES_PER_SLICE,
+) -> list[tuple[int, bytes, list[int]]]:
+    """将待写 chunk 合并为连续区间，并按 stage2 1 MiB 上限切分，同时记录每片覆盖的 chunk 索引。"""
+    if not chunk_indices:
+        return []
+    raw_ranges: list[tuple[int, bytes]] = []
+    with img_path.open("rb") as f:
+        for idx in sorted(chunk_indices):
+            f.seek(idx * chunk_size)
+            data = f.read(chunk_size)
+            if len(data) != chunk_size:
+                raise RuntimeError(f"镜像块 {idx} 读取截断: {len(data)} != {chunk_size}")
+            raw_ranges.append((idx * chunk_size, data))
+
+    slices = slice_ranges_for_sparse(raw_ranges, max_slice_bytes=max_slice_bytes)
+    out: list[tuple[int, bytes, list[int]]] = []
+    for off, data in slices:
+        first_idx = off // chunk_size
+        last_idx = (off + len(data) - 1) // chunk_size
+        covered = [i for i in range(first_idx, last_idx + 1)]
+        out.append((off, data, covered))
+    return out
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser()
+    ap = argparse.ArgumentParser(description="ZV-E10 stage2-flash 极速 Sparse 刷写器")
     ap.add_argument("--image", required=True)
-    ap.add_argument("--start-lba", default="0x16C000",
-                    help="分区起始 LBA（默认 0x16C000 = nflasha15）")
-    ap.add_argument("--allow-wbi", action="store_true",
-                    help="允许写入 0x2C000（WBI1 头部）。仅当整盘刷回 nflasha5 原厂备份时使用")
+    ap.add_argument("--partition", default="nflasha15", help="目标分区名（默认 nflasha15）")
+    ap.add_argument(
+        "--start-lba",
+        default="0x16C000",
+        help="期望分区起始 LBA 核对值（默认 0x16C000 = nflasha15）",
+    )
+    ap.add_argument(
+        "--allow-wbi",
+        action="store_true",
+        help="允许写入 nflasha5 (0x2C000 WBI1 头部)。仅当恢复 WBI1 时使用",
+    )
     ap.add_argument("--chunk-kb", type=int, default=256, choices=[64, 128, 256, 512])
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--flash", action="store_true")
     ap.add_argument("--reset-progress", action="store_true")
-    ap.add_argument("--max-rounds", type=int, default=200, help="最多重连轮数")
+    ap.add_argument("--max-rounds", type=int, default=10, help="异常断开时最多重连轮数")
     ap.add_argument("--range", default="", help="只写块范围，如 160:600（配合 --chunk-kb）")
-    ap.add_argument("--ping", type=float, default=30.0,
-                    help="每 N 秒在块间发一次 oem darwin 保活（默认 30，0=关闭）")
-    ap.add_argument("--diff-from", default="",
-                    help="只写与基准镜像不同的块（前提：设备当前内容必须等于该基准）")
+    ap.add_argument(
+        "--ping",
+        type=float,
+        default=0.0,
+        help="兼容保留参数（stage2-flash 已在入口执行 Darwin 0x16 保活，无需周期发心跳）",
+    )
+    ap.add_argument(
+        "--diff-from",
+        default="",
+        help="只写与基准镜像不同的块（前提：设备当前内容必须等于该基准）",
+    )
+    ap.add_argument(
+        "--no-verify",
+        action="store_true",
+        help="跳过写入后的 fetch 回读校验（默认执行回读校验）",
+    )
     a = ap.parse_args()
     if not (a.dry_run or a.flash):
         ap.error("需 --dry-run 或 --flash")
 
-    global PARTITION_START_BLOCK
-    PARTITION_START_BLOCK = int(a.start_lba, 16)
+    expected_start_lba = int(a.start_lba, 16)
+    if (a.partition == "nflasha5" or expected_start_lba == FORBIDDEN_SECTOR) and not a.allow_wbi:
+        print(
+            "[FATAL] 拒绝写入受保护分区 nflasha5 / 扇区 0x2C000（WBI1 头部）。"
+            "若确实要恢复 WBI1，请加 --allow-wbi 或使用 restore_wbi_auto.py。"
+        )
+        return 1
 
     img = Path(a.image)
     if not img.exists():
         print(f"[FATAL] 镜像不存在: {img}")
         return 1
-    if not STAGE2_TURBO_BIN.exists():
-        print(f"[FATAL] 极速驱动不存在: {STAGE2_TURBO_BIN}")
-        return 1
 
     chunk_size = a.chunk_kb * 1024
     blocks_per_chunk = chunk_size // 512
     size = img.stat().st_size
-    total = (size + chunk_size - 1) // chunk_size
+    if size == 0 or size % SPARSE_BLK != 0:
+        print(f"[FATAL] 镜像大小必须为 {SPARSE_BLK}B 倍数: {size}")
+        return 1
+    total = size // chunk_size
+    if size % chunk_size != 0:
+        print(f"[FATAL] 镜像大小 {size} 不是 chunk_size={chunk_size} 的整数倍")
+        return 1
 
     print("=" * 74)
-    print("  稳健刷写器（不触碰 WBI1，掉线自动重连）")
+    print("  ZV-E10 极速稳健刷写器 (dino2048 stage2-flash + 1MiB Sparse + Darwin 0x16)")
     print("=" * 74)
+    print(f"  目标分区: {a.partition} (期望起始 LBA: 0x{expected_start_lba:06x})")
     print(f"  镜像    : {img.name}  {size:,} B")
-    print(f"  块大小  : {a.chunk_kb} KB   共 {total} 块")
-    print(f"  起始 LBA: 0x{PARTITION_START_BLOCK:06x}")
-    if a.allow_wbi:
-        print(f"  ⚠️  WBI 保护已解除：将写入 0x{FORBIDDEN_SECTOR:06x}"
-              f"（仅在刷 nflasha5 原厂备份时使用）")
-    else:
-        print(f"  保护扇区: 0x{FORBIDDEN_SECTOR:06x}（nflasha5 WBI1 头部）永不写入")
+    print(f"  块大小  : {a.chunk_kb} KB   共 {total} 块 (Sparse 单片上限 ~{MAX_RAW_BYTES_PER_SLICE // 1024} KiB)")
+    print(f"  保护扇区: 0x{FORBIDDEN_SECTOR:06x}（nflasha5 WBI1 头部）{'已解锁' if a.allow_wbi else '永不写入'}")
 
     if a.reset_progress and PROGRESS_FILE.exists():
         PROGRESS_FILE.unlink()
         print("  [*] 已清除历史进度")
 
-    pkey = f"{img.name}@{a.chunk_kb}k"
+    pkey = f"toolkit:{a.partition}:{img.name}@{a.chunk_kb}k"
     done = load_progress(pkey)
     lo, hi = 0, total
     if a.range:
         lo, hi = (int(x) for x in a.range.split(":"))
         hi = min(hi, total)
+
     if a.diff_from:
         base = Path(a.diff_from)
         if not base.exists():
@@ -213,121 +188,158 @@ def main() -> int:
         if base.stat().st_size != size:
             print("[FATAL] 基准镜像大小不一致")
             return 1
-        diff = []
+        diff: list[int] = []
         with img.open("rb") as f1, base.open("rb") as f2:
             for i in range(total):
-                if f1.read(chunk_size) != f2.read(chunk_size):
+                b1 = f1.read(chunk_size)
+                b2 = f2.read(chunk_size)
+                if lo <= i < hi and b1 != b2:
                     diff.append(i)
         print(f"  差量模式: 与 {base.name} 相比 {len(diff)} 个块不同")
-        print(f"  ⚠️  前提：设备当前内容必须等于该基准镜像，否则结果会是混合状态")
-        remaining = [i for i in diff if i not in done]
+        print("  ⚠️  前提：设备当前内容必须等于该基准镜像，否则结果会是混合状态")
+        remaining_chunks = [i for i in diff if i not in done]
     else:
-        remaining = [i for i in range(lo, hi) if i not in done]
-    print(f"  已完成  : {len(done)} 块    剩余 {len(remaining)} 块")
+        remaining_chunks = [i for i in range(lo, hi) if i not in done]
+
+    slices = build_slices_for_chunks(img, remaining_chunks, chunk_size)
+    print(f"  已完成  : {len(done)} 块    剩余 {len(remaining_chunks)} 块 ({len(slices)} 次 Sparse 传输)")
 
     if a.dry_run:
-        print(f"\n[DRY-RUN] 将写入 {len(remaining)} 块 = "
-              f"{len(remaining) * a.chunk_kb / 1024:.1f} MiB")
-        print(f"[DRY-RUN] 第一块扇区 0x{PARTITION_START_BLOCK:06x}，"
-              f"最后一块扇区 0x{PARTITION_START_BLOCK + (total - 1) * blocks_per_chunk:06x}")
+        total_mib = len(remaining_chunks) * a.chunk_kb / 1024
+        print(f"\n[DRY-RUN] 将写入 {len(remaining_chunks)} 块 = {total_mib:.1f} MiB ({len(slices)} 次 Sparse 传输)")
+        print(
+            f"[DRY-RUN] 第一块扇区 0x{expected_start_lba:06x}，"
+            f"最后一块扇区 0x{expected_start_lba + (total - 1) * blocks_per_chunk:06x}"
+        )
         return 0
 
-    if not remaining:
+    if not remaining_chunks:
         print("\n[+] 全部块已写完 —— 本次没有执行任何写入")
         print(f"    原因：进度文件 {PROGRESS_FILE.name} 里已有本镜像（{pkey}）的完整记录。")
-        print(f"    如需强制重刷：加 --reset-progress，或 --range 0:{total}")
-        print("    如需确认设备上真的是这个镜像：uv run python tools/flash/probe_state.py（读超级块）")
+        print("    如需强制重刷：加 --reset-progress")
         return 0
 
-    stage2 = STAGE2_TURBO_BIN.read_bytes()
-    f = img.open("rb")
-    fb = FastbootDevice()
+    t_start = time.monotonic()
+    all_target_slices = list(slices)
+    written_total_bytes = 0
+    expected_total_bytes = sum(len(data) for _, data, _ in all_target_slices)
+
     rounds = 0
-    t_start = time.time()
-    last_ping = [t_start]
-
-    while remaining and rounds < a.max_rounds:
+    while remaining_chunks and rounds < a.max_rounds:
         rounds += 1
+        client = ToolkitFastbootClient()
         try:
-            fb.connect()
-            print(f"[+] 已连接（第 {rounds} 轮）", flush=True)
-            fb.do_download(stage2)
-            fb.send_cmd("oem load:0xfe300000")
-            fb.send_cmd(f"oem poke:0xfe320000:0x{PARTITION_START_BLOCK:08x}")
-            fb.send_cmd("oem poke:0xfe320004:0x00000001")
-            st, msg, _ = fb.send_cmd("oem call:0xfe300001")
-            if st != "OKAY":
-                raise RuntimeError(f"eMMC Init 失败: {st} {msg}")
-            st, msg, _ = fb.send_cmd("oem call:0xfe300601")
-            if st == "OKAY":
-                print("[+] 极速总线已激活", flush=True)
+            client.connect(timeout=60.0, allow_writer=True, verbose=True)
+            parts = client.get_partitions()
+            if a.partition not in parts:
+                raise FatalConfigError(f"分区表中找不到 {a.partition}: {sorted(parts)}")
+            part_start, part_size, _ = parts[a.partition]
+            if part_start != expected_start_lba * 512:
+                raise FatalConfigError(
+                    f"分区 {a.partition} 起始偏移不匹配: 设备 0x{part_start:x} != 期望 0x{expected_start_lba * 512:x}"
+                )
+            if part_size != size:
+                raise FatalConfigError(
+                    f"分区 {a.partition} 容量不匹配: 设备 {part_size} B != 镜像 {size} B"
+                )
+            if not a.allow_wbi and part_start <= FORBIDDEN_SECTOR * 512 < part_start + part_size:
+                raise FatalConfigError("目标分区覆盖受保护 WBI1 扇区 0x2C000，已中止")
 
-            session = 0
-            while remaining:
-                idx = remaining[0]
-                sector = PARTITION_START_BLOCK + idx * blocks_per_chunk
-                if sector == FORBIDDEN_SECTOR and not a.allow_wbi:
-                    raise RuntimeError(
-                        "拒绝写入受保护扇区 0x2C000（nflasha5 WBI1 头部）。"
-                        "若确实要整盘刷回 nflasha5 原厂备份，加 --allow-wbi")
+            max_raw_bytes = (
+                (client.max_download_size - 52) // SPARSE_BLK
+            ) * SPARSE_BLK
+            slices = build_slices_for_chunks(
+                img, remaining_chunks, chunk_size, max_slice_bytes=max_raw_bytes
+            )
+            print(
+                f"[+] 第 {rounds} 轮连接成功，分区 {a.partition} 校验通过 ({part_size:,} B)，"
+                f"开始写入 {len(slices)} 个 Sparse 分片...",
+                flush=True,
+            )
 
-                f.seek(idx * chunk_size)
-                data = f.read(chunk_size)
-                if len(data) != chunk_size:
-                    raise RuntimeError(f"镜像块 {idx} 读取截断")
-
-                t0 = time.time()
-                fb.do_download(data)
-                fb.send_cmd("oem load:0xfe400000")
-                fb.send_cmd(f"oem poke:0xfe320000:0x{sector:08x}")
-                fb.send_cmd(f"oem poke:0xfe320004:0x{blocks_per_chunk:08x}")
-                st, msg, _ = fb.send_cmd("oem call:0xfe300701")
-                dt = time.time() - t0
-                if st != "OKAY":
-                    raise RuntimeError(f"块 {idx} 写入失败: {st} {msg}")
-
-                # ---- 保活：只在「块写完成」这个安全点插入，绝不在 bulk 传输中并发发送 ----
-                if a.ping > 0:
-                    now = time.time()
-                    if now - last_ping[0] >= a.ping:
-                        try:
-                            fb.send_cmd("oem darwin")
-                            last_ping[0] = now
-                            print(f"    [ping] oem darwin  ({now - t_start:.0f}s)", flush=True)
-                        except Exception as e:
-                            print(f"    [ping] 失败: {e}", flush=True)
-
-                done.add(idx)
+            for s_idx, (off, data, covered_chunks) in enumerate(slices, 1):
+                t0 = time.monotonic()
+                client.flash_sparse_slices(a.partition, part_size, [(off, data)])
+                dt = time.monotonic() - t0
+                for cidx in covered_chunks:
+                    done.add(cidx)
                 save_progress(pkey, done)
-                remaining.pop(0)
-                session += 1
+                written_total_bytes += len(data)
 
-                if session % 10 == 0 or not remaining:
-                    pct = len(done) / total * 100
-                    el = time.time() - t_start
-                    eta = (el / len(done)) * len(remaining) if done else 0
-                    print(f"  [{len(done):4d}/{total} {pct:5.1f}%] 块 #{idx:4d} "
-                          f"OK ({dt:.2f}s) 本轮 {session}  剩余 {fmt(eta)}", flush=True)
+                speed = (len(data) / (1024 * 1024)) / dt if dt > 0 else 0.0
+                pct = written_total_bytes / expected_total_bytes * 100.0
+                rem_bytes = expected_total_bytes - written_total_bytes
+                el = time.monotonic() - t_start
+                eta = (el / written_total_bytes) * rem_bytes if written_total_bytes > 0 else 0.0
+                print(
+                    f"  [{s_idx:3d}/{len(slices)} | {pct:5.1f}%] off=0x{off:08x} "
+                    f"{len(data) / 1024:6.1f} KiB OKAY ({dt:.2f}s, {speed:5.2f} MB/s) | 剩余 {format_duration(eta)}",
+                    flush=True,
+                )
 
+            remaining_chunks = []
+
+            if not a.no_verify:
+                if a.diff_from or a.range:
+                    print(f"[*] 正在执行 write-verify 回读比对 ({len(all_target_slices)} 段)...", flush=True)
+                    t_v0 = time.monotonic()
+                    for off, expected_data, _ in all_target_slices:
+                        actual = client.fetch_range(a.partition, off, len(expected_data))
+                        if actual != expected_data:
+                            raise RuntimeError(
+                                f"回读校验失败: offset=0x{off:08x} len={len(expected_data)}"
+                            )
+                    print(
+                        f"[+] 回读逐字节校验 100% 一致！({len(all_target_slices)} 段, "
+                        f"用时 {time.monotonic() - t_v0:.2f}s)",
+                        flush=True,
+                    )
+                else:
+                    print("[*] 正在执行整分区 fetch SHA-256 回读核验...", flush=True)
+                    t_v0 = time.monotonic()
+                    expect_sha = sha256_file(img)
+                    actual_sha = client.fetch_sha256(
+                        a.partition,
+                        part_size,
+                        progress_cb=lambda got, tot: (
+                            print(f"    [verify] {got * 100.0 / tot:5.1f}% ({got // (1024 * 1024)}/{tot // (1024 * 1024)} MiB)", flush=True)
+                            if got == tot or (got % (32 * 1024 * 1024) == 0)
+                            else None
+                        ),
+                    )
+                    if actual_sha != expect_sha:
+                        raise RuntimeError(f"全盘 SHA-256 不一致: 设备 {actual_sha} != 镜像 {expect_sha}")
+                    print(
+                        f"[+] 全盘回读 SHA-256 校验 100% 一致: {actual_sha} ({time.monotonic() - t_v0:.1f}s)",
+                        flush=True,
+                    )
+
+        except FatalConfigError as e:
+            print(f"\n[FATAL] {e}", flush=True)
+            return 1
         except Exception as e:
-            print(f"\n[!] 通道中断: {e}", flush=True)
-            print(f"[*] 本轮写入完成 {len(done)}/{total}，断点已保存，等待重连...",
-                  flush=True)
-            fb.close()
-            time.sleep(0.5)
+            print(f"\n[!] 操作异常或中断: {e}", flush=True)
+            remaining_chunks = [i for i in remaining_chunks if i not in done]
+            if not remaining_chunks:
+                raise
+            print(f"[*] 断点已保存，剩余 {len(remaining_chunks)} 块，准备重试...", flush=True)
+            time.sleep(1.0)
+        finally:
+            client.close()
 
-    f.close()
-    fb.close()
     print("\n" + "=" * 74)
-    if remaining:
-        print(f"  ⚠️  未完成，剩余 {len(remaining)} 块")
-        print("     → 重新上电进 Fastboot 后再跑同一条命令即可续传")
-    else:
-        print(f"  ✅ 写入完成：实际写 {len(done)} 块（镜像共 {total} 块），"
-              f"用时 {fmt(time.time() - t_start)}")
-        print("     注意：本工具不会清 WBI。若引导异常，用 tools/flash/restore_wbi_auto.py 恢复原厂头部")
+    if remaining_chunks:
+        print(f"  ⚠️  未完成，剩余 {len(remaining_chunks)} 块")
+        print("     → 重新进 Fastboot 后再跑同一条命令即可续传")
+        return 2
+
+    print(
+        f"  ✅ 刷写完成：写入 {expected_total_bytes / (1024 * 1024):.2f} MiB，"
+        f"总耗时 {format_duration(time.monotonic() - t_start)}"
+    )
+    print(f"     已使用 stage2-flash 长会话（Darwin 0x16 保活）且未触碰 0x{FORBIDDEN_SECTOR:06x} WBI1 扇区")
     print("=" * 74)
-    return 0 if not remaining else 2
+    return 0
 
 
 if __name__ == "__main__":

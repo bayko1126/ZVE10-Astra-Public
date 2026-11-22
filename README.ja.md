@@ -1,6 +1,6 @@
 # ZV-E10 ASTRA Port
 
-[简体中文](README.md) | [English](README.en.md) | [繁體中文](README.zh-TW.md) | **日本語**
+[English](README.en.md) | [简体中文](README.md) | [繁體中文](README.zh-TW.md) | **日本語**
 
 > **Sony ZV-1M2（Gen 5 ASTRA）** の新タッチメニュー UI とフル操作系を **Sony ZV-E10（Gen 4）** へ世代を超えて移植するためのエンジニアリング・ツールチェーン、QEMU エミュレーション環境、ビルド／パッチスクリプト、開発手法、および AI Agent Skills です。
 
@@ -83,6 +83,7 @@ flowchart LR
 | **ARM クロスツールチェーン** | [Bootlin armv7-eabihf, 2020.08-1](https://toolchains.bootlin.com/downloads/releases/toolchains/armv7-eabihf/tarballs/armv7-eabihf--glibc--stable-2020.08-1.tar.bz2) | `work/armv7-toolchain.tar.bz2` |
 | **前提リサーチ・リポジトリ** | [chocotan/zve10-qemu](https://github.com/chocotan/zve10-qemu)<br>[chocotan/a7c2-qemu](https://github.com/chocotan/a7c2-qemu)<br>[DavidBuchanan314/ILCE-7M4-RE](https://github.com/DavidBuchanan314/ILCE-7M4-RE)<br>[erlla/sony-a7m4-custom-firmware](https://github.com/erlla/sony-a7m4-custom-firmware)<br>[751K/sony-look-bridge](https://github.com/751K/sony-look-bridge) | `-M zve10` QEMU マシンモデル、ファームウェア展開、カスタム LUT 学習、クリエイティブルック（`FL`/`VV`）抽出に利用 |
 | **USB デバッグ / Camtool** | [nolan2628/Sony-ZVE-10-Camtool](https://github.com/nolan2628/Sony-ZVE-10-Camtool) | ZV-E10 用 USB Jiritsu/MSC オンラインデバッグ＆パッチツール（`tools/flash/camtool/` に同梱） |
+| **Fastboot & ハードウェア書き込みツール** | [dino2048/zv-e10-toolkit](https://github.com/dino2048/zv-e10-toolkit) | ソニーミラーレス Fastboot プロトコルおよび書き込みアーキテクチャのアップストリーム：`stage1.bin` + `stage2-flash.bin` 1 MiB Sparse 分割フラッシュ、Darwin `0x16` ウォッチドッグ自動リセット解除、および Windows `libusb-package` ネイティブ接続（`tools/flash/toolkit_fastboot/` に同梱） |
 | **Python & Zig ツールチェーン** | [`uv`](https://docs.astral.sh/uv/)（`ziglang`、`pyelftools`、`pyusb` 等を自動取得） | ホストに `uv` + WSL2（`e2fsck`/`debugfs`/QEMU 用） |
 
 ---

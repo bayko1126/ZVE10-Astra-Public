@@ -4,8 +4,8 @@ Same record group and v15 reset flow as the earlier injectors, but the payload c
 from a file instead of being generated. The payload is loaded at 0xFE020000
 and entered at 0xFE020001 (Thumb).
 
-    uv run --with pyserial python tools/flash/hardware/inject_payload.py --port COM12 \\
-        --file tools/flash/hardware/fastboot_zve10.bin --duration 15
+    uv run --with pyserial python 04_tools_and_flash/hardware/inject_payload.py --port COM12 \\
+        --file 04_tools_and_flash/hardware/stage1.bin --duration 15 --record-gap 0.002
 """
 import argparse
 import hashlib
@@ -119,7 +119,11 @@ def run(port, payload, payload_name='', duration=90, record_gap=0.0144, group_ga
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--port', required=True)
-    parser.add_argument('--file', required=True)
+    parser.add_argument(
+        '--file',
+        default=str(Path(__file__).resolve().parent / 'stage1.bin'),
+        help='payload 路径（默认使用 toolkit stage1.bin）',
+    )
     parser.add_argument('--duration', type=int, default=90)
     parser.add_argument('--record-gap', type=float, default=0.0144)
     parser.add_argument('--group-gap', type=float, default=0.05)

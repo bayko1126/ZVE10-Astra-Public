@@ -1,6 +1,6 @@
 # ZV-E10 ASTRA Port
 
-[简体中文](README.md) | **English** | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
+**English** | [简体中文](README.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
 > Engineering toolchain, QEMU emulation environment, build/patching scripts, porting methodology, and AI Agent Skills for cross-generation porting of the **Sony ZV-1M2 (Gen 5 ASTRA)** touch menu UI and full interaction system onto the **Sony ZV-E10 (Gen 4)**.
 
@@ -83,6 +83,7 @@ See [docs/architecture.md](docs/architecture.md) for all 4 detailed architecture
 | **ARM Cross Toolchain** | [Bootlin armv7-eabihf, 2020.08-1](https://toolchains.bootlin.com/downloads/releases/toolchains/armv7-eabihf/tarballs/armv7-eabihf--glibc--stable-2020.08-1.tar.bz2) | `work/armv7-toolchain.tar.bz2` |
 | **Prerequisite Research Repos** | [chocotan/zve10-qemu](https://github.com/chocotan/zve10-qemu)<br>[chocotan/a7c2-qemu](https://github.com/chocotan/a7c2-qemu)<br>[DavidBuchanan314/ILCE-7M4-RE](https://github.com/DavidBuchanan314/ILCE-7M4-RE)<br>[erlla/sony-a7m4-custom-firmware](https://github.com/erlla/sony-a7m4-custom-firmware)<br>[751K/sony-look-bridge](https://github.com/751K/sony-look-bridge) | QEMU `-M zve10` machine model, firmware unpacking, custom LUT training, and Creative Look (`FL`/`VV`) bridging |
 | **USB & Camtool Suite** | [nolan2628/Sony-ZVE-10-Camtool](https://github.com/nolan2628/Sony-ZVE-10-Camtool) | Upstream ZV-E10 USB Jiritsu/MSC debugging & patching toolkit (bundled in `tools/flash/camtool/`) |
+| **Fastboot & Flashing Toolkit** | [dino2048/zv-e10-toolkit](https://github.com/dino2048/zv-e10-toolkit) | Upstream Fastboot architecture for Sony Alpha cameras: `stage1.bin` + `stage2-flash.bin` 1 MiB Sparse flashing, Darwin `0x16` watchdog immunity keepalive, and native Windows `libusb-package` backend (bundled in `tools/flash/toolkit_fastboot/`) |
 | **Python & Zig Toolchain** | [`uv`](https://docs.astral.sh/uv/) (auto-fetches `ziglang`, `pyelftools`, `pyusb`, etc.) | Host `uv` + WSL2 (for `e2fsck`/`debugfs`/QEMU) |
 
 ---

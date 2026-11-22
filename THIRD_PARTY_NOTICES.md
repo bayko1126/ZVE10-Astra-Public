@@ -16,6 +16,11 @@ repository.
    - Upstream: https://github.com/nolan2628/Sony-ZVE-10-Camtool
    - Usage: ZV-E10 USB Jiritsu/MSC online debugging, shell, and patching suite.
 
+3. **zv-e10-toolkit (`tools/flash/toolkit_fastboot/`)**
+   - Upstream: https://github.com/dino2048/zv-e10-toolkit
+   - Usage: Fastboot protocol, `stage1.bin` BootROM injection payload, `stage2-flash.bin` 1 MiB Sparse partition flashing engine, Darwin `0x16` watchdog immunity keepalive, and Python host session bootstrap.
+   - License: MIT License (Copyright (c) 2024 dino2048).
+
 ## External Upstream Dependencies & Prerequisite Repositories
 
 - **zve10-qemu**: https://github.com/chocotan/zve10-qemu (`-M zve10` QEMU machine model & ZV-E10 emulation environment)

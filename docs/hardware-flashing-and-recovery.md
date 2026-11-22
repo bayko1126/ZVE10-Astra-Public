@@ -31,7 +31,7 @@
 | 操作目标 | 命令（仓库根目录） | 说明 |
 | :--- | :--- | :--- |
 | **USB 在线调试自检 (开机模式)** | `uv run --with pyusb --with libusb-package --with pycryptodome python tools/flash/camtool/cam.py doctor` | 在原厂开机状态下检查 MSC/Jiritsu 通道与权限 |
-| **Pico 串口注入 Fastboot** | `uv run --with pyserial python tools/flash/hardware/inject_payload.py --port COM12 --file tools/flash/hardware/fastboot_zve10.bin --duration 15` | 15 秒窗口内通电进入 `18D1:4EE0` Fastboot |
+| **Pico 串口注入 Fastboot** | `uv run --with pyserial python tools/flash/hardware/inject_payload.py --port COM12 --file tools/flash/hardware/stage1.bin --duration 15` | 15 秒窗口内通电进入 `18D1:4EE0` Fastboot |
 | **只读状态快照 (Superblock + WBI1)** | `uv run --with pyusb --with libusb-package python tools/flash/probe_state.py` | 只读核验 `nflasha15` (0x16C000) 与 `nflasha5` (0x2C000) |
 | **只读判定当前镜像指纹** | `uv run --with pyusb --with libusb-package python tools/flash/check_image.py` | 差分刷机前必跑，判定当前设备上的 `nflasha15` 版本 |
 | **安全差量 / 全量刷写** | `uv run --with pyusb --with libusb-package python tools/flash/flash_robust.py --image build_out/nflasha15_astra_prod.bin --diff-from firmware/backup/nflasha15.bin --flash` | 保护 `0x2C000`，支持断点续传（建议先加 `--dry-run` 预演） |
