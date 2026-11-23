@@ -3,13 +3,13 @@
     "total_collisions": 758,
     "system_lib_exempt": 0,
     "identical_code_exempt": 187,
-    "unique_symbols_to_rename": 557,
+    "unique_symbols_to_rename": 701,
     "rename_entries_by_file": {
-      "libOb5.so": 354,
-      "libmp5.so": 190,
-      "AdjChkConfig.so": 73,
-      "appFwBoot.so": 26,
-      "appFw.so": 108,
+      "libOb5.so": 493,
+      "libmp5.so": 191,
+      "AdjChkConfig.so": 102,
+      "appFwBoot.so": 17,
+      "appFw.so": 151,
       "libObjShim.so": 0
     }
   },
@@ -23,6 +23,7 @@
       "CameraBackground_act": "CameraBackground_adS",
       "CameraBackground_inact": "CameraBackground_inadS",
       "CameraBackground_init": "CameraBackground_injS",
+      "CameraStillDate_init": "CameraStillDate_injS",
       "ColorImageBlockBuffer_init": "ColorImageBlockBuffer_injS",
       "ColorImageBuffer_init": "ColorImageBuffer_injS",
       "DDSUserInit": "DDSUserInjS",
@@ -33,15 +34,25 @@
       "FSS_init": "FSS_injS",
       "FS_exit": "FS_exjS",
       "FS_init": "FS_injS",
+      "FsLttComponent_init": "FsLttComponent_injS",
+      "FsLtt_init": "FsLtt_injS",
       "GRM_bitmapCreate": "GRM_bitmapCreauD",
+      "GRM_bitmapCreateComposite": "GRM_bitmapCreateComposiuD",
       "GRM_bitmapGetPhysicalAddress": "GRM_bitmapGetPhysicalAddretR",
       "GRM_bitmapGetRowPixelCount": "GRM_bitmapGetRowPixelCouoS",
       "GRM_bitmapGetSubRectangle": "GRM_bitmapGetSubRectangmD",
       "GRM_bitmapWriteLockBits": "GRM_bitmapWriteLockBiuR",
       "GRM_bitmapWriteUnlockBits": "GRM_bitmapWriteUnlockBiuR",
+      "GRM_fbrmFillrectYUV": "GRM_fbrmFillrectYV5",
+      "GRM_fbrmInitializeYUV": "GRM_fbrmInitializeYV5",
+      "GRM_fbrmPrepareUpdateYUV": "GRM_fbrmPrepareUpdateYV5",
+      "GRM_fbrmRectblitYUV": "GRM_fbrmRectblitYV5",
       "GRM_fbrmSetScreenPreference": "GRM_fbrmSetScreenPreferendD",
+      "GRM_fbrmTerminateYUV": "GRM_fbrmTerminateYV5",
+      "GRM_fbrmUpdateYUV": "GRM_fbrmUpdateYV5",
       "GRM_gpermFillrect": "GRM_gpermFillredS",
       "GRM_gpermRectblit": "GRM_gpermRectbljS",
+      "GRM_screenGetOnBitmap": "GRM_screenGetOnBitmbO",
       "GrayImageBlockBuffer_init": "GrayImageBlockBuffer_injS",
       "GrayImageBuffer_init": "GrayImageBuffer_injS",
       "Hotplug_Exit": "Hotplug_ExjS",
@@ -50,6 +61,9 @@
       "Hotplug_Suspend": "Hotplug_SuspeoC",
       "InfraAdjMedia_Exit": "InfraAdjMedia_ExjS",
       "InfraAdjMedia_Init": "InfraAdjMedia_InjS",
+      "InfraAvbbc_Init": "InfraAvbbc_InjS",
+      "InfraAvbbc_Res": "InfraAvbbc_RfR",
+      "InfraAvbbc_Sus": "InfraAvbbc_SvR",
       "InfraEyeFiControl_Init": "InfraEyeFiControl_InjS",
       "InfraEyeFiControl_Resume": "InfraEyeFiControl_ResunD",
       "InfraEyeFiControl_Suspend": "InfraEyeFiControl_SuspeoC",
@@ -65,8 +79,11 @@
       "MTX_TABLE_COMPRESS_Create": "MTX_TABLE_COMPRESS_CreauD",
       "MTX_TABLE_COMPRESS_Destroy": "MTX_TABLE_COMPRESS_DestrpX",
       "ObjAvAdjCtrl_Create": "ObjAvAdjCtrl_CreauD",
+      "ObjAvAdjCtrl_Destroy": "ObjAvAdjCtrl_DestrpX",
       "ObjAvAdjCtrl_RegisterCommand": "ObjAvAdjCtrl_RegisterCommaoC",
       "ObjAvAdjCtrl_UnregisterCommand": "ObjAvAdjCtrl_UnregisterCommaoC",
+      "ObjFtpClient_Create": "ObjFtpClient_CreauD",
+      "ObjFtpClient_Destroy": "ObjFtpClient_DestrpX",
       "ObjFtpClient_Exit": "ObjFtpClient_ExjS",
       "ObjFtpClient_Init": "ObjFtpClient_InjS",
       "ObjFtpClient_RegisterCommand": "ObjFtpClient_RegisterCommaoC",
@@ -75,6 +92,8 @@
       "ObjNetSetting_Destroy": "ObjNetSetting_DestrpX",
       "ObjNetSetting_Exit": "ObjNetSetting_ExjS",
       "ObjNetSetting_Init": "ObjNetSetting_InjS",
+      "ObjNetSetting_RegisterCommand": "ObjNetSetting_RegisterCommaoC",
+      "ObjNetSetting_UnregisterCommand": "ObjNetSetting_UnregisterCommaoC",
       "ObjRemoteAsync_Create": "ObjRemoteAsync_CreauD",
       "ObjRemoteAsync_Destroy": "ObjRemoteAsync_DestrpX",
       "ObjRemoteAsync_Exit": "ObjRemoteAsync_ExjS",
@@ -90,12 +109,31 @@
       "TextRM_getBounds": "TextRM_getBouneR",
       "TextRM_loadFont": "TextRM_loadFooS",
       "TextRM_unloadFont": "TextRM_unloadFooS",
+      "TsBidiControl_init": "TsBidiControl_injS",
+      "TsDC_init": "TsDC_injS",
+      "TsDrawGlyphParams_init": "TsDrawGlyphParams_injS",
+      "TsDynamicArray_init": "TsDynamicArray_injS",
       "TsImageBuffer_init": "TsImageBuffer_injS",
+      "TsIndicControl_init": "TsIndicControl_injS",
       "TsLayoutText_init": "TsLayoutText_injS",
+      "TsMatrix_init": "TsMatrix_injS",
+      "TsOtClassDef_init": "TsOtClassDef_injS",
+      "TsOtCoverage_init": "TsOtCoverage_injS",
       "TsOtDeviceTable_init": "TsOtDeviceTable_injS",
+      "TsOtFeatureList_init": "TsOtFeatureList_injS",
+      "TsOtGlyphID_init": "TsOtGlyphID_injS",
+      "TsOtHhea_init": "TsOtHhea_injS",
+      "TsOtLookupList_init": "TsOtLookupList_injS",
+      "TsOtOS_2_init": "TsOtP2_2_init",
+      "TsOtScriptList_init": "TsOtScriptList_injS",
+      "TsOtWordBlockIter_init": "TsOtWordBlockIter_injS",
+      "TsOtWordBlock_init": "TsOtWordBlock_injS",
+      "TsOt_post_init": "TsOt_post_injS",
+      "TsOthead_init": "TsOthead_injS",
       "TsSimpleText_init": "TsSimpleText_injS",
       "TsString_init": "TsString_injS",
       "TsThaiDict_init": "TsThaiDict_injS",
+      "TsUInt16_init": "TsUInt16_injS",
       "_Z13ux_sint32_cosi": "_Z13ux_sint32_cotH",
       "_Z13ux_sint32_sini": "_Z13ux_sint32_sioH",
       "_Z16PhyKeyConfigFreePv": "_Z16PhyKeyConfigFreeQU",
@@ -109,6 +147,7 @@
       "_ZN10InfraInput15ReleaseInstanceEv": "_ZN10InfraInput15ReleaseInstanceFU",
       "_ZN10InfraInput15SetEventKeyListEiP18_InfraInputKeyListi": "_ZN10InfraInput15SetEventKeyListEiP18_InfraInputKeyLisuH",
       "_ZN10InfraInput17SendEventInitDataEi": "_ZN10InfraInput17SendEventInitDataFH",
+      "_ZN10InfraInput9GetKeyInhEi": "_ZN10InfraInput9GetKeyInhFH",
       "_ZN10InfraInput9SetKeyInhEib": "_ZN10InfraInput9SetKeyInhEjA",
       "_ZN10InfraInput9SetOsalIdEPii": "_ZN10InfraInput9SetOsalIdEPjH",
       "_ZN14CIFInfraIndctr11GetInstanceEv": "_ZN14CIFInfraIndctr11GetInstanceFU",
@@ -119,12 +158,23 @@
       "_ZN14CIFInfraIndctr8SetStateEiRN11InfraIndctr6TStateE": "_ZN14CIFInfraIndctr8SetStateEiRN11InfraIndctr6TStatdf",
       "_ZN2ux4core10TextLayout20registerFontFaceFileEhPKch": "_ZN2ux4core10TextLayout20registerFontFaceFileEhPKdG",
       "_ZN2ux4core13GraphicsImage21sys_getInternalObjectEPv": "_ZN2ux4core13GraphicsImage21sys_getInternalObjectEQU",
+      "_ZN2ux4core13GraphicsImage4copyEPvS2_": "_ZN2ux4core13GraphicsImage4copyEPvRS_",
+      "_ZN2ux4core13GraphicsImage4copyEPvssS2_ssss": "_ZN2ux4core13GraphicsImage4copyEPvssS2_sstR",
       "_ZN2ux4core2ID14genIDForSystemEj": "_ZN2ux4core2ID14genIDForSystemFI",
       "_ZN2ux4core2ID4ZEROE": "_ZN2ux4core2ID4ZERNf",
       "_ZN2ux4core2ID5genIDEPKc": "_ZN2ux4core2ID5genIDEPLB",
+      "_ZN2ux4core2IDC1Ev": "_ZN2ux4core2IDC1FU",
       "_ZN2ux4core5Color4ZEROE": "_ZN2ux4core5Color4ZERNf",
+      "_ZN2ux4core5ColorC1ERKS1_": "_ZN2ux4core5ColorC1ERKRR_",
+      "_ZN2ux4core5ColorC1Ev": "_ZN2ux4core5ColorC1FU",
       "_ZN2ux4core7Vector24ZEROE": "_ZN2ux4core7Vector24ZERNf",
+      "_ZN2ux4core7Vector2C1Eff": "_ZN2ux4core7Vector2C1EgE",
+      "_ZN2ux4core7Vector2C1Ev": "_ZN2ux4core7Vector2C1FU",
+      "_ZN2ux4core7Vector2mIERKS1_": "_ZN2ux4core7Vector2mIERKRR_",
+      "_ZN2ux4core7Vector2pLERKS1_": "_ZN2ux4core7Vector2pLERKRR_",
       "_ZN2ux4core8msec_nowEv": "_ZN2ux4core8msec_nowFU",
+      "_ZN2ux6gfxeng10TextSprite11getRotationEv": "_ZN2ux6gfxeng10TextSprite11getRotationFU",
+      "_ZN2ux6gfxeng10TextSprite14freezeDrawTextEv": "_ZN2ux6gfxeng10TextSprite14freezeDrawTextFU",
       "_ZN2ux6gfxeng10TextSprite7setFontEPjh": "_ZN2ux6gfxeng10TextSprite7setFontEPkG",
       "_ZN2ux6gfxeng10TextSprite8drawTextEv": "_ZN2ux6gfxeng10TextSprite8drawTextFU",
       "_ZN2ux6gfxeng10TextSprite9setStringEPKc": "_ZN2ux6gfxeng10TextSprite9setStringEPLB",
@@ -134,6 +184,7 @@
       "_ZN2ux6gfxeng14GraphicsEngine28getAreaCheckExtensionManagerEv": "_ZN2ux6gfxeng14GraphicsEngine28getAreaCheckExtensionManagerFU",
       "_ZN2ux6gfxeng14GraphicsEngine30setOverflowResizeFontAttributeEhh": "_ZN2ux6gfxeng14GraphicsEngine30setOverflowResizeFontAttributeEiG",
       "_ZN2ux6gfxeng14GraphicsEngine32setOverflowResizeLayoutAttributeEh": "_ZN2ux6gfxeng14GraphicsEngine32setOverflowResizeLayoutAttributeFG",
+      "_ZN2ux6gfxeng15ResourceUpdater5visitERN9andromeda8NodeBaseE": "_ZN2ux6gfxeng15ResourceUpdater5visitERN9andromeda8NodeBasdf",
       "_ZN2ux6gfxeng15ResourceUpdaterC1EPNS_6resmgr15ResourceManagerE": "_ZN2ux6gfxeng15ResourceUpdaterC1EPNS_6resmgr15ResourceManageqf",
       "_ZN2ux6gfxeng15ResourceUpdaterC2EPNS_6resmgr15ResourceManagerE": "_ZN2ux6gfxeng15ResourceUpdaterC2EPNS_6resmgr15ResourceManageqf",
       "_ZN2ux6gfxeng15ResourceUpdaterD0Ev": "_ZN2ux6gfxeng15ResourceUpdaterD0FU",
@@ -150,6 +201,7 @@
       "_ZN2ux6gfxeng6Sprite12setRectColorEtRKN6stella6CColorE": "_ZN2ux6gfxeng6Sprite12setRectColorEtRKN6stella6CColoqf",
       "_ZN2ux6gfxeng6Sprite13setCurRectNumEt": "_ZN2ux6gfxeng6Sprite13setCurRectNumFS",
       "_ZN2ux6gfxeng6Sprite17setRectColorResIDEtj": "_ZN2ux6gfxeng6Sprite17setRectColorResIDEuI",
+      "_ZN2ux6gfxeng6Sprite18setPatchImageCacheEb": "_ZN2ux6gfxeng6Sprite18setPatchImageCacheFA",
       "_ZN2ux6gfxeng6SpriteC1Ev": "_ZN2ux6gfxeng6SpriteC1FU",
       "_ZN2ux6gfxeng6SpriteD1Ev": "_ZN2ux6gfxeng6SpriteD1FU",
       "_ZN2ux6gfxeng7Element10setVisibleEb": "_ZN2ux6gfxeng7Element10setVisibleFA",
@@ -162,10 +214,27 @@
       "_ZN2ux6resmgr15ResourceManager15sys_getInstanceEv": "_ZN2ux6resmgr15ResourceManager15sys_getInstanceFU",
       "_ZN2ux6resmgr15ResourceManager18syncPrefetchImagesEPjhh": "_ZN2ux6resmgr15ResourceManager18syncPrefetchImagesEPjiG",
       "_ZN2ux6resmgr15ResourceManager28sys_setFontNameWithNamespaceEt": "_ZN2ux6resmgr15ResourceManager28sys_setFontNameWithNamespaceFS",
+      "_ZN2ux6wgtlay13AnimationMove10setStopPosENS_4core7Vector2E": "_ZN2ux6wgtlay13AnimationMove10setStopPosENS_4core7Vector1f",
+      "_ZN2ux6wgtlay13AnimationMove11setStartPosENS_4core7Vector2E": "_ZN2ux6wgtlay13AnimationMove11setStartPosENS_4core7Vector1f",
+      "_ZN2ux6wgtlay13AnimationMove21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE": "_ZN2ux6wgtlay13AnimationMove21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
+      "_ZN2ux6wgtlay13AnimationMove9setEndPosENS_4core7Vector2E": "_ZN2ux6wgtlay13AnimationMove9setEndPosENS_4core7Vector1f",
       "_ZN2ux6wgtlay13AnimationMoveC1Ev": "_ZN2ux6wgtlay13AnimationMoveC1FU",
+      "_ZN2ux6wgtlay13AnimationSize21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE": "_ZN2ux6wgtlay13AnimationSize21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
       "_ZN2ux6wgtlay13AnimationSizeC1Ev": "_ZN2ux6wgtlay13AnimationSizeC1FU",
       "_ZN2ux6wgtlay13BaseConverter8getValueEj": "_ZN2ux6wgtlay13BaseConverter8getValueFI",
+      "_ZN2ux6wgtlay14AnimationAlpha11setEndAlphaEh": "_ZN2ux6wgtlay14AnimationAlpha11setEndAlphaFG",
+      "_ZN2ux6wgtlay14AnimationAlpha12setStopAlphaEh": "_ZN2ux6wgtlay14AnimationAlpha12setStopAlphaFG",
+      "_ZN2ux6wgtlay14AnimationAlpha13setStartAlphaEh": "_ZN2ux6wgtlay14AnimationAlpha13setStartAlphaFG",
+      "_ZN2ux6wgtlay14AnimationAlpha21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE": "_ZN2ux6wgtlay14AnimationAlpha21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
       "_ZN2ux6wgtlay14AnimationAlphaC1Ev": "_ZN2ux6wgtlay14AnimationAlphaC1FU",
+      "_ZN2ux6wgtlay14AnimationParts12setStartTimeEj": "_ZN2ux6wgtlay14AnimationParts12setStartTimeFI",
+      "_ZN2ux6wgtlay14AnimationParts15setDurationTimeEj": "_ZN2ux6wgtlay14AnimationParts15setDurationTimeFI",
+      "_ZN2ux6wgtlay14AnimationParts18setDynamicEndValueEb": "_ZN2ux6wgtlay14AnimationParts18setDynamicEndValueFA",
+      "_ZN2ux6wgtlay14AnimationParts20setDynamicStartValueEb": "_ZN2ux6wgtlay14AnimationParts20setDynamicStartValueFA",
+      "_ZN2ux6wgtlay14AnimationScale11setEndScaleENS_4core7Vector2E": "_ZN2ux6wgtlay14AnimationScale11setEndScaleENS_4core7Vector1f",
+      "_ZN2ux6wgtlay14AnimationScale12setStopScaleENS_4core7Vector2E": "_ZN2ux6wgtlay14AnimationScale12setStopScaleENS_4core7Vector1f",
+      "_ZN2ux6wgtlay14AnimationScale13setStartScaleENS_4core7Vector2E": "_ZN2ux6wgtlay14AnimationScale13setStartScaleENS_4core7Vector1f",
+      "_ZN2ux6wgtlay14AnimationScale21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE": "_ZN2ux6wgtlay14AnimationScale21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
       "_ZN2ux6wgtlay14AnimationScaleC1Ev": "_ZN2ux6wgtlay14AnimationScaleC1FU",
       "_ZN2ux6wgtlay14WidgetLayouter10moveBeforeENS_4core2IDEjjjj": "_ZN2ux6wgtlay14WidgetLayouter10moveBeforeENS_4core2IDEjjkI",
       "_ZN2ux6wgtlay14WidgetLayouter10openBeforeENS_4core2IDEPFPNS0_20LayoutGroupConverterEvEjjjjPNS2_16TDoubleEndedListINS0_23AnimationPartsConverterENS2_13TLinkAccessorIS9_EEEE": "_ZN2ux6wgtlay14WidgetLayouter10openBeforeENS_4core2IDEPFPNS0_20LayoutGroupConverterEvEjjjjPNS2_16TDoubleEndedListINS0_23AnimationPartsConverterENS2_13TLinkAccessorIS9_EEDf",
@@ -194,46 +263,77 @@
       "_ZN2ux6wgtlay14WidgetLayouter9moveFirstENS_4core2IDEjj": "_ZN2ux6wgtlay14WidgetLayouter9moveFirstENS_4core2IDEkI",
       "_ZN2ux6wgtlay14WidgetLayouter9openAfterENS_4core2IDEPFPNS0_20LayoutGroupConverterEvEjjjjPNS2_16TDoubleEndedListINS0_23AnimationPartsConverterENS2_13TLinkAccessorIS9_EEEE": "_ZN2ux6wgtlay14WidgetLayouter9openAfterENS_4core2IDEPFPNS0_20LayoutGroupConverterEvEjjjjPNS2_16TDoubleEndedListINS0_23AnimationPartsConverterENS2_13TLinkAccessorIS9_EEDf",
       "_ZN2ux6wgtlay14WidgetLayouter9openFirstENS_4core2IDEPFPNS0_20LayoutGroupConverterEvEjjPNS2_16TDoubleEndedListINS0_23AnimationPartsConverterENS2_13TLinkAccessorIS9_EEEE": "_ZN2ux6wgtlay14WidgetLayouter9openFirstENS_4core2IDEPFPNS0_20LayoutGroupConverterEvEjjPNS2_16TDoubleEndedListINS0_23AnimationPartsConverterENS2_13TLinkAccessorIS9_EEDf",
+      "_ZN2ux6wgtlay15LayoutConverter20isValidWidgetVersionEjjjjPKc": "_ZN2ux6wgtlay15LayoutConverter20isValidWidgetVersionEjjjjPLB",
       "_ZN2ux6wgtlay15LayoutConverter23getLayoutMasterWidgetIDEjRj": "_ZN2ux6wgtlay15LayoutConverter23getLayoutMasterWidgetIDEjSI",
+      "_ZN2ux6wgtlay15LayoutConverter23isValidAnimationVersionEjjjjPKc": "_ZN2ux6wgtlay15LayoutConverter23isValidAnimationVersionEjjjjPLB",
+      "_ZN2ux6wgtlay17AnimationMovePath10setStopPosENS_4core7Vector2E": "_ZN2ux6wgtlay17AnimationMovePath10setStopPosENS_4core7Vector1f",
+      "_ZN2ux6wgtlay17AnimationMovePath11setMovePathEjNS_4core7Vector2E": "_ZN2ux6wgtlay17AnimationMovePath11setMovePathEjNS_4core7Vector1f",
+      "_ZN2ux6wgtlay17AnimationMovePath21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE": "_ZN2ux6wgtlay17AnimationMovePath21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
       "_ZN2ux6wgtlay17AnimationMovePathC1Ev": "_ZN2ux6wgtlay17AnimationMovePathC1FU",
+      "_ZN2ux6wgtlay18AnimationClassInfo25setConverterFactoryMethodEPFPNS0_23AnimationPartsConverterEvE": "_ZN2ux6wgtlay18AnimationClassInfo25setConverterFactoryMethodEPFPNS0_23AnimationPartsConverterEuf",
       "_ZN2ux6wgtlay18AnimationClassInfoC1Ej": "_ZN2ux6wgtlay18AnimationClassInfoC1FI",
+      "_ZN2ux6wgtlay21AnimationTriggerParts21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE": "_ZN2ux6wgtlay21AnimationTriggerParts21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
       "_ZN2ux6wgtlay21AnimationTriggerPartsC1Ev": "_ZN2ux6wgtlay21AnimationTriggerPartsC1FU",
+      "_ZN2ux6wgtlay23AnimationPartsConverter13getPropertiesEv": "_ZN2ux6wgtlay23AnimationPartsConverter13getPropertiesFU",
       "_ZN2ux6wgtlay23AnimationPartsConverter4initEv": "_ZN2ux6wgtlay23AnimationPartsConverter4initFU",
       "_ZN2ux6wgtlay23AnimationPartsConverter8destructEPS1_": "_ZN2ux6wgtlay23AnimationPartsConverter8destructEPRR_",
       "_ZN2ux6wgtlay23AnimationPartsConverterC2Ej": "_ZN2ux6wgtlay23AnimationPartsConverterC2FI",
       "_ZN2ux6wgtlay23AnimationPartsConverterD2Ev": "_ZN2ux6wgtlay23AnimationPartsConverterD2FU",
+      "_ZN2ux6wgtsys10WidgetBase10onKeyEventERKNS0_8KeyEventE": "_ZN2ux6wgtsys10WidgetBase10onKeyEventERKNS0_8KeyEvensf",
       "_ZN2ux6wgtsys10WidgetBase10setAnimateEb": "_ZN2ux6wgtsys10WidgetBase10setAnimateFA",
+      "_ZN2ux6wgtsys10WidgetBase11onUserEventERKNS0_9UserEventE": "_ZN2ux6wgtsys10WidgetBase11onUserEventERKNS0_9UserEvensf",
       "_ZN2ux6wgtsys10WidgetBase11removeTimerERKNS_4core2IDE": "_ZN2ux6wgtsys10WidgetBase11removeTimerERKNS_4core2ICf",
+      "_ZN2ux6wgtsys10WidgetBase12onDrawNoticeEv": "_ZN2ux6wgtsys10WidgetBase12onDrawNoticeFU",
+      "_ZN2ux6wgtsys10WidgetBase12onMouseEventERKNS0_10MouseEventE": "_ZN2ux6wgtsys10WidgetBase12onMouseEventERKNS0_10MouseEvensf",
+      "_ZN2ux6wgtsys10WidgetBase13ActionHandlerC1Ev": "_ZN2ux6wgtsys10WidgetBase13ActionHandlerC1FU",
       "_ZN2ux6wgtsys10WidgetBase15setMouseCaptureEhb": "_ZN2ux6wgtsys10WidgetBase15setMouseCaptureEiA",
+      "_ZN2ux6wgtsys10WidgetBase16onMouseEventHookERKNS0_10MouseEventE": "_ZN2ux6wgtsys10WidgetBase16onMouseEventHookERKNS0_10MouseEvensf",
+      "_ZN2ux6wgtsys10WidgetBase17setMouseEventHookEb": "_ZN2ux6wgtsys10WidgetBase17setMouseEventHookFA",
+      "_ZN2ux6wgtsys10WidgetBase7onResetEb": "_ZN2ux6wgtsys10WidgetBase7onResetFA",
+      "_ZN2ux6wgtsys10WidgetBase7onTimerERKNS_4core2IDEy": "_ZN2ux6wgtsys10WidgetBase7onTimerERKNS_4core2IDFX",
       "_ZN2ux6wgtsys10WidgetBase8addTimerENS0_9TimerTypeEjRKNS_4core2IDE": "_ZN2ux6wgtsys10WidgetBase8addTimerENS0_9TimerTypeEjRKNS_4core2ICf",
+      "_ZN2ux6wgtsys10WidgetBase9onAnimateEv": "_ZN2ux6wgtsys10WidgetBase9onAnimateFU",
+      "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector2E": "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys10WidgetNodeC1Ev": "_ZN2ux6wgtsys10WidgetNodeC1FU",
       "_ZN2ux6wgtsys12WidgetSystem11createLayerERKNS_4core2IDE": "_ZN2ux6wgtsys12WidgetSystem11createLayerERKNS_4core2ICf",
       "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimeE": "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimdf",
       "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimeE": "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimdf",
       "_ZN2ux6wgtsys12WidgetSystem15sys_getInstanceEv": "_ZN2ux6wgtsys12WidgetSystem15sys_getInstanceFU",
       "_ZN2ux6wgtsys12WidgetSystem16postMouseReleaseEhhNS_4core8MsecTimeE": "_ZN2ux6wgtsys12WidgetSystem16postMouseReleaseEhhNS_4core8MsecTimdf",
+      "_ZN2ux6wgtsys12WidgetSystem18getGestureAnalyzerEv": "_ZN2ux6wgtsys12WidgetSystem18getGestureAnalyzerFU",
       "_ZN2ux6wgtsys15GestureAnalyzer16setGestureYRatioEf": "_ZN2ux6wgtsys15GestureAnalyzer16setGestureYRatioFE",
+      "_ZN2ux6wgtsys15GestureAnalyzer9setConfigENS1_13GestureConfigEt": "_ZN2ux6wgtsys15GestureAnalyzer9setConfigENS1_13GestureConfigFS",
       "_ZN2ux6wgtsys5Layer8setClearEb": "_ZN2ux6wgtsys5Layer8setClearFA",
+      "_ZN2ux6wgtsys5Layer9setActiveEb": "_ZN2ux6wgtsys5Layer9setActiveFA",
+      "_ZN2ux6wgtsys6Action13sys_setCalleeEPv": "_ZN2ux6wgtsys6Action13sys_setCalleeEQU",
+      "_ZN2ux6wgtsys6Action13sys_setCallerEPNS0_6WidgetE": "_ZN2ux6wgtsys6Action13sys_setCallerEPNS0_6Widgesf",
+      "_ZN2ux6wgtsys6Action15sys_setActionIDERKNS_4core2IDE": "_ZN2ux6wgtsys6Action15sys_setActionIDERKNS_4core2ICf",
       "_ZN2ux6wgtsys6Widget10initSpriteERNS_6gfxeng6SpriteEt": "_ZN2ux6wgtsys6Widget10initSpriteERNS_6gfxeng6SpriteFS",
       "_ZN2ux6wgtsys6Widget10moveBeforeERS1_": "_ZN2ux6wgtsys6Widget10moveBeforeERRR_",
       "_ZN2ux6wgtsys6Widget10setLayerIDERKNS_4core2IDE": "_ZN2ux6wgtsys6Widget10setLayerIDERKNS_4core2ICf",
       "_ZN2ux6wgtsys6Widget11setLocalPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget11setLocalPosERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget12calcLocalPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget12calcLocalPosERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget12calcWorldPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget12calcWorldPosERKNS_4core7Vector1f",
+      "_ZN2ux6wgtsys6Widget12setHitMarginEssss": "_ZN2ux6wgtsys6Widget12setHitMarginEsstR",
       "_ZN2ux6wgtsys6Widget13setLocalScaleERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget13setLocalScaleERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget14setFilterAlphaEh": "_ZN2ux6wgtsys6Widget14setFilterAlphaFG",
       "_ZN2ux6wgtsys6Widget14setFilterColorERKN6stella6CColorE": "_ZN2ux6wgtsys6Widget14setFilterColorERKN6stella6CColoqf",
       "_ZN2ux6wgtsys6Widget16setPassiveRegionEb": "_ZN2ux6wgtsys6Widget16setPassiveRegionFA",
       "_ZN2ux6wgtsys6Widget17calcLocalMousePosEh": "_ZN2ux6wgtsys6Widget17calcLocalMousePosFG",
       "_ZN2ux6wgtsys6Widget17calcWorldClipAreaERfS2_S2_S2_": "_ZN2ux6wgtsys6Widget17calcWorldClipAreaERfS2_S2_RS_",
+      "_ZN2ux6wgtsys6Widget17getUserWidgetTypeEv": "_ZN2ux6wgtsys6Widget17getUserWidgetTypeFU",
       "_ZN2ux6wgtsys6Widget19calcLocalDragOffsetERKNS0_10MouseEventEb": "_ZN2ux6wgtsys6Widget19calcLocalDragOffsetERKNS0_10MouseEventFA",
       "_ZN2ux6wgtsys6Widget19calcLocalFlickSpeedERKNS0_10MouseEventE": "_ZN2ux6wgtsys6Widget19calcLocalFlickSpeedERKNS0_10MouseEvensf",
       "_ZN2ux6wgtsys6Widget20calcParentDragOffsetERKNS0_10MouseEventEb": "_ZN2ux6wgtsys6Widget20calcParentDragOffsetERKNS0_10MouseEventFA",
       "_ZN2ux6wgtsys6Widget21findDropReceiveWidgetERKNS_4core7Vector2EiPv": "_ZN2ux6wgtsys6Widget21findDropReceiveWidgetERKNS_4core7Vector2EiQU",
+      "_ZN2ux6wgtsys6Widget23sys_isDropReceiveWidgetERKNS1_8DropInfoE": "_ZN2ux6wgtsys6Widget23sys_isDropReceiveWidgetERKNS1_8DropInfnf",
       "_ZN2ux6wgtsys6Widget4dropERKNS_4core7Vector2ERS1_iPv": "_ZN2ux6wgtsys6Widget4dropERKNS_4core7Vector2ERS1_iQU",
       "_ZN2ux6wgtsys6Widget5isHitERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget5isHitERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget5resetEb": "_ZN2ux6wgtsys6Widget5resetFA",
+      "_ZN2ux6wgtsys6Widget6onDropERKNS1_8DropInfoE": "_ZN2ux6wgtsys6Widget6onDropERKNS1_8DropInfnf",
+      "_ZN2ux6wgtsys6Widget6onDumpERN5libra10DictionaryE": "_ZN2ux6wgtsys6Widget6onDumpERN5libra10Dictionarxf",
       "_ZN2ux6wgtsys6Widget7setModeENS0_10WidgetModeE": "_ZN2ux6wgtsys6Widget7setModeENS0_10WidgetModdf",
+      "_ZN2ux6wgtsys6Widget7setModeENS1_10WidgetModeE": "_ZN2ux6wgtsys6Widget7setModeENS1_10WidgetModdf",
       "_ZN2ux6wgtsys6Widget7setSizeEff": "_ZN2ux6wgtsys6Widget7setSizeEgE",
       "_ZN2ux6wgtsys6Widget8initNodeERNS_6gfxeng4NodeE": "_ZN2ux6wgtsys6Widget8initNodeERNS_6gfxeng4Noddf",
       "_ZN2ux6wgtsys6Widget8moveLastEv": "_ZN2ux6wgtsys6Widget8moveLastFU",
@@ -242,18 +342,30 @@
       "_ZN2ux6wgtsys6WidgetC1Ev": "_ZN2ux6wgtsys6WidgetC1FU",
       "_ZN2ux6wgtsys6WidgetD2Ev": "_ZN2ux6wgtsys6WidgetD2FU",
       "_ZN2ux7animeng9Animation16addEventCallbackEPvPFvRKNS0_17EventCallbackDataEEj": "_ZN2ux7animeng9Animation16addEventCallbackEPvPFvRKNS0_17EventCallbackDataEFI",
+      "_ZN5alcor19FontAttributeWriter11setEllipsisEb": "_ZN5alcor19FontAttributeWriter11setEllipsisFA",
+      "_ZN5alcor19FontAttributeWriter11setFontSizeEh": "_ZN5alcor19FontAttributeWriter11setFontSizeFG",
+      "_ZN5alcor19FontAttributeWriter12setForeColorERKN6stella5ColorE": "_ZN5alcor19FontAttributeWriter12setForeColorERKN6stella5Coloqf",
+      "_ZN5alcor19FontAttributeWriter9setFontIDEj": "_ZN5alcor19FontAttributeWriter9setFontIDFI",
       "_ZN5alcor19FontAttributeWriterC2Ev": "_ZN5alcor19FontAttributeWriterC2FU",
       "_ZN5alcor19FontAttributeWriterD2Ev": "_ZN5alcor19FontAttributeWriterD2FU",
+      "_ZN5alcor21LayoutAttributeWriter10setLineGapEh": "_ZN5alcor21LayoutAttributeWriter10setLineGapFG",
+      "_ZN5alcor21LayoutAttributeWriter16setLineBreakTypeENS_15LayoutAttribute13LineBreakTypeE": "_ZN5alcor21LayoutAttributeWriter16setLineBreakTypeENS_15LayoutAttribute13LineBreakTypdf",
+      "_ZN5alcor21LayoutAttributeWriter16setVerticalAlignENS_15LayoutAttribute13VerticalAlignE": "_ZN5alcor21LayoutAttributeWriter16setVerticalAlignENS_15LayoutAttribute13VerticalAligmf",
       "_ZN5alcor21LayoutAttributeWriter7setRectERKNS_15LayoutAttribute4RectE": "_ZN5alcor21LayoutAttributeWriter7setRectERKNS_15LayoutAttribute4Recsf",
       "_ZN5alcor21LayoutAttributeWriterC1Ev": "_ZN5alcor21LayoutAttributeWriterC1FU",
+      "_ZN5alcor21LayoutAttributeWriterD1Ev": "_ZN5alcor21LayoutAttributeWriterD1FU",
+      "_ZN5libra16CreateImageParamC1Etti": "_ZN5libra16CreateImageParamC1EtuH",
       "_ZN5libra6StringC1ERKS0_": "_ZN5libra6StringC1ERKRQ_",
       "_ZN5libra9ImageData16sys_getImageDataEv": "_ZN5libra9ImageData16sys_getImageDataFU",
       "_ZN5libra9ImageData6detachEv": "_ZN5libra9ImageData6detachFU",
       "_ZN5libra9ImageDataC1Ev": "_ZN5libra9ImageDataC1FU",
       "_ZN5libra9ImageDataD1Ev": "_ZN5libra9ImageDataD1FU",
+      "_ZN5libra9RecordPtrC1Ev": "_ZN5libra9RecordPtrC1FU",
+      "_ZN5libra9RecordPtrD1Ev": "_ZN5libra9RecordPtrD1FU",
       "_ZN6stella5Color4ZEROE": "_ZN6stella5Color4ZERNf",
       "_ZN6stella6CColorC1ERKNS_5ColorE": "_ZN6stella6CColorC1ERKNS_5Coloqf",
       "_ZN6stella6CColorC1ERKS0_": "_ZN6stella6CColorC1ERKRQ_",
+      "_ZN6stella6CColorC1Ehhhh": "_ZN6stella6CColorC1EhhiG",
       "_ZN7InfraTp11GetInstanceEv": "_ZN7InfraTp11GetInstanceFU",
       "_ZN7InfraTp11GetTpConfigEP22_InfraTpPositionConfig": "_ZN7InfraTp11GetTpConfigEP22_InfraTpPositionConfjF",
       "_ZN7InfraTp11SetTpConfigEP22_InfraTpPositionConfig": "_ZN7InfraTp11SetTpConfigEP22_InfraTpPositionConfjF",
@@ -272,6 +384,9 @@
       "_ZN9InfraDial20SetDialEventIntervalEhhh": "_ZN9InfraDial20SetDialEventIntervalEhiG",
       "_ZN9ux_wgtlay21LayoutMasterConverter14registerWidgetEv": "_ZN9ux_wgtlay21LayoutMasterConverter14registerWidgetFU",
       "_ZN9ux_wgtlay22AnimationNodeConverter14registerWidgetEv": "_ZN9ux_wgtlay22AnimationNodeConverter14registerWidgetFU",
+      "_ZNK2ux4core2ID8getValueEv": "_ZNK2ux4core2ID8getValueFU",
+      "_ZNK2ux4core2IDeqES1_": "_ZNK2ux4core2IDeqERR_",
+      "_ZNK2ux4core2IDneES1_": "_ZNK2ux4core2IDneERR_",
       "_ZNK2ux4core7Vector2miERKS1_": "_ZNK2ux4core7Vector2miERKRR_",
       "_ZNK2ux4core7Vector2plERKS1_": "_ZNK2ux4core7Vector2plERKRR_",
       "_ZNK2ux6gfxeng10TextSprite10getLineGapEv": "_ZNK2ux6gfxeng10TextSprite10getLineGapFU",
@@ -283,10 +398,19 @@
       "_ZNK2ux6gfxeng6Sprite12getRectColorEt": "_ZNK2ux6gfxeng6Sprite12getRectColorFS",
       "_ZNK2ux6gfxeng6Sprite12getRectWidthEt": "_ZNK2ux6gfxeng6Sprite12getRectWidthFS",
       "_ZNK2ux6gfxeng6Sprite17getRectColorResIDEt": "_ZNK2ux6gfxeng6Sprite17getRectColorResIDFS",
+      "_ZNK2ux6gfxeng7Element11getLocalPosEv": "_ZNK2ux6gfxeng7Element11getLocalPosFU",
+      "_ZNK2ux6wgtsys10MouseEvent12getEventTypeEv": "_ZNK2ux6wgtsys10MouseEvent12getEventTypeFU",
+      "_ZNK2ux6wgtsys10MouseEvent8getMouseEv": "_ZNK2ux6wgtsys10MouseEvent8getMouseFU",
+      "_ZNK2ux6wgtsys10MouseEvent9getButtonEv": "_ZNK2ux6wgtsys10MouseEvent9getButtonFU",
+      "_ZNK2ux6wgtsys10MouseEvent9getParam1Ev": "_ZNK2ux6wgtsys10MouseEvent9getParam1FU",
+      "_ZNK2ux6wgtsys10WidgetBase10isWidget3DEv": "_ZNK2ux6wgtsys10WidgetBase10isWidget3DFU",
+      "_ZNK2ux6wgtsys10WidgetBase9isAnimateEv": "_ZNK2ux6wgtsys10WidgetBase9isAnimateFU",
       "_ZNK2ux6wgtsys12WidgetSystem13getMouseStateEhh": "_ZNK2ux6wgtsys12WidgetSystem13getMouseStateEiG",
       "_ZNK2ux6wgtsys12WidgetSystem16sys_getFrameStepEv": "_ZNK2ux6wgtsys12WidgetSystem16sys_getFrameStepFU",
       "_ZNK2ux6wgtsys12WidgetSystem19sys_calcInterpRatioEf": "_ZNK2ux6wgtsys12WidgetSystem19sys_calcInterpRatioFE",
       "_ZNK2ux6wgtsys12WidgetSystem24getMousePosInFramebufferEhRsS2_": "_ZNK2ux6wgtsys12WidgetSystem24getMousePosInFramebufferEhRsRS_",
+      "_ZNK2ux6wgtsys12WidgetSystem8getLayerERKNS_4core2IDE": "_ZNK2ux6wgtsys12WidgetSystem8getLayerERKNS_4core2ICf",
+      "_ZNK2ux6wgtsys12WidgetSystem9getWidgetERKNS_4core2IDE": "_ZNK2ux6wgtsys12WidgetSystem9getWidgetERKNS_4core2ICf",
       "_ZNK2ux6wgtsys6Widget11getLocalPosEv": "_ZNK2ux6wgtsys6Widget11getLocalPosFU",
       "_ZNK2ux6wgtsys6Widget13calcFinalModeEv": "_ZNK2ux6wgtsys6Widget13calcFinalModeFU",
       "_ZNK2ux6wgtsys6Widget13getFirstChildEv": "_ZNK2ux6wgtsys6Widget13getFirstChildFU",
@@ -295,11 +419,15 @@
       "_ZNK2ux6wgtsys6Widget14getFilterColorEv": "_ZNK2ux6wgtsys6Widget14getFilterColorFU",
       "_ZNK2ux6wgtsys6Widget14getNextSiblingEv": "_ZNK2ux6wgtsys6Widget14getNextSiblingFU",
       "_ZNK2ux6wgtsys6Widget14getPrevSiblingEv": "_ZNK2ux6wgtsys6Widget14getPrevSiblingFU",
+      "_ZNK2ux6wgtsys6Widget22getLastChildWidgetBaseEv": "_ZNK2ux6wgtsys6Widget22getLastChildWidgetBaseFU",
       "_ZNK2ux6wgtsys6Widget23getFirstChildWidgetBaseEv": "_ZNK2ux6wgtsys6Widget23getFirstChildWidgetBaseFU",
       "_ZNK2ux6wgtsys6Widget7getModeEv": "_ZNK2ux6wgtsys6Widget7getModeFU",
       "_ZNK2ux6wgtsys6Widget8getWidthEv": "_ZNK2ux6wgtsys6Widget8getWidthFU",
       "_ZNK2ux6wgtsys6Widget9getHeightEv": "_ZNK2ux6wgtsys6Widget9getHeightFU",
       "_ZNK2ux6wgtsys6Widget9getParentEv": "_ZNK2ux6wgtsys6Widget9getParentFU",
+      "_ZNK2ux6wgtsys8KeyEvent12getEventTypeEv": "_ZNK2ux6wgtsys8KeyEvent12getEventTypeFU",
+      "_ZNK2ux6wgtsys8KeyEvent6getKeyEv": "_ZNK2ux6wgtsys8KeyEvent6getKeyFU",
+      "_ZNK2ux6wgtsys9UserEvent12getUserValueEv": "_ZNK2ux6wgtsys9UserEvent12getUserValueFU",
       "_ZNK5libra9ImageData8getResIDEv": "_ZNK5libra9ImageData8getResIDFU",
       "_ZNK5libra9ImageData8getWidthEv": "_ZNK5libra9ImageData8getWidthFU",
       "_ZNK5libra9ImageData9getHeightEv": "_ZNK5libra9ImageData9getHeightFU",
@@ -310,10 +438,10 @@
       "_ZTSN2ux6gfxeng15ResourceUpdaterE": "_ZTSN2ux6gfxeng15ResourceUpdateqf",
       "_ZTVN2ux6gfxeng15ResourceUpdaterE": "_ZTVN2ux6gfxeng15ResourceUpdateqf",
       "__g_rm_thread_exit": "__g_rm_thread_exjS",
-      "_init": "_injS",
       "compass_init": "compass_injS",
       "compass_res": "compass_rfR",
       "compass_sus": "compass_svR",
+      "core_sync_set_event": "core_sync_set_eveoS",
       "dmp_allocator_lib_init": "dmp_allocator_lib_injS",
       "dmp_allocator_mmap_init": "dmp_allocator_mmap_injS",
       "geo_init": "geo_injS",
@@ -349,6 +477,7 @@
       "infra_tp_init": "infra_tp_injS",
       "infra_tp_res": "infra_tp_rfR",
       "infra_tp_sus": "infra_tp_svR",
+      "logrec": "logrfB",
       "rm_kick_thread_init": "rm_kick_thread_injS",
       "rm_reg_exit": "rm_reg_exjS",
       "rm_reg_init": "rm_reg_injS",
@@ -364,6 +493,18 @@
       "udate_res": "udate_rfR",
       "udate_sus": "udate_svR",
       "udtr_senser_exit": "udtr_senser_exjS",
+      "udtr_senser_init": "uduQ_senser_init",
+      "uiresp_init": "uiresp_injS",
+      "unigi_exit": "unigi_exjS",
+      "unigi_init": "unigi_injS",
+      "uniinfra_init": "uniinfra_injS",
+      "unimodel_exit": "unimodel_exjS",
+      "unimodel_init": "unimodel_injS",
+      "uniobj_exit": "uniobj_exjS",
+      "uniobj_init": "uniobj_injS",
+      "uxengine_app_fw_init": "uxengine_app_fw_injS",
+      "uxengine_exit": "uxengine_exjS",
+      "uxengine_init": "uxengine_injS",
       "uxengine_res": "uxengine_rfR",
       "uxengine_sus": "uxengine_svR",
       "vdf_if_port_init": "vdf_if_port_injS"
@@ -558,17 +699,30 @@
       "_ZN5MprIfD1Ev": "_ZN5MprIfD1FU",
       "_ZN5MprIfD2Ev": "_ZN5MprIfD2FU",
       "smf_AviApi_SetThumbPictFileAccessFlag": "smf_AviApi_SetThumbPictFileAccessFlbF",
+      "smf_AviEa_SetThumbPictFileAccessFlag": "smf_AviEa_SetThumbPictFileAccessFlbF",
       "smf_AviEn_SetThumbPictFileAccessFlag": "smf_AviEn_SetThumbPictFileAccessFlbF"
     },
     "AdjChkConfig.so": {
       "_ZN10InfraInput11GetInstanceEv": "_ZN10InfraInput11GetInstanceFU",
       "_ZN10InfraInput11SetCallbackEPiPFviP16_InfraInputEventE": "_ZN10InfraInput11SetCallbackEPiPFviP16_InfraInputEvensf",
+      "_ZN12_MSG_PIN_GETC1Ev": "_ZN12_MSG_PIN_GETC1FU",
+      "_ZN12_MSG_PIN_GETC2Ev": "_ZN12_MSG_PIN_GETC2FU",
       "_ZN14CIFInfraIndctr11GetInstanceEv": "_ZN14CIFInfraIndctr11GetInstanceFU",
       "_ZN14CIFInfraIndctr15ReleaseInstanceEv": "_ZN14CIFInfraIndctr15ReleaseInstanceFU",
       "_ZN14CIFInfraIndctr8SetStateEiRN11InfraIndctr6TStateE": "_ZN14CIFInfraIndctr8SetStateEiRN11InfraIndctr6TStatdf",
+      "_ZN17_MSG_PIN_GET_COMPC1Ev": "_ZN17_MSG_PIN_GET_COMPC1FU",
+      "_ZN17_MSG_PIN_GET_COMPC2Ev": "_ZN17_MSG_PIN_GET_COMPC2FU",
+      "_ZN24_MSG_PIN_REQUEST_CONNECTC1Ev": "_ZN24_MSG_PIN_REQUEST_CONNECTC1FU",
+      "_ZN24_MSG_PIN_REQUEST_CONNECTC2Ev": "_ZN24_MSG_PIN_REQUEST_CONNECTC2FU",
+      "_ZN27_MSG_PIN_REQUEST_DISCONNECTC1Ev": "_ZN27_MSG_PIN_REQUEST_DISCONNECTC1FU",
+      "_ZN27_MSG_PIN_REQUEST_DISCONNECTC2Ev": "_ZN27_MSG_PIN_REQUEST_DISCONNECTC2FU",
+      "_ZN29_MSG_PIN_REQUEST_CONNECT_COMPC1Ev": "_ZN29_MSG_PIN_REQUEST_CONNECT_COMPC1FU",
+      "_ZN29_MSG_PIN_REQUEST_CONNECT_COMPC2Ev": "_ZN29_MSG_PIN_REQUEST_CONNECT_COMPC2FU",
       "_ZN2ux4core10TextLayout20registerFontFaceFileEhPKch": "_ZN2ux4core10TextLayout20registerFontFaceFileEhPKdG",
       "_ZN2ux4core2ID4ZEROE": "_ZN2ux4core2ID4ZERNf",
       "_ZN2ux4core2ID5genIDEPKc": "_ZN2ux4core2ID5genIDEPLB",
+      "_ZN2ux4core2IDC1Ev": "_ZN2ux4core2IDC1FU",
+      "_ZN2ux4core7Vector2C1Eff": "_ZN2ux4core7Vector2C1EgE",
       "_ZN2ux4core8msec_nowEv": "_ZN2ux4core8msec_nowFU",
       "_ZN2ux6gfxeng10TextSprite8drawTextEv": "_ZN2ux6gfxeng10TextSprite8drawTextFU",
       "_ZN2ux6gfxeng10TextSprite9setStringEPKc": "_ZN2ux6gfxeng10TextSprite9setStringEPLB",
@@ -581,6 +735,15 @@
       "_ZN2ux6gfxeng7Element11setLocalPosERKNS_4core7Vector2E": "_ZN2ux6gfxeng7Element11setLocalPosERKNS_4core7Vector1f",
       "_ZN2ux6resmgr15ResourceManager10createFontERKN5alcor13FontAttributeERN5libra9RecordPtrE": "_ZN2ux6resmgr15ResourceManager10createFontERKN5alcor13FontAttributeERN5libra9RecordPtqf",
       "_ZN2ux6resmgr15ResourceManager15sys_getInstanceEv": "_ZN2ux6resmgr15ResourceManager15sys_getInstanceFU",
+      "_ZN2ux6wgtsys10WidgetBase10onKeyEventERKNS0_8KeyEventE": "_ZN2ux6wgtsys10WidgetBase10onKeyEventERKNS0_8KeyEvensf",
+      "_ZN2ux6wgtsys10WidgetBase11onUserEventERKNS0_9UserEventE": "_ZN2ux6wgtsys10WidgetBase11onUserEventERKNS0_9UserEvensf",
+      "_ZN2ux6wgtsys10WidgetBase12onDrawNoticeEv": "_ZN2ux6wgtsys10WidgetBase12onDrawNoticeFU",
+      "_ZN2ux6wgtsys10WidgetBase12onMouseEventERKNS0_10MouseEventE": "_ZN2ux6wgtsys10WidgetBase12onMouseEventERKNS0_10MouseEvensf",
+      "_ZN2ux6wgtsys10WidgetBase16onMouseEventHookERKNS0_10MouseEventE": "_ZN2ux6wgtsys10WidgetBase16onMouseEventHookERKNS0_10MouseEvensf",
+      "_ZN2ux6wgtsys10WidgetBase7onResetEb": "_ZN2ux6wgtsys10WidgetBase7onResetFA",
+      "_ZN2ux6wgtsys10WidgetBase7onTimerERKNS_4core2IDEy": "_ZN2ux6wgtsys10WidgetBase7onTimerERKNS_4core2IDFX",
+      "_ZN2ux6wgtsys10WidgetBase9onAnimateEv": "_ZN2ux6wgtsys10WidgetBase9onAnimateFU",
+      "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector2E": "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys12WidgetSystem11createLayerERKNS_4core2IDE": "_ZN2ux6wgtsys12WidgetSystem11createLayerERKNS_4core2ICf",
       "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimeE": "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimdf",
       "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimeE": "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimdf",
@@ -590,22 +753,37 @@
       "_ZN2ux6wgtsys6Widget11setLocalPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget11setLocalPosERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget12calcLocalPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget12calcLocalPosERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget12calcWorldPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget12calcWorldPosERKNS_4core7Vector1f",
+      "_ZN2ux6wgtsys6Widget12setHitMarginEssss": "_ZN2ux6wgtsys6Widget12setHitMarginEsstR",
       "_ZN2ux6wgtsys6Widget13setLocalScaleERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget13setLocalScaleERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget14setFilterAlphaEh": "_ZN2ux6wgtsys6Widget14setFilterAlphaFG",
       "_ZN2ux6wgtsys6Widget14setFilterColorERKN6stella6CColorE": "_ZN2ux6wgtsys6Widget14setFilterColorERKN6stella6CColoqf",
       "_ZN2ux6wgtsys6Widget17calcLocalMousePosEh": "_ZN2ux6wgtsys6Widget17calcLocalMousePosFG",
       "_ZN2ux6wgtsys6Widget17calcWorldClipAreaERfS2_S2_S2_": "_ZN2ux6wgtsys6Widget17calcWorldClipAreaERfS2_S2_RS_",
+      "_ZN2ux6wgtsys6Widget17getUserWidgetTypeEv": "_ZN2ux6wgtsys6Widget17getUserWidgetTypeFU",
       "_ZN2ux6wgtsys6Widget19calcLocalDragOffsetERKNS0_10MouseEventEb": "_ZN2ux6wgtsys6Widget19calcLocalDragOffsetERKNS0_10MouseEventFA",
       "_ZN2ux6wgtsys6Widget19calcLocalFlickSpeedERKNS0_10MouseEventE": "_ZN2ux6wgtsys6Widget19calcLocalFlickSpeedERKNS0_10MouseEvensf",
+      "_ZN2ux6wgtsys6Widget23sys_isDropReceiveWidgetERKNS1_8DropInfoE": "_ZN2ux6wgtsys6Widget23sys_isDropReceiveWidgetERKNS1_8DropInfnf",
       "_ZN2ux6wgtsys6Widget5isHitERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget5isHitERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget5resetEb": "_ZN2ux6wgtsys6Widget5resetFA",
+      "_ZN2ux6wgtsys6Widget6onDropERKNS1_8DropInfoE": "_ZN2ux6wgtsys6Widget6onDropERKNS1_8DropInfnf",
+      "_ZN2ux6wgtsys6Widget6onDumpERN5libra10DictionaryE": "_ZN2ux6wgtsys6Widget6onDumpERN5libra10Dictionarxf",
       "_ZN2ux6wgtsys6Widget7setModeENS0_10WidgetModeE": "_ZN2ux6wgtsys6Widget7setModeENS0_10WidgetModdf",
       "_ZN2ux6wgtsys6Widget7setSizeEff": "_ZN2ux6wgtsys6Widget7setSizeEgE",
       "_ZN2ux6wgtsys6Widget8initNodeERNS_6gfxeng4NodeE": "_ZN2ux6wgtsys6Widget8initNodeERNS_6gfxeng4Noddf",
       "_ZN2ux6wgtsys6WidgetD2Ev": "_ZN2ux6wgtsys6WidgetD2FU",
+      "_ZN32_MSG_PIN_REQUEST_DISCONNECT_COMPC1Ev": "_ZN32_MSG_PIN_REQUEST_DISCONNECT_COMPC1FU",
+      "_ZN32_MSG_PIN_REQUEST_DISCONNECT_COMPC2Ev": "_ZN32_MSG_PIN_REQUEST_DISCONNECT_COMPC2FU",
+      "_ZN5alcor19FontAttributeWriter11setFontSizeEh": "_ZN5alcor19FontAttributeWriter11setFontSizeFG",
+      "_ZN5alcor19FontAttributeWriter12setForeColorERKN6stella5ColorE": "_ZN5alcor19FontAttributeWriter12setForeColorERKN6stella5Coloqf",
+      "_ZN5alcor19FontAttributeWriter9setFontIDEj": "_ZN5alcor19FontAttributeWriter9setFontIDFI",
       "_ZN5alcor19FontAttributeWriterC2Ev": "_ZN5alcor19FontAttributeWriterC2FU",
       "_ZN5alcor19FontAttributeWriterD2Ev": "_ZN5alcor19FontAttributeWriterD2FU",
+      "_ZN5alcor21LayoutAttributeWriter16setLineBreakTypeENS_15LayoutAttribute13LineBreakTypeE": "_ZN5alcor21LayoutAttributeWriter16setLineBreakTypeENS_15LayoutAttribute13LineBreakTypdf",
+      "_ZN5alcor21LayoutAttributeWriter16setVerticalAlignENS_15LayoutAttribute13VerticalAlignE": "_ZN5alcor21LayoutAttributeWriter16setVerticalAlignENS_15LayoutAttribute13VerticalAligmf",
       "_ZN5alcor21LayoutAttributeWriterC1Ev": "_ZN5alcor21LayoutAttributeWriterC1FU",
+      "_ZN5alcor21LayoutAttributeWriterD1Ev": "_ZN5alcor21LayoutAttributeWriterD1FU",
+      "_ZN5libra9RecordPtrC1Ev": "_ZN5libra9RecordPtrC1FU",
+      "_ZN6stella6CColorC1Ehhhh": "_ZN6stella6CColorC1EhhiG",
       "_ZN6stella8BitArrayIjE3setEjb": "_ZN6stella8BitArrayIjE3setEkA",
       "_ZN6stella8BitArrayItE3setEjb": "_ZN6stella8BitArrayItE3setEkA",
       "_ZN7InfraTp11GetInstanceEv": "_ZN7InfraTp11GetInstanceFU",
@@ -614,24 +792,18 @@
       "_ZN8UXEngine6gfxengEv": "_ZN8UXEngine6gfxengFU",
       "_ZN8UXEngine6resmgrEv": "_ZN8UXEngine6resmgrFU",
       "_ZN8UXEngine6wgtsysEv": "_ZN8UXEngine6wgtsysFU",
+      "_ZNK2ux6wgtsys10WidgetBase10isWidget3DEv": "_ZNK2ux6wgtsys10WidgetBase10isWidget3DFU",
       "_ZNK2ux6wgtsys6Widget11getLocalPosEv": "_ZNK2ux6wgtsys6Widget11getLocalPosFU",
       "_ZNK2ux6wgtsys6Widget13getLocalScaleEv": "_ZNK2ux6wgtsys6Widget13getLocalScaleFU",
       "_ZNK2ux6wgtsys6Widget14getFilterAlphaEv": "_ZNK2ux6wgtsys6Widget14getFilterAlphaFU",
       "_ZNK2ux6wgtsys6Widget14getFilterColorEv": "_ZNK2ux6wgtsys6Widget14getFilterColorFU",
+      "_ZNK2ux6wgtsys6Widget22getLastChildWidgetBaseEv": "_ZNK2ux6wgtsys6Widget22getLastChildWidgetBaseFU",
       "_ZNK2ux6wgtsys6Widget23getFirstChildWidgetBaseEv": "_ZNK2ux6wgtsys6Widget23getFirstChildWidgetBaseFU",
       "_ZNK2ux6wgtsys6Widget8getWidthEv": "_ZNK2ux6wgtsys6Widget8getWidthFU",
       "_ZNK2ux6wgtsys6Widget9getHeightEv": "_ZNK2ux6wgtsys6Widget9getHeightFU",
       "_ZNK6stella8BitArrayIjE4isOnEj": "_ZNK6stella8BitArrayIjE4isOnFI",
       "_ZNK6stella8BitArrayItE4isOnEj": "_ZNK6stella8BitArrayItE4isOnFI",
       "_ZTIN2ux6wgtsys6WidgetE": "_ZTIN2ux6wgtsys6Widgesf",
-      "__bss_start": "__bss_stasS",
-      "__bss_start__": "__bss_stasS__",
-      "__end__": "__eoC__",
-      "_bss_end__": "_bss_eoC__",
-      "_edata": "_edbSa",
-      "_end": "_eoC",
-      "_fini": "_fioH",
-      "_init": "_injS",
       "stella_print_log": "suDlla_print_log"
     },
     "appFwBoot.so": {
@@ -651,14 +823,6 @@
       "_ZN8UXEngine6resmgrEv": "_ZN8UXEngine6resmgrFU",
       "_ZNK6stella8BitArrayIjE4isOnEj": "_ZNK6stella8BitArrayIjE4isOnFI",
       "_ZNK6stella8BitArrayItE4isOnEj": "_ZNK6stella8BitArrayItE4isOnFI",
-      "__bss_start": "__bss_stasS",
-      "__bss_start__": "__bss_stasS__",
-      "__end__": "__eoC__",
-      "_bss_end__": "_bss_eoC__",
-      "_edata": "_edbSa",
-      "_end": "_eoC",
-      "_fini": "_fioH",
-      "_init": "_injS",
       "stella_print_log": "suDlla_print_log"
     },
     "appFw.so": {
@@ -678,8 +842,12 @@
       "_ZN2ux4core2ID14genIDForSystemEj": "_ZN2ux4core2ID14genIDForSystemFI",
       "_ZN2ux4core2ID4ZEROE": "_ZN2ux4core2ID4ZERNf",
       "_ZN2ux4core2ID5genIDEPKc": "_ZN2ux4core2ID5genIDEPLB",
+      "_ZN2ux4core2IDC1Ev": "_ZN2ux4core2IDC1FU",
       "_ZN2ux4core7Vector24ZEROE": "_ZN2ux4core7Vector24ZERNf",
+      "_ZN2ux4core7Vector2C1Eff": "_ZN2ux4core7Vector2C1EgE",
+      "_ZN2ux4core7Vector2C1Ev": "_ZN2ux4core7Vector2C1FU",
       "_ZN2ux4core8msec_nowEv": "_ZN2ux4core8msec_nowFU",
+      "_ZN2ux6gfxeng10TextSprite14freezeDrawTextEv": "_ZN2ux6gfxeng10TextSprite14freezeDrawTextFU",
       "_ZN2ux6gfxeng10TextSprite7setFontEPjh": "_ZN2ux6gfxeng10TextSprite7setFontEPkG",
       "_ZN2ux6gfxeng10TextSprite8drawTextEv": "_ZN2ux6gfxeng10TextSprite8drawTextFU",
       "_ZN2ux6gfxeng10TextSprite9setStringEPKc": "_ZN2ux6gfxeng10TextSprite9setStringEPLB",
@@ -693,6 +861,7 @@
       "_ZN2ux6gfxeng6Sprite11setRectSizeEtff": "_ZN2ux6gfxeng6Sprite11setRectSizeEtgE",
       "_ZN2ux6gfxeng6Sprite12setRectColorEtRKN6stella6CColorE": "_ZN2ux6gfxeng6Sprite12setRectColorEtRKN6stella6CColoqf",
       "_ZN2ux6gfxeng6Sprite17setRectColorResIDEtj": "_ZN2ux6gfxeng6Sprite17setRectColorResIDEuI",
+      "_ZN2ux6gfxeng6Sprite18setPatchImageCacheEb": "_ZN2ux6gfxeng6Sprite18setPatchImageCacheFA",
       "_ZN2ux6gfxeng6SpriteC1Ev": "_ZN2ux6gfxeng6SpriteC1FU",
       "_ZN2ux6gfxeng6SpriteD1Ev": "_ZN2ux6gfxeng6SpriteD1FU",
       "_ZN2ux6gfxeng7Element11setLocalPosERKNS_4core7Vector2E": "_ZN2ux6gfxeng7Element11setLocalPosERKNS_4core7Vector1f",
@@ -702,56 +871,93 @@
       "_ZN2ux6resmgr15ResourceManager14prefetchImagesEPjhh": "_ZN2ux6resmgr15ResourceManager14prefetchImagesEPjiG",
       "_ZN2ux6resmgr15ResourceManager15sys_getInstanceEv": "_ZN2ux6resmgr15ResourceManager15sys_getInstanceFU",
       "_ZN2ux6resmgr15ResourceManager18syncPrefetchImagesEPjhh": "_ZN2ux6resmgr15ResourceManager18syncPrefetchImagesEPjiG",
+      "_ZN2ux6wgtsys10WidgetBase10onKeyEventERKNS0_8KeyEventE": "_ZN2ux6wgtsys10WidgetBase10onKeyEventERKNS0_8KeyEvensf",
       "_ZN2ux6wgtsys10WidgetBase10setAnimateEb": "_ZN2ux6wgtsys10WidgetBase10setAnimateFA",
+      "_ZN2ux6wgtsys10WidgetBase11onUserEventERKNS0_9UserEventE": "_ZN2ux6wgtsys10WidgetBase11onUserEventERKNS0_9UserEvensf",
       "_ZN2ux6wgtsys10WidgetBase11removeTimerERKNS_4core2IDE": "_ZN2ux6wgtsys10WidgetBase11removeTimerERKNS_4core2ICf",
+      "_ZN2ux6wgtsys10WidgetBase12onDrawNoticeEv": "_ZN2ux6wgtsys10WidgetBase12onDrawNoticeFU",
+      "_ZN2ux6wgtsys10WidgetBase12onMouseEventERKNS0_10MouseEventE": "_ZN2ux6wgtsys10WidgetBase12onMouseEventERKNS0_10MouseEvensf",
+      "_ZN2ux6wgtsys10WidgetBase13ActionHandlerC1Ev": "_ZN2ux6wgtsys10WidgetBase13ActionHandlerC1FU",
       "_ZN2ux6wgtsys10WidgetBase15setMouseCaptureEhb": "_ZN2ux6wgtsys10WidgetBase15setMouseCaptureEiA",
+      "_ZN2ux6wgtsys10WidgetBase16onMouseEventHookERKNS0_10MouseEventE": "_ZN2ux6wgtsys10WidgetBase16onMouseEventHookERKNS0_10MouseEvensf",
+      "_ZN2ux6wgtsys10WidgetBase17setMouseEventHookEb": "_ZN2ux6wgtsys10WidgetBase17setMouseEventHookFA",
+      "_ZN2ux6wgtsys10WidgetBase7onResetEb": "_ZN2ux6wgtsys10WidgetBase7onResetFA",
+      "_ZN2ux6wgtsys10WidgetBase7onTimerERKNS_4core2IDEy": "_ZN2ux6wgtsys10WidgetBase7onTimerERKNS_4core2IDFX",
       "_ZN2ux6wgtsys10WidgetBase8addTimerENS0_9TimerTypeEjRKNS_4core2IDE": "_ZN2ux6wgtsys10WidgetBase8addTimerENS0_9TimerTypeEjRKNS_4core2ICf",
+      "_ZN2ux6wgtsys10WidgetBase9onAnimateEv": "_ZN2ux6wgtsys10WidgetBase9onAnimateFU",
+      "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector2E": "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys10WidgetNodeC1Ev": "_ZN2ux6wgtsys10WidgetNodeC1FU",
       "_ZN2ux6wgtsys12WidgetSystem11createLayerERKNS_4core2IDE": "_ZN2ux6wgtsys12WidgetSystem11createLayerERKNS_4core2ICf",
       "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimeE": "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimdf",
       "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimeE": "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimdf",
       "_ZN2ux6wgtsys12WidgetSystem15sys_getInstanceEv": "_ZN2ux6wgtsys12WidgetSystem15sys_getInstanceFU",
       "_ZN2ux6wgtsys12WidgetSystem16postMouseReleaseEhhNS_4core8MsecTimeE": "_ZN2ux6wgtsys12WidgetSystem16postMouseReleaseEhhNS_4core8MsecTimdf",
+      "_ZN2ux6wgtsys12WidgetSystem18getGestureAnalyzerEv": "_ZN2ux6wgtsys12WidgetSystem18getGestureAnalyzerFU",
       "_ZN2ux6wgtsys15GestureAnalyzer16setGestureYRatioEf": "_ZN2ux6wgtsys15GestureAnalyzer16setGestureYRatioFE",
+      "_ZN2ux6wgtsys15GestureAnalyzer9setConfigENS1_13GestureConfigEt": "_ZN2ux6wgtsys15GestureAnalyzer9setConfigENS1_13GestureConfigFS",
+      "_ZN2ux6wgtsys6Action13sys_setCalleeEPv": "_ZN2ux6wgtsys6Action13sys_setCalleeEQU",
+      "_ZN2ux6wgtsys6Action13sys_setCallerEPNS0_6WidgetE": "_ZN2ux6wgtsys6Action13sys_setCallerEPNS0_6Widgesf",
+      "_ZN2ux6wgtsys6Action15sys_setActionIDERKNS_4core2IDE": "_ZN2ux6wgtsys6Action15sys_setActionIDERKNS_4core2ICf",
       "_ZN2ux6wgtsys6Widget10initSpriteERNS_6gfxeng6SpriteEt": "_ZN2ux6wgtsys6Widget10initSpriteERNS_6gfxeng6SpriteFS",
       "_ZN2ux6wgtsys6Widget10setLayerIDERKNS_4core2IDE": "_ZN2ux6wgtsys6Widget10setLayerIDERKNS_4core2ICf",
       "_ZN2ux6wgtsys6Widget11setLocalPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget11setLocalPosERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget12calcLocalPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget12calcLocalPosERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget12calcWorldPosERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget12calcWorldPosERKNS_4core7Vector1f",
+      "_ZN2ux6wgtsys6Widget12setHitMarginEssss": "_ZN2ux6wgtsys6Widget12setHitMarginEsstR",
       "_ZN2ux6wgtsys6Widget13setLocalScaleERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget13setLocalScaleERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget14setFilterAlphaEh": "_ZN2ux6wgtsys6Widget14setFilterAlphaFG",
       "_ZN2ux6wgtsys6Widget14setFilterColorERKN6stella6CColorE": "_ZN2ux6wgtsys6Widget14setFilterColorERKN6stella6CColoqf",
       "_ZN2ux6wgtsys6Widget17calcLocalMousePosEh": "_ZN2ux6wgtsys6Widget17calcLocalMousePosFG",
       "_ZN2ux6wgtsys6Widget17calcWorldClipAreaERfS2_S2_S2_": "_ZN2ux6wgtsys6Widget17calcWorldClipAreaERfS2_S2_RS_",
+      "_ZN2ux6wgtsys6Widget17getUserWidgetTypeEv": "_ZN2ux6wgtsys6Widget17getUserWidgetTypeFU",
       "_ZN2ux6wgtsys6Widget19calcLocalDragOffsetERKNS0_10MouseEventEb": "_ZN2ux6wgtsys6Widget19calcLocalDragOffsetERKNS0_10MouseEventFA",
       "_ZN2ux6wgtsys6Widget19calcLocalFlickSpeedERKNS0_10MouseEventE": "_ZN2ux6wgtsys6Widget19calcLocalFlickSpeedERKNS0_10MouseEvensf",
+      "_ZN2ux6wgtsys6Widget23sys_isDropReceiveWidgetERKNS1_8DropInfoE": "_ZN2ux6wgtsys6Widget23sys_isDropReceiveWidgetERKNS1_8DropInfnf",
       "_ZN2ux6wgtsys6Widget5isHitERKNS_4core7Vector2E": "_ZN2ux6wgtsys6Widget5isHitERKNS_4core7Vector1f",
       "_ZN2ux6wgtsys6Widget5resetEb": "_ZN2ux6wgtsys6Widget5resetFA",
+      "_ZN2ux6wgtsys6Widget6onDropERKNS1_8DropInfoE": "_ZN2ux6wgtsys6Widget6onDropERKNS1_8DropInfnf",
+      "_ZN2ux6wgtsys6Widget6onDumpERN5libra10DictionaryE": "_ZN2ux6wgtsys6Widget6onDumpERN5libra10Dictionarxf",
       "_ZN2ux6wgtsys6Widget7setModeENS0_10WidgetModeE": "_ZN2ux6wgtsys6Widget7setModeENS0_10WidgetModdf",
+      "_ZN2ux6wgtsys6Widget7setModeENS1_10WidgetModeE": "_ZN2ux6wgtsys6Widget7setModeENS1_10WidgetModdf",
       "_ZN2ux6wgtsys6Widget7setSizeEff": "_ZN2ux6wgtsys6Widget7setSizeEgE",
       "_ZN2ux6wgtsys6Widget8initNodeERNS_6gfxeng4NodeE": "_ZN2ux6wgtsys6Widget8initNodeERNS_6gfxeng4Noddf",
       "_ZN2ux6wgtsys6Widget9resetDescEb": "_ZN2ux6wgtsys6Widget9resetDescFA",
       "_ZN2ux6wgtsys6Widget9setParentERNS0_10WidgetBaseE": "_ZN2ux6wgtsys6Widget9setParentERNS0_10WidgetBasdf",
       "_ZN2ux6wgtsys6WidgetD2Ev": "_ZN2ux6wgtsys6WidgetD2FU",
+      "_ZN5alcor19FontAttributeWriter11setEllipsisEb": "_ZN5alcor19FontAttributeWriter11setEllipsisFA",
       "_ZN5alcor19FontAttributeWriterC2Ev": "_ZN5alcor19FontAttributeWriterC2FU",
       "_ZN5alcor19FontAttributeWriterD2Ev": "_ZN5alcor19FontAttributeWriterD2FU",
+      "_ZN5alcor21LayoutAttributeWriter10setLineGapEh": "_ZN5alcor21LayoutAttributeWriter10setLineGapFG",
+      "_ZN5alcor21LayoutAttributeWriter16setLineBreakTypeENS_15LayoutAttribute13LineBreakTypeE": "_ZN5alcor21LayoutAttributeWriter16setLineBreakTypeENS_15LayoutAttribute13LineBreakTypdf",
+      "_ZN5alcor21LayoutAttributeWriter16setVerticalAlignENS_15LayoutAttribute13VerticalAlignE": "_ZN5alcor21LayoutAttributeWriter16setVerticalAlignENS_15LayoutAttribute13VerticalAligmf",
       "_ZN5alcor21LayoutAttributeWriter7setRectERKNS_15LayoutAttribute4RectE": "_ZN5alcor21LayoutAttributeWriter7setRectERKNS_15LayoutAttribute4Recsf",
       "_ZN5alcor21LayoutAttributeWriterC1Ev": "_ZN5alcor21LayoutAttributeWriterC1FU",
+      "_ZN5alcor21LayoutAttributeWriterD1Ev": "_ZN5alcor21LayoutAttributeWriterD1FU",
+      "_ZN5libra16CreateImageParamC1Etti": "_ZN5libra16CreateImageParamC1EtuH",
       "_ZN5libra6StringC1ERKS0_": "_ZN5libra6StringC1ERKRQ_",
       "_ZN5libra9ImageData16sys_getImageDataEv": "_ZN5libra9ImageData16sys_getImageDataFU",
       "_ZN5libra9ImageData6detachEv": "_ZN5libra9ImageData6detachFU",
       "_ZN5libra9ImageDataC1Ev": "_ZN5libra9ImageDataC1FU",
       "_ZN5libra9ImageDataD1Ev": "_ZN5libra9ImageDataD1FU",
+      "_ZN5libra9RecordPtrC1Ev": "_ZN5libra9RecordPtrC1FU",
+      "_ZN5libra9RecordPtrD1Ev": "_ZN5libra9RecordPtrD1FU",
       "_ZN6stella5Color4ZEROE": "_ZN6stella5Color4ZERNf",
       "_ZN6stella6CColorC1ERKNS_5ColorE": "_ZN6stella6CColorC1ERKNS_5Coloqf",
       "_ZN6stella6CColorC1ERKS0_": "_ZN6stella6CColorC1ERKRQ_",
+      "_ZN6stella6CColorC1Ehhhh": "_ZN6stella6CColorC1EhhiG",
       "_ZN8UXEngine6gfxengEv": "_ZN8UXEngine6gfxengFU",
       "_ZN8UXEngine6resmgrEv": "_ZN8UXEngine6resmgrFU",
       "_ZN8UXEngine6wgtsysEv": "_ZN8UXEngine6wgtsysFU",
       "_ZN9InfraDial11GetInstanceEv": "_ZN9InfraDial11GetInstanceFU",
+      "_ZNK2ux4core2IDeqES1_": "_ZNK2ux4core2IDeqERR_",
+      "_ZNK2ux4core2IDneES1_": "_ZNK2ux4core2IDneERR_",
       "_ZNK2ux4core7Vector2miERKS1_": "_ZNK2ux4core7Vector2miERKRR_",
       "_ZNK2ux4core7Vector2plERKS1_": "_ZNK2ux4core7Vector2plERKRR_",
       "_ZNK2ux6gfxeng6Sprite12getRectColorEt": "_ZNK2ux6gfxeng6Sprite12getRectColorFS",
+      "_ZNK2ux6wgtsys10MouseEvent12getEventTypeEv": "_ZNK2ux6wgtsys10MouseEvent12getEventTypeFU",
+      "_ZNK2ux6wgtsys10MouseEvent8getMouseEv": "_ZNK2ux6wgtsys10MouseEvent8getMouseFU",
+      "_ZNK2ux6wgtsys10WidgetBase10isWidget3DEv": "_ZNK2ux6wgtsys10WidgetBase10isWidget3DFU",
+      "_ZNK2ux6wgtsys10WidgetBase9isAnimateEv": "_ZNK2ux6wgtsys10WidgetBase9isAnimateFU",
       "_ZNK2ux6wgtsys12WidgetSystem13getMouseStateEhh": "_ZNK2ux6wgtsys12WidgetSystem13getMouseStateEiG",
       "_ZNK2ux6wgtsys12WidgetSystem16sys_getFrameStepEv": "_ZNK2ux6wgtsys12WidgetSystem16sys_getFrameStepFU",
       "_ZNK2ux6wgtsys12WidgetSystem19sys_calcInterpRatioEf": "_ZNK2ux6wgtsys12WidgetSystem19sys_calcInterpRatioFE",
@@ -759,6 +965,7 @@
       "_ZNK2ux6wgtsys6Widget13getLocalScaleEv": "_ZNK2ux6wgtsys6Widget13getLocalScaleFU",
       "_ZNK2ux6wgtsys6Widget14getFilterAlphaEv": "_ZNK2ux6wgtsys6Widget14getFilterAlphaFU",
       "_ZNK2ux6wgtsys6Widget14getFilterColorEv": "_ZNK2ux6wgtsys6Widget14getFilterColorFU",
+      "_ZNK2ux6wgtsys6Widget22getLastChildWidgetBaseEv": "_ZNK2ux6wgtsys6Widget22getLastChildWidgetBaseFU",
       "_ZNK2ux6wgtsys6Widget23getFirstChildWidgetBaseEv": "_ZNK2ux6wgtsys6Widget23getFirstChildWidgetBaseFU",
       "_ZNK2ux6wgtsys6Widget7getModeEv": "_ZNK2ux6wgtsys6Widget7getModeFU",
       "_ZNK2ux6wgtsys6Widget8getWidthEv": "_ZNK2ux6wgtsys6Widget8getWidthFU",
@@ -8267,429 +8474,6 @@
       ]
     },
     {
-      "symbol": "__bss_start",
-      "new_name": "__bss_stasS",
-      "gnu_hash": "0x1c5871d8",
-      "type": "STT_NOTYPE",
-      "size": 0,
-      "defined_in": "AdjChkConfig.so",
-      "conflicting_g4_libs": [
-        "CameraOnDemandSaver.so",
-        "CautionConfig.so",
-        "CautionRsrcConfig.so",
-        "dataflowInfraFramework.so",
-        "libAK8975.so",
-        "libbackup.so",
-        "libBackupManager.so",
-        "libBizFw.so",
-        "libBizFw2.so",
-        "libbsa.so",
-        "libBTAdjust.so",
-        "libBTUtils.so",
-        "libBusPower.so",
-        "libclema.so",
-        "libcom_err.so.2.1",
-        "libcompassutil.so",
-        "libdig_level.so",
-        "libe2p.so.2.3",
-        "libEMG.so",
-        "libexpat.so.1.6.11",
-        "libExternalCommand.so",
-        "libgenuinetime.so",
-        "libGOConnectionManager.so",
-        "libgps_rsrc.so",
-        "libIMDB.so",
-        "libInfraAccessLog.so",
-        "libInfraAccessLogWrapper.so",
-        "libInfraAirplaneMode.so",
-        "libInfraBGMMeta.so",
-        "libInfraBluetooth.so",
-        "libInfraBluetoothCore.so",
-        "libInfraBluetoothLowEnergy.so",
-        "libInfraBluetoothWoLEBoot.so",
-        "libInfraCacheMgr.so",
-        "libInfraCameraAllSetting.so",
-        "libInfraCameraProfile.so",
-        "libInfraDevInfoSender.so",
-        "libInfraDlnaControl.so",
-        "libInfraExtBackupCommunicator.so",
-        "libInfraExtCmdSvc.so",
-        "libInfraExtTransferApp.so",
-        "libInfraFsys.so",
-        "libInfraHdmi.so",
-        "libInfraHighlight.so",
-        "libInfraHttpClient.so",
-        "libInfraHttpClientUtil.so",
-        "libInfraIPsec.so",
-        "libInfraIPTC.so",
-        "libInfraKikiLogGenerator.so",
-        "libInfraKikiLogSender.so",
-        "libInfraLensCommunicator.so",
-        "libInfraMakeScenario.so",
-        "libInfraMediaCommon.so",
-        "libInfraMediaDetect.so",
-        "libInfraMediaMount.so",
-        "libInfraMetaSupplier.so",
-        "libInfraMscServer.so",
-        "libInfraMtpServer.so",
-        "libInfraNetConnectionManager.so",
-        "libInfraNetConnectionManagerEther.so",
-        "libInfraNetDeviceInfo.so",
-        "libInfraNetFunctionManager.so",
-        "libInfraNetInitializer.so",
-        "libInfraNetworkServiceInfo.so",
-        "libInfraPtpControl.so",
-        "libInfraPtpExtCmd.so",
-        "libInfraRemote.so",
-        "libInfraSKD.so",
-        "libInfraStreamingUsb.so",
-        "libInfraUsbCmn.so",
-        "libInfraUsbHostStorage.so",
-        "libip4tc.so.0.0.0",
-        "libjemalloc_ds.so.1",
-        "libJiritsu.so",
-        "libjsoncpp.so",
-        "libjsoncpp.so.00.11.0",
-        "libjsoncpp.so.23",
-        "libmintx.so",
-        "libmprctrl.so",
-        "libmprdummy.so",
-        "libMWF.so",
-        "libncurses.so.6.2",
-        "libNetCommon.so",
-        "libNetContUtil.so",
-        "libNetService.so",
-        "libnl-3.so.200.17.0",
-        "libnl-cli-3.so.200.17.0",
-        "libnl-genl-3.so.200.17.0",
-        "libnl-nf-3.so.200.17.0",
-        "libnl-route-3.so.200.17.0",
-        "libOnDemandLoader.so",
-        "libopus.so.0.8.0",
-        "libosal_uipc.so",
-        "libosal_ulogio.so",
-        "libosal_utm.so",
-        "libpcap.so.1.0.0",
-        "libpcre.so.1.2.12",
-        "libpopt.so.0.0.0",
-        "libpro00.so",
-        "libptp.so",
-        "libqrencode.so",
-        "libResourceBluetooth.so",
-        "libRsrcHotshoe.so",
-        "libsencore.so",
-        "libSKDWrapperManager.so",
-        "libSoundTouch.so.1.0.0",
-        "libSysDef.so",
-        "libtestcmd.so",
-        "libtestcmd_scn.so",
-        "libul_GpioCtrl.so",
-        "libul_xml.so",
-        "libupdatercommon.so",
-        "libupdatermedia.so",
-        "libupdatertalk.so",
-        "libupdaterufp.so",
-        "libupdaterufunc.so",
-        "libUsbBusPower.so",
-        "libUsbChargingApp.so",
-        "libusbcmd.so",
-        "libUsbControl.so",
-        "libutil_date.so",
-        "libWlanAdjust.so",
-        "libWlanControlCommon.so",
-        "libWlanResource.so",
-        "libxtables.so.5.0.0",
-        "ModelCautionConfig.so"
-      ],
-      "reason": "NON_FUNC_OR_ZERO_SIZE",
-      "impacted_files": [
-        "AdjChkConfig.so",
-        "appFwBoot.so"
-      ]
-    },
-    {
-      "symbol": "__bss_start__",
-      "new_name": "__bss_stasS__",
-      "gnu_hash": "0x943c5476",
-      "type": "STT_NOTYPE",
-      "size": 0,
-      "defined_in": "AdjChkConfig.so",
-      "conflicting_g4_libs": [
-        "CameraOnDemandSaver.so",
-        "CautionConfig.so",
-        "CautionRsrcConfig.so",
-        "dataflowInfraFramework.so",
-        "libAK8975.so",
-        "libbackup.so",
-        "libBackupManager.so",
-        "libBizFw.so",
-        "libBizFw2.so",
-        "libbsa.so",
-        "libBTAdjust.so",
-        "libBTUtils.so",
-        "libBusPower.so",
-        "libclema.so",
-        "libcom_err.so.2.1",
-        "libcompassutil.so",
-        "libdig_level.so",
-        "libe2p.so.2.3",
-        "libEMG.so",
-        "libexpat.so.1.6.11",
-        "libExternalCommand.so",
-        "libgenuinetime.so",
-        "libGOConnectionManager.so",
-        "libgps_rsrc.so",
-        "libIMDB.so",
-        "libInfraAccessLog.so",
-        "libInfraAccessLogWrapper.so",
-        "libInfraAirplaneMode.so",
-        "libInfraBGMMeta.so",
-        "libInfraBluetooth.so",
-        "libInfraBluetoothCore.so",
-        "libInfraBluetoothLowEnergy.so",
-        "libInfraBluetoothWoLEBoot.so",
-        "libInfraCacheMgr.so",
-        "libInfraCameraAllSetting.so",
-        "libInfraCameraProfile.so",
-        "libInfraDevInfoSender.so",
-        "libInfraDlnaControl.so",
-        "libInfraExtBackupCommunicator.so",
-        "libInfraExtCmdSvc.so",
-        "libInfraExtTransferApp.so",
-        "libInfraFsys.so",
-        "libInfraHdmi.so",
-        "libInfraHighlight.so",
-        "libInfraHttpClient.so",
-        "libInfraHttpClientUtil.so",
-        "libInfraIPsec.so",
-        "libInfraIPTC.so",
-        "libInfraKikiLogGenerator.so",
-        "libInfraKikiLogSender.so",
-        "libInfraLensCommunicator.so",
-        "libInfraMakeScenario.so",
-        "libInfraMediaCommon.so",
-        "libInfraMediaDetect.so",
-        "libInfraMediaMount.so",
-        "libInfraMetaSupplier.so",
-        "libInfraMscServer.so",
-        "libInfraMtpServer.so",
-        "libInfraNetConnectionManager.so",
-        "libInfraNetConnectionManagerEther.so",
-        "libInfraNetDeviceInfo.so",
-        "libInfraNetFunctionManager.so",
-        "libInfraNetInitializer.so",
-        "libInfraNetworkServiceInfo.so",
-        "libInfraPtpControl.so",
-        "libInfraPtpExtCmd.so",
-        "libInfraRemote.so",
-        "libInfraSKD.so",
-        "libInfraStreamingUsb.so",
-        "libInfraUsbCmn.so",
-        "libInfraUsbHostStorage.so",
-        "libip4tc.so.0.0.0",
-        "libjemalloc_ds.so.1",
-        "libJiritsu.so",
-        "libjsoncpp.so",
-        "libjsoncpp.so.00.11.0",
-        "libjsoncpp.so.23",
-        "libmintx.so",
-        "libmprctrl.so",
-        "libmprdummy.so",
-        "libMWF.so",
-        "libncurses.so.6.2",
-        "libNetCommon.so",
-        "libNetContUtil.so",
-        "libNetService.so",
-        "libnl-3.so.200.17.0",
-        "libnl-cli-3.so.200.17.0",
-        "libnl-genl-3.so.200.17.0",
-        "libnl-nf-3.so.200.17.0",
-        "libnl-route-3.so.200.17.0",
-        "libOnDemandLoader.so",
-        "libopus.so.0.8.0",
-        "libosal_uipc.so",
-        "libosal_ulogio.so",
-        "libosal_utm.so",
-        "libpcap.so.1.0.0",
-        "libpcre.so.1.2.12",
-        "libpopt.so.0.0.0",
-        "libpro00.so",
-        "libptp.so",
-        "libqrencode.so",
-        "libResourceBluetooth.so",
-        "libRsrcHotshoe.so",
-        "libsencore.so",
-        "libSKDWrapperManager.so",
-        "libSoundTouch.so.1.0.0",
-        "libSysDef.so",
-        "libtestcmd.so",
-        "libtestcmd_scn.so",
-        "libul_GpioCtrl.so",
-        "libul_xml.so",
-        "libupdatercommon.so",
-        "libupdatermedia.so",
-        "libupdatertalk.so",
-        "libupdaterufp.so",
-        "libupdaterufunc.so",
-        "libUsbBusPower.so",
-        "libUsbChargingApp.so",
-        "libusbcmd.so",
-        "libUsbControl.so",
-        "libutil_date.so",
-        "libWlanAdjust.so",
-        "libWlanControlCommon.so",
-        "libWlanResource.so",
-        "libxtables.so.5.0.0",
-        "ModelCautionConfig.so"
-      ],
-      "reason": "NON_FUNC_OR_ZERO_SIZE",
-      "impacted_files": [
-        "AdjChkConfig.so",
-        "appFwBoot.so"
-      ]
-    },
-    {
-      "symbol": "__end__",
-      "new_name": "__eoC__",
-      "gnu_hash": "0x7997ef58",
-      "type": "STT_NOTYPE",
-      "size": 0,
-      "defined_in": "AdjChkConfig.so",
-      "conflicting_g4_libs": [
-        "CameraOnDemandSaver.so",
-        "CautionConfig.so",
-        "CautionRsrcConfig.so",
-        "dataflowInfraFramework.so",
-        "libAK8975.so",
-        "libbackup.so",
-        "libBackupManager.so",
-        "libBizFw.so",
-        "libBizFw2.so",
-        "libbsa.so",
-        "libBTAdjust.so",
-        "libBTUtils.so",
-        "libBusPower.so",
-        "libclema.so",
-        "libcom_err.so.2.1",
-        "libcompassutil.so",
-        "libdig_level.so",
-        "libe2p.so.2.3",
-        "libEMG.so",
-        "libexpat.so.1.6.11",
-        "libExternalCommand.so",
-        "libgenuinetime.so",
-        "libGOConnectionManager.so",
-        "libgps_rsrc.so",
-        "libIMDB.so",
-        "libInfraAccessLog.so",
-        "libInfraAccessLogWrapper.so",
-        "libInfraAirplaneMode.so",
-        "libInfraBGMMeta.so",
-        "libInfraBluetooth.so",
-        "libInfraBluetoothCore.so",
-        "libInfraBluetoothLowEnergy.so",
-        "libInfraBluetoothWoLEBoot.so",
-        "libInfraCacheMgr.so",
-        "libInfraCameraAllSetting.so",
-        "libInfraCameraProfile.so",
-        "libInfraDevInfoSender.so",
-        "libInfraDlnaControl.so",
-        "libInfraExtBackupCommunicator.so",
-        "libInfraExtCmdSvc.so",
-        "libInfraExtTransferApp.so",
-        "libInfraFsys.so",
-        "libInfraHdmi.so",
-        "libInfraHighlight.so",
-        "libInfraHttpClient.so",
-        "libInfraHttpClientUtil.so",
-        "libInfraIPsec.so",
-        "libInfraIPTC.so",
-        "libInfraKikiLogGenerator.so",
-        "libInfraKikiLogSender.so",
-        "libInfraLensCommunicator.so",
-        "libInfraMakeScenario.so",
-        "libInfraMediaCommon.so",
-        "libInfraMediaDetect.so",
-        "libInfraMediaMount.so",
-        "libInfraMetaSupplier.so",
-        "libInfraMscServer.so",
-        "libInfraMtpServer.so",
-        "libInfraNetConnectionManager.so",
-        "libInfraNetConnectionManagerEther.so",
-        "libInfraNetDeviceInfo.so",
-        "libInfraNetFunctionManager.so",
-        "libInfraNetInitializer.so",
-        "libInfraNetworkServiceInfo.so",
-        "libInfraPtpControl.so",
-        "libInfraPtpExtCmd.so",
-        "libInfraRemote.so",
-        "libInfraSKD.so",
-        "libInfraStreamingUsb.so",
-        "libInfraUsbCmn.so",
-        "libInfraUsbHostStorage.so",
-        "libip4tc.so.0.0.0",
-        "libjemalloc_ds.so.1",
-        "libJiritsu.so",
-        "libjsoncpp.so",
-        "libjsoncpp.so.00.11.0",
-        "libjsoncpp.so.23",
-        "libmintx.so",
-        "libmprctrl.so",
-        "libmprdummy.so",
-        "libMWF.so",
-        "libncurses.so.6.2",
-        "libNetCommon.so",
-        "libNetContUtil.so",
-        "libNetService.so",
-        "libnl-3.so.200.17.0",
-        "libnl-cli-3.so.200.17.0",
-        "libnl-genl-3.so.200.17.0",
-        "libnl-nf-3.so.200.17.0",
-        "libnl-route-3.so.200.17.0",
-        "libOnDemandLoader.so",
-        "libopus.so.0.8.0",
-        "libosal_uipc.so",
-        "libosal_ulogio.so",
-        "libosal_utm.so",
-        "libpcap.so.1.0.0",
-        "libpcre.so.1.2.12",
-        "libpopt.so.0.0.0",
-        "libpro00.so",
-        "libptp.so",
-        "libqrencode.so",
-        "libResourceBluetooth.so",
-        "libRsrcHotshoe.so",
-        "libsencore.so",
-        "libSKDWrapperManager.so",
-        "libSoundTouch.so.1.0.0",
-        "libSysDef.so",
-        "libtestcmd.so",
-        "libtestcmd_scn.so",
-        "libul_GpioCtrl.so",
-        "libul_xml.so",
-        "libupdatercommon.so",
-        "libupdatermedia.so",
-        "libupdatertalk.so",
-        "libupdaterufp.so",
-        "libupdaterufunc.so",
-        "libUsbBusPower.so",
-        "libUsbChargingApp.so",
-        "libusbcmd.so",
-        "libUsbControl.so",
-        "libutil_date.so",
-        "libWlanAdjust.so",
-        "libWlanControlCommon.so",
-        "libWlanResource.so",
-        "libxtables.so.5.0.0",
-        "ModelCautionConfig.so"
-      ],
-      "reason": "NON_FUNC_OR_ZERO_SIZE",
-      "impacted_files": [
-        "AdjChkConfig.so",
-        "appFwBoot.so"
-      ]
-    },
-    {
       "symbol": "__g_rm_thread_exit",
       "new_name": "__g_rm_thread_exjS",
       "gnu_hash": "0x53b30258",
@@ -8702,716 +8486,6 @@
       "reason": "NON_FUNC_OR_ZERO_SIZE",
       "impacted_files": [
         "libOb5.so"
-      ]
-    },
-    {
-      "symbol": "_bss_end__",
-      "new_name": "_bss_eoC__",
-      "gnu_hash": "0xe834af00",
-      "type": "STT_NOTYPE",
-      "size": 0,
-      "defined_in": "AdjChkConfig.so",
-      "conflicting_g4_libs": [
-        "CameraOnDemandSaver.so",
-        "CautionConfig.so",
-        "CautionRsrcConfig.so",
-        "dataflowInfraFramework.so",
-        "libAK8975.so",
-        "libbackup.so",
-        "libBackupManager.so",
-        "libBizFw.so",
-        "libBizFw2.so",
-        "libbsa.so",
-        "libBTAdjust.so",
-        "libBTUtils.so",
-        "libBusPower.so",
-        "libclema.so",
-        "libcom_err.so.2.1",
-        "libcompassutil.so",
-        "libdig_level.so",
-        "libe2p.so.2.3",
-        "libEMG.so",
-        "libexpat.so.1.6.11",
-        "libExternalCommand.so",
-        "libgenuinetime.so",
-        "libGOConnectionManager.so",
-        "libgps_rsrc.so",
-        "libIMDB.so",
-        "libInfraAccessLog.so",
-        "libInfraAccessLogWrapper.so",
-        "libInfraAirplaneMode.so",
-        "libInfraBGMMeta.so",
-        "libInfraBluetooth.so",
-        "libInfraBluetoothCore.so",
-        "libInfraBluetoothLowEnergy.so",
-        "libInfraBluetoothWoLEBoot.so",
-        "libInfraCacheMgr.so",
-        "libInfraCameraAllSetting.so",
-        "libInfraCameraProfile.so",
-        "libInfraDevInfoSender.so",
-        "libInfraDlnaControl.so",
-        "libInfraExtBackupCommunicator.so",
-        "libInfraExtCmdSvc.so",
-        "libInfraExtTransferApp.so",
-        "libInfraFsys.so",
-        "libInfraHdmi.so",
-        "libInfraHighlight.so",
-        "libInfraHttpClient.so",
-        "libInfraHttpClientUtil.so",
-        "libInfraIPsec.so",
-        "libInfraIPTC.so",
-        "libInfraKikiLogGenerator.so",
-        "libInfraKikiLogSender.so",
-        "libInfraLensCommunicator.so",
-        "libInfraMakeScenario.so",
-        "libInfraMediaCommon.so",
-        "libInfraMediaDetect.so",
-        "libInfraMediaMount.so",
-        "libInfraMetaSupplier.so",
-        "libInfraMscServer.so",
-        "libInfraMtpServer.so",
-        "libInfraNetConnectionManager.so",
-        "libInfraNetConnectionManagerEther.so",
-        "libInfraNetDeviceInfo.so",
-        "libInfraNetFunctionManager.so",
-        "libInfraNetInitializer.so",
-        "libInfraNetworkServiceInfo.so",
-        "libInfraPtpControl.so",
-        "libInfraPtpExtCmd.so",
-        "libInfraRemote.so",
-        "libInfraSKD.so",
-        "libInfraStreamingUsb.so",
-        "libInfraUsbCmn.so",
-        "libInfraUsbHostStorage.so",
-        "libip4tc.so.0.0.0",
-        "libjemalloc_ds.so.1",
-        "libJiritsu.so",
-        "libjsoncpp.so",
-        "libjsoncpp.so.00.11.0",
-        "libjsoncpp.so.23",
-        "libmintx.so",
-        "libmprctrl.so",
-        "libmprdummy.so",
-        "libMWF.so",
-        "libncurses.so.6.2",
-        "libNetCommon.so",
-        "libNetContUtil.so",
-        "libNetService.so",
-        "libnl-3.so.200.17.0",
-        "libnl-cli-3.so.200.17.0",
-        "libnl-genl-3.so.200.17.0",
-        "libnl-nf-3.so.200.17.0",
-        "libnl-route-3.so.200.17.0",
-        "libOnDemandLoader.so",
-        "libopus.so.0.8.0",
-        "libosal_uipc.so",
-        "libosal_ulogio.so",
-        "libosal_utm.so",
-        "libpcap.so.1.0.0",
-        "libpcre.so.1.2.12",
-        "libpopt.so.0.0.0",
-        "libpro00.so",
-        "libptp.so",
-        "libqrencode.so",
-        "libResourceBluetooth.so",
-        "libRsrcHotshoe.so",
-        "libsencore.so",
-        "libSKDWrapperManager.so",
-        "libSoundTouch.so.1.0.0",
-        "libSysDef.so",
-        "libtestcmd.so",
-        "libtestcmd_scn.so",
-        "libul_GpioCtrl.so",
-        "libul_xml.so",
-        "libupdatercommon.so",
-        "libupdatermedia.so",
-        "libupdatertalk.so",
-        "libupdaterufp.so",
-        "libupdaterufunc.so",
-        "libUsbBusPower.so",
-        "libUsbChargingApp.so",
-        "libusbcmd.so",
-        "libUsbControl.so",
-        "libutil_date.so",
-        "libWlanAdjust.so",
-        "libWlanControlCommon.so",
-        "libWlanResource.so",
-        "libxtables.so.5.0.0",
-        "ModelCautionConfig.so"
-      ],
-      "reason": "NON_FUNC_OR_ZERO_SIZE",
-      "impacted_files": [
-        "AdjChkConfig.so",
-        "appFwBoot.so"
-      ]
-    },
-    {
-      "symbol": "_edata",
-      "new_name": "_edbSa",
-      "gnu_hash": "0xecd54543",
-      "type": "STT_NOTYPE",
-      "size": 0,
-      "defined_in": "AdjChkConfig.so",
-      "conflicting_g4_libs": [
-        "CameraOnDemandSaver.so",
-        "CautionConfig.so",
-        "CautionRsrcConfig.so",
-        "dataflowInfraFramework.so",
-        "libAK8975.so",
-        "libbackup.so",
-        "libBackupManager.so",
-        "libBizFw.so",
-        "libBizFw2.so",
-        "libbsa.so",
-        "libBTAdjust.so",
-        "libBTUtils.so",
-        "libBusPower.so",
-        "libclema.so",
-        "libcom_err.so.2.1",
-        "libcompassutil.so",
-        "libdig_level.so",
-        "libe2p.so.2.3",
-        "libEMG.so",
-        "libexpat.so.1.6.11",
-        "libExternalCommand.so",
-        "libgenuinetime.so",
-        "libGOConnectionManager.so",
-        "libgps_rsrc.so",
-        "libIMDB.so",
-        "libInfraAccessLog.so",
-        "libInfraAccessLogWrapper.so",
-        "libInfraAirplaneMode.so",
-        "libInfraBGMMeta.so",
-        "libInfraBluetooth.so",
-        "libInfraBluetoothCore.so",
-        "libInfraBluetoothLowEnergy.so",
-        "libInfraBluetoothWoLEBoot.so",
-        "libInfraCacheMgr.so",
-        "libInfraCameraAllSetting.so",
-        "libInfraCameraProfile.so",
-        "libInfraDevInfoSender.so",
-        "libInfraDlnaControl.so",
-        "libInfraExtBackupCommunicator.so",
-        "libInfraExtCmdSvc.so",
-        "libInfraExtTransferApp.so",
-        "libInfraFsys.so",
-        "libInfraHdmi.so",
-        "libInfraHighlight.so",
-        "libInfraHttpClient.so",
-        "libInfraHttpClientUtil.so",
-        "libInfraIPsec.so",
-        "libInfraIPTC.so",
-        "libInfraKikiLogGenerator.so",
-        "libInfraKikiLogSender.so",
-        "libInfraLensCommunicator.so",
-        "libInfraMakeScenario.so",
-        "libInfraMediaCommon.so",
-        "libInfraMediaDetect.so",
-        "libInfraMediaMount.so",
-        "libInfraMetaSupplier.so",
-        "libInfraMscServer.so",
-        "libInfraMtpServer.so",
-        "libInfraNetConnectionManager.so",
-        "libInfraNetConnectionManagerEther.so",
-        "libInfraNetDeviceInfo.so",
-        "libInfraNetFunctionManager.so",
-        "libInfraNetInitializer.so",
-        "libInfraNetworkServiceInfo.so",
-        "libInfraPtpControl.so",
-        "libInfraPtpExtCmd.so",
-        "libInfraRemote.so",
-        "libInfraSKD.so",
-        "libInfraStreamingUsb.so",
-        "libInfraUsbCmn.so",
-        "libInfraUsbHostStorage.so",
-        "libip4tc.so.0.0.0",
-        "libjemalloc_ds.so.1",
-        "libJiritsu.so",
-        "libjsoncpp.so",
-        "libjsoncpp.so.00.11.0",
-        "libjsoncpp.so.23",
-        "libmintx.so",
-        "libmprctrl.so",
-        "libmprdummy.so",
-        "libMWF.so",
-        "libncurses.so.6.2",
-        "libNetCommon.so",
-        "libNetContUtil.so",
-        "libNetService.so",
-        "libnl-3.so.200.17.0",
-        "libnl-cli-3.so.200.17.0",
-        "libnl-genl-3.so.200.17.0",
-        "libnl-nf-3.so.200.17.0",
-        "libnl-route-3.so.200.17.0",
-        "libOnDemandLoader.so",
-        "libopus.so.0.8.0",
-        "libosal_uipc.so",
-        "libosal_ulogio.so",
-        "libosal_utm.so",
-        "libpcap.so.1.0.0",
-        "libpcre.so.1.2.12",
-        "libpopt.so.0.0.0",
-        "libpro00.so",
-        "libptp.so",
-        "libqrencode.so",
-        "libResourceBluetooth.so",
-        "libRsrcHotshoe.so",
-        "libsencore.so",
-        "libSKDWrapperManager.so",
-        "libSoundTouch.so.1.0.0",
-        "libSysDef.so",
-        "libtestcmd.so",
-        "libtestcmd_scn.so",
-        "libul_GpioCtrl.so",
-        "libul_xml.so",
-        "libupdatercommon.so",
-        "libupdatermedia.so",
-        "libupdatertalk.so",
-        "libupdaterufp.so",
-        "libupdaterufunc.so",
-        "libUsbBusPower.so",
-        "libUsbChargingApp.so",
-        "libusbcmd.so",
-        "libUsbControl.so",
-        "libutil_date.so",
-        "libWlanAdjust.so",
-        "libWlanControlCommon.so",
-        "libWlanResource.so",
-        "libxtables.so.5.0.0",
-        "ModelCautionConfig.so"
-      ],
-      "reason": "NON_FUNC_OR_ZERO_SIZE",
-      "impacted_files": [
-        "AdjChkConfig.so",
-        "appFwBoot.so"
-      ]
-    },
-    {
-      "symbol": "_end",
-      "new_name": "_eoC",
-      "gnu_hash": "0x7c92e3bb",
-      "type": "STT_NOTYPE",
-      "size": 0,
-      "defined_in": "AdjChkConfig.so",
-      "conflicting_g4_libs": [
-        "CameraOnDemandSaver.so",
-        "CautionConfig.so",
-        "CautionRsrcConfig.so",
-        "dataflowInfraFramework.so",
-        "libAK8975.so",
-        "libbackup.so",
-        "libBackupManager.so",
-        "libBizFw.so",
-        "libBizFw2.so",
-        "libbsa.so",
-        "libBTAdjust.so",
-        "libBTUtils.so",
-        "libBusPower.so",
-        "libclema.so",
-        "libcom_err.so.2.1",
-        "libcompassutil.so",
-        "libdig_level.so",
-        "libe2p.so.2.3",
-        "libEMG.so",
-        "libexpat.so.1.6.11",
-        "libExternalCommand.so",
-        "libgenuinetime.so",
-        "libGOConnectionManager.so",
-        "libgps_rsrc.so",
-        "libIMDB.so",
-        "libInfraAccessLog.so",
-        "libInfraAccessLogWrapper.so",
-        "libInfraAirplaneMode.so",
-        "libInfraBGMMeta.so",
-        "libInfraBluetooth.so",
-        "libInfraBluetoothCore.so",
-        "libInfraBluetoothLowEnergy.so",
-        "libInfraBluetoothWoLEBoot.so",
-        "libInfraCacheMgr.so",
-        "libInfraCameraAllSetting.so",
-        "libInfraCameraProfile.so",
-        "libInfraDevInfoSender.so",
-        "libInfraDlnaControl.so",
-        "libInfraExtBackupCommunicator.so",
-        "libInfraExtCmdSvc.so",
-        "libInfraExtTransferApp.so",
-        "libInfraFsys.so",
-        "libInfraHdmi.so",
-        "libInfraHighlight.so",
-        "libInfraHttpClient.so",
-        "libInfraHttpClientUtil.so",
-        "libInfraIPsec.so",
-        "libInfraIPTC.so",
-        "libInfraKikiLogGenerator.so",
-        "libInfraKikiLogSender.so",
-        "libInfraLensCommunicator.so",
-        "libInfraMakeScenario.so",
-        "libInfraMediaCommon.so",
-        "libInfraMediaDetect.so",
-        "libInfraMediaMount.so",
-        "libInfraMetaSupplier.so",
-        "libInfraMscServer.so",
-        "libInfraMtpServer.so",
-        "libInfraNetConnectionManager.so",
-        "libInfraNetConnectionManagerEther.so",
-        "libInfraNetDeviceInfo.so",
-        "libInfraNetFunctionManager.so",
-        "libInfraNetInitializer.so",
-        "libInfraNetworkServiceInfo.so",
-        "libInfraPtpControl.so",
-        "libInfraPtpExtCmd.so",
-        "libInfraRemote.so",
-        "libInfraSKD.so",
-        "libInfraStreamingUsb.so",
-        "libInfraUsbCmn.so",
-        "libInfraUsbHostStorage.so",
-        "libip4tc.so.0.0.0",
-        "libjemalloc_ds.so.1",
-        "libJiritsu.so",
-        "libjsoncpp.so",
-        "libjsoncpp.so.00.11.0",
-        "libjsoncpp.so.23",
-        "libmintx.so",
-        "libmprctrl.so",
-        "libmprdummy.so",
-        "libMWF.so",
-        "libncurses.so.6.2",
-        "libNetCommon.so",
-        "libNetContUtil.so",
-        "libNetService.so",
-        "libnl-3.so.200.17.0",
-        "libnl-cli-3.so.200.17.0",
-        "libnl-genl-3.so.200.17.0",
-        "libnl-nf-3.so.200.17.0",
-        "libnl-route-3.so.200.17.0",
-        "libOnDemandLoader.so",
-        "libopus.so.0.8.0",
-        "libosal_uipc.so",
-        "libosal_ulogio.so",
-        "libosal_utm.so",
-        "libpcap.so.1.0.0",
-        "libpcre.so.1.2.12",
-        "libpopt.so.0.0.0",
-        "libpro00.so",
-        "libptp.so",
-        "libqrencode.so",
-        "libResourceBluetooth.so",
-        "libRsrcHotshoe.so",
-        "libsencore.so",
-        "libSKDWrapperManager.so",
-        "libSoundTouch.so.1.0.0",
-        "libSysDef.so",
-        "libtestcmd.so",
-        "libtestcmd_scn.so",
-        "libul_GpioCtrl.so",
-        "libul_xml.so",
-        "libupdatercommon.so",
-        "libupdatermedia.so",
-        "libupdatertalk.so",
-        "libupdaterufp.so",
-        "libupdaterufunc.so",
-        "libUsbBusPower.so",
-        "libUsbChargingApp.so",
-        "libusbcmd.so",
-        "libUsbControl.so",
-        "libutil_date.so",
-        "libWlanAdjust.so",
-        "libWlanControlCommon.so",
-        "libWlanResource.so",
-        "libxtables.so.5.0.0",
-        "ModelCautionConfig.so"
-      ],
-      "reason": "NON_FUNC_OR_ZERO_SIZE",
-      "impacted_files": [
-        "AdjChkConfig.so",
-        "appFwBoot.so"
-      ]
-    },
-    {
-      "symbol": "_fini",
-      "new_name": "_fioH",
-      "gnu_hash": "0xeefd3ea",
-      "type": "STT_FUNC",
-      "size": 0,
-      "defined_in": "AdjChkConfig.so",
-      "conflicting_g4_libs": [
-        "CameraOnDemandSaver.so",
-        "CautionConfig.so",
-        "CautionRsrcConfig.so",
-        "dataflowInfraFramework.so",
-        "libbackup.so",
-        "libBackupManager.so",
-        "libBizFw.so",
-        "libBizFw2.so",
-        "libBTAdjust.so",
-        "libBTUtils.so",
-        "libBusPower.so",
-        "libclema.so",
-        "libcom_err.so.2.1",
-        "libcompassutil.so",
-        "libdig_level.so",
-        "libe2p.so.2.3",
-        "libEMG.so",
-        "libexpat.so.1.6.11",
-        "libExternalCommand.so",
-        "libgenuinetime.so",
-        "libGOConnectionManager.so",
-        "libgps_rsrc.so",
-        "libIMDB.so",
-        "libInfraAccessLog.so",
-        "libInfraAccessLogWrapper.so",
-        "libInfraAirplaneMode.so",
-        "libInfraBGMMeta.so",
-        "libInfraBluetooth.so",
-        "libInfraBluetoothCore.so",
-        "libInfraBluetoothLowEnergy.so",
-        "libInfraBluetoothWoLEBoot.so",
-        "libInfraCacheMgr.so",
-        "libInfraCameraAllSetting.so",
-        "libInfraCameraProfile.so",
-        "libInfraDevInfoSender.so",
-        "libInfraDlnaControl.so",
-        "libInfraExtBackupCommunicator.so",
-        "libInfraExtCmdSvc.so",
-        "libInfraExtTransferApp.so",
-        "libInfraFsys.so",
-        "libInfraHdmi.so",
-        "libInfraHighlight.so",
-        "libInfraHttpClient.so",
-        "libInfraHttpClientUtil.so",
-        "libInfraIPsec.so",
-        "libInfraIPTC.so",
-        "libInfraKikiLogGenerator.so",
-        "libInfraKikiLogSender.so",
-        "libInfraLensCommunicator.so",
-        "libInfraMakeScenario.so",
-        "libInfraMediaCommon.so",
-        "libInfraMediaDetect.so",
-        "libInfraMediaMount.so",
-        "libInfraMetaSupplier.so",
-        "libInfraMscServer.so",
-        "libInfraMtpServer.so",
-        "libInfraNetConnectionManager.so",
-        "libInfraNetConnectionManagerEther.so",
-        "libInfraNetDeviceInfo.so",
-        "libInfraNetFunctionManager.so",
-        "libInfraNetInitializer.so",
-        "libInfraNetworkServiceInfo.so",
-        "libInfraPtpControl.so",
-        "libInfraPtpExtCmd.so",
-        "libInfraRemote.so",
-        "libInfraSKD.so",
-        "libInfraStreamingUsb.so",
-        "libInfraUsbCmn.so",
-        "libInfraUsbHostStorage.so",
-        "libip4tc.so.0.0.0",
-        "libjemalloc_ds.so.1",
-        "libJiritsu.so",
-        "libjsoncpp.so",
-        "libjsoncpp.so.00.11.0",
-        "libjsoncpp.so.23",
-        "libmintx.so",
-        "libmprctrl.so",
-        "libmprdummy.so",
-        "libMWF.so",
-        "libncurses.so.6.2",
-        "libNetCommon.so",
-        "libNetContUtil.so",
-        "libNetService.so",
-        "libnl-3.so.200.17.0",
-        "libnl-cli-3.so.200.17.0",
-        "libnl-genl-3.so.200.17.0",
-        "libnl-nf-3.so.200.17.0",
-        "libnl-route-3.so.200.17.0",
-        "libOnDemandLoader.so",
-        "libopus.so.0.8.0",
-        "libosal_uipc.so",
-        "libosal_ulogio.so",
-        "libosal_utm.so",
-        "libpcap.so.1.0.0",
-        "libpcre.so.1.2.12",
-        "libpopt.so.0.0.0",
-        "libpro00.so",
-        "libptp.so",
-        "libqrencode.so",
-        "libResourceBluetooth.so",
-        "libRsrcHotshoe.so",
-        "libsencore.so",
-        "libSKDWrapperManager.so",
-        "libSoundTouch.so.1.0.0",
-        "libSysDef.so",
-        "libtestcmd.so",
-        "libtestcmd_scn.so",
-        "libul_GpioCtrl.so",
-        "libul_xml.so",
-        "libupdatercommon.so",
-        "libupdatermedia.so",
-        "libupdatertalk.so",
-        "libupdaterufp.so",
-        "libupdaterufunc.so",
-        "libUsbBusPower.so",
-        "libUsbChargingApp.so",
-        "libusbcmd.so",
-        "libUsbControl.so",
-        "libutil_date.so",
-        "libWlanAdjust.so",
-        "libWlanControlCommon.so",
-        "libWlanResource.so",
-        "libxtables.so.5.0.0",
-        "ModelCautionConfig.so"
-      ],
-      "reason": "CODE_DIFF",
-      "impacted_files": [
-        "AdjChkConfig.so",
-        "appFwBoot.so"
-      ]
-    },
-    {
-      "symbol": "_init",
-      "new_name": "_injS",
-      "gnu_hash": "0xef18db8",
-      "type": "STT_FUNC",
-      "size": 0,
-      "defined_in": "libOb5.so",
-      "conflicting_g4_libs": [
-        "CameraOnDemandSaver.so",
-        "CautionConfig.so",
-        "CautionRsrcConfig.so",
-        "dataflowInfraFramework.so",
-        "libbackup.so",
-        "libBackupManager.so",
-        "libBizFw.so",
-        "libBizFw2.so",
-        "libBTAdjust.so",
-        "libBTUtils.so",
-        "libBusPower.so",
-        "libclema.so",
-        "libcom_err.so.2.1",
-        "libcompassutil.so",
-        "libdig_level.so",
-        "libe2p.so.2.3",
-        "libEMG.so",
-        "libexpat.so.1.6.11",
-        "libExternalCommand.so",
-        "libgenuinetime.so",
-        "libGOConnectionManager.so",
-        "libgps_rsrc.so",
-        "libIMDB.so",
-        "libInfraAccessLog.so",
-        "libInfraAccessLogWrapper.so",
-        "libInfraAirplaneMode.so",
-        "libInfraBGMMeta.so",
-        "libInfraBluetooth.so",
-        "libInfraBluetoothCore.so",
-        "libInfraBluetoothLowEnergy.so",
-        "libInfraBluetoothWoLEBoot.so",
-        "libInfraCacheMgr.so",
-        "libInfraCameraAllSetting.so",
-        "libInfraCameraProfile.so",
-        "libInfraDevInfoSender.so",
-        "libInfraDlnaControl.so",
-        "libInfraExtBackupCommunicator.so",
-        "libInfraExtCmdSvc.so",
-        "libInfraExtTransferApp.so",
-        "libInfraFsys.so",
-        "libInfraHdmi.so",
-        "libInfraHighlight.so",
-        "libInfraHttpClient.so",
-        "libInfraHttpClientUtil.so",
-        "libInfraIPsec.so",
-        "libInfraIPTC.so",
-        "libInfraKikiLogGenerator.so",
-        "libInfraKikiLogSender.so",
-        "libInfraLensCommunicator.so",
-        "libInfraMakeScenario.so",
-        "libInfraMediaCommon.so",
-        "libInfraMediaDetect.so",
-        "libInfraMediaMount.so",
-        "libInfraMetaSupplier.so",
-        "libInfraMscServer.so",
-        "libInfraMtpServer.so",
-        "libInfraNetConnectionManager.so",
-        "libInfraNetConnectionManagerEther.so",
-        "libInfraNetDeviceInfo.so",
-        "libInfraNetFunctionManager.so",
-        "libInfraNetInitializer.so",
-        "libInfraNetworkServiceInfo.so",
-        "libInfraPtpControl.so",
-        "libInfraPtpExtCmd.so",
-        "libInfraRemote.so",
-        "libInfraSKD.so",
-        "libInfraStreamingUsb.so",
-        "libInfraUsbCmn.so",
-        "libInfraUsbHostStorage.so",
-        "libip4tc.so.0.0.0",
-        "libjemalloc_ds.so.1",
-        "libJiritsu.so",
-        "libjsoncpp.so",
-        "libjsoncpp.so.00.11.0",
-        "libjsoncpp.so.23",
-        "libmintx.so",
-        "libmprctrl.so",
-        "libmprdummy.so",
-        "libMWF.so",
-        "libncurses.so.6.2",
-        "libNetCommon.so",
-        "libNetContUtil.so",
-        "libNetService.so",
-        "libnl-3.so.200.17.0",
-        "libnl-cli-3.so.200.17.0",
-        "libnl-genl-3.so.200.17.0",
-        "libnl-nf-3.so.200.17.0",
-        "libnl-route-3.so.200.17.0",
-        "libObj.so",
-        "libOnDemandLoader.so",
-        "libopus.so.0.8.0",
-        "libosal_uipc.so",
-        "libosal_ulogio.so",
-        "libosal_utm.so",
-        "libpcap.so.1.0.0",
-        "libpcre.so.1.2.12",
-        "libpopt.so.0.0.0",
-        "libpro00.so",
-        "libptp.so",
-        "libqrencode.so",
-        "libResourceBluetooth.so",
-        "libRsrcHotshoe.so",
-        "libsencore.so",
-        "libSKDWrapperManager.so",
-        "libSoundTouch.so.1.0.0",
-        "libSysDef.so",
-        "libtestcmd.so",
-        "libtestcmd_scn.so",
-        "libul_GpioCtrl.so",
-        "libul_xml.so",
-        "libupdatercommon.so",
-        "libupdatermedia.so",
-        "libupdatertalk.so",
-        "libupdaterufp.so",
-        "libupdaterufunc.so",
-        "libUsbBusPower.so",
-        "libUsbChargingApp.so",
-        "libusbcmd.so",
-        "libUsbControl.so",
-        "libutil_date.so",
-        "libWlanAdjust.so",
-        "libWlanControlCommon.so",
-        "libWlanResource.so",
-        "libxtables.so.5.0.0",
-        "ModelCautionConfig.so",
-        "viewUnified2.so",
-        "viewUnified3.so",
-        "viewUnified4.so",
-        "viewUnified5.so",
-        "viewUnified6.so",
-        "viewUnified7.so",
-        "viewUnified8.so"
-      ],
-      "reason": "CODE_DIFF",
-      "impacted_files": [
-        "libOb5.so",
-        "AdjChkConfig.so",
-        "appFwBoot.so"
       ]
     },
     {
@@ -10284,6 +9358,2400 @@
         "libObj.so"
       ],
       "reason": "CODE_DIFF",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "CameraStillDate_init",
+      "new_name": "CameraStillDate_injS",
+      "gnu_hash": "0x36224827",
+      "type": "STT_FUNC",
+      "size": 16,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "FsLttComponent_init",
+      "new_name": "FsLttComponent_injS",
+      "gnu_hash": "0xe9a4f1f8",
+      "type": "STT_FUNC",
+      "size": 88,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "FsLtt_init",
+      "new_name": "FsLtt_injS",
+      "gnu_hash": "0xbef00285",
+      "type": "STT_FUNC",
+      "size": 100,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "GRM_bitmapCreateComposite",
+      "new_name": "GRM_bitmapCreateComposiuD",
+      "gnu_hash": "0x8f64a88e",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "GRM_fbrmFillrectYUV",
+      "new_name": "GRM_fbrmFillrectYV5",
+      "gnu_hash": "0x4db73b6a",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "GRM_fbrmInitializeYUV",
+      "new_name": "GRM_fbrmInitializeYV5",
+      "gnu_hash": "0xdfaa34a7",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "GRM_fbrmPrepareUpdateYUV",
+      "new_name": "GRM_fbrmPrepareUpdateYV5",
+      "gnu_hash": "0x373fbbe7",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "GRM_fbrmRectblitYUV",
+      "new_name": "GRM_fbrmRectblitYV5",
+      "gnu_hash": "0x8b1074e",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "GRM_fbrmTerminateYUV",
+      "new_name": "GRM_fbrmTerminateYV5",
+      "gnu_hash": "0x8b0ec21e",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "GRM_fbrmUpdateYUV",
+      "new_name": "GRM_fbrmUpdateYV5",
+      "gnu_hash": "0xb35f6b18",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "GRM_screenGetOnBitmap",
+      "new_name": "GRM_screenGetOnBitmbO",
+      "gnu_hash": "0xe4ec9a24",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "InfraAvbbc_Init",
+      "new_name": "InfraAvbbc_InjS",
+      "gnu_hash": "0x2153b566",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "InfraAvbbc_Res",
+      "new_name": "InfraAvbbc_RfR",
+      "gnu_hash": "0x565803dc",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "InfraAvbbc_Sus",
+      "new_name": "InfraAvbbc_SvR",
+      "gnu_hash": "0x56580a2d",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "ObjAvAdjCtrl_Destroy",
+      "new_name": "ObjAvAdjCtrl_DestrpX",
+      "gnu_hash": "0x91d8d324",
+      "type": "STT_FUNC",
+      "size": 14,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "ObjFtpClient_Create",
+      "new_name": "ObjFtpClient_CreauD",
+      "gnu_hash": "0x11f029c",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "ObjFtpClient_Destroy",
+      "new_name": "ObjFtpClient_DestrpX",
+      "gnu_hash": "0x54ae3e32",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "ObjNetSetting_RegisterCommand",
+      "new_name": "ObjNetSetting_RegisterCommaoC",
+      "gnu_hash": "0x5ae44228",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "ObjNetSetting_UnregisterCommand",
+      "new_name": "ObjNetSetting_UnregisterCommaoC",
+      "gnu_hash": "0x479444b",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsBidiControl_init",
+      "new_name": "TsBidiControl_injS",
+      "gnu_hash": "0x75eac18",
+      "type": "STT_FUNC",
+      "size": 40,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsDC_init",
+      "new_name": "TsDC_injS",
+      "gnu_hash": "0x62389306",
+      "type": "STT_FUNC",
+      "size": 40,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsDrawGlyphParams_init",
+      "new_name": "TsDrawGlyphParams_injS",
+      "gnu_hash": "0x23863895",
+      "type": "STT_FUNC",
+      "size": 22,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsDynamicArray_init",
+      "new_name": "TsDynamicArray_injS",
+      "gnu_hash": "0x6bc2dd43",
+      "type": "STT_FUNC",
+      "size": 34,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsIndicControl_init",
+      "new_name": "TsIndicControl_injS",
+      "gnu_hash": "0xd5a614e7",
+      "type": "STT_FUNC",
+      "size": 44,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsMatrix_init",
+      "new_name": "TsMatrix_injS",
+      "gnu_hash": "0xc9956cf4",
+      "type": "STT_FUNC",
+      "size": 76,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtClassDef_init",
+      "new_name": "TsOtClassDef_injS",
+      "gnu_hash": "0x8d274dc7",
+      "type": "STT_FUNC",
+      "size": 82,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtCoverage_init",
+      "new_name": "TsOtCoverage_injS",
+      "gnu_hash": "0xbea051ce",
+      "type": "STT_FUNC",
+      "size": 70,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtFeatureList_init",
+      "new_name": "TsOtFeatureList_injS",
+      "gnu_hash": "0xc502226a",
+      "type": "STT_FUNC",
+      "size": 26,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtGlyphID_init",
+      "new_name": "TsOtGlyphID_injS",
+      "gnu_hash": "0xa1eaded3",
+      "type": "STT_FUNC",
+      "size": 18,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtHhea_init",
+      "new_name": "TsOtHhea_injS",
+      "gnu_hash": "0x77924678",
+      "type": "STT_FUNC",
+      "size": 212,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtLookupList_init",
+      "new_name": "TsOtLookupList_injS",
+      "gnu_hash": "0xf05bd2d8",
+      "type": "STT_FUNC",
+      "size": 24,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtScriptList_init",
+      "new_name": "TsOtScriptList_injS",
+      "gnu_hash": "0xa1de3b93",
+      "type": "STT_FUNC",
+      "size": 26,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtWordBlockIter_init",
+      "new_name": "TsOtWordBlockIter_injS",
+      "gnu_hash": "0x3d6756bd",
+      "type": "STT_FUNC",
+      "size": 52,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtWordBlock_init",
+      "new_name": "TsOtWordBlock_injS",
+      "gnu_hash": "0xd42fca9",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOt_post_init",
+      "new_name": "TsOt_post_injS",
+      "gnu_hash": "0x3f20f467",
+      "type": "STT_FUNC",
+      "size": 114,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOthead_init",
+      "new_name": "TsOthead_injS",
+      "gnu_hash": "0x15716ed4",
+      "type": "STT_FUNC",
+      "size": 358,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsUInt16_init",
+      "new_name": "TsUInt16_injS",
+      "gnu_hash": "0x4064bbe6",
+      "type": "STT_FUNC",
+      "size": 18,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN10InfraInput9GetKeyInhEi",
+      "new_name": "_ZN10InfraInput9GetKeyInhFH",
+      "gnu_hash": "0x21ffbe7c",
+      "type": "STT_FUNC",
+      "size": 32,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN12_MSG_PIN_GETC1Ev",
+      "new_name": "_ZN12_MSG_PIN_GETC1FU",
+      "gnu_hash": "0x62e1afe9",
+      "type": "STT_FUNC",
+      "size": 32,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN12_MSG_PIN_GETC2Ev",
+      "new_name": "_ZN12_MSG_PIN_GETC2FU",
+      "gnu_hash": "0x62e1b42a",
+      "type": "STT_FUNC",
+      "size": 32,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN17_MSG_PIN_GET_COMPC1Ev",
+      "new_name": "_ZN17_MSG_PIN_GET_COMPC1FU",
+      "gnu_hash": "0xed53efdc",
+      "type": "STT_FUNC",
+      "size": 42,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN17_MSG_PIN_GET_COMPC2Ev",
+      "new_name": "_ZN17_MSG_PIN_GET_COMPC2FU",
+      "gnu_hash": "0xed53f41d",
+      "type": "STT_FUNC",
+      "size": 42,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN24_MSG_PIN_REQUEST_CONNECTC1Ev",
+      "new_name": "_ZN24_MSG_PIN_REQUEST_CONNECTC1FU",
+      "gnu_hash": "0x94dbb61e",
+      "type": "STT_FUNC",
+      "size": 44,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN24_MSG_PIN_REQUEST_CONNECTC2Ev",
+      "new_name": "_ZN24_MSG_PIN_REQUEST_CONNECTC2FU",
+      "gnu_hash": "0x94dbba5f",
+      "type": "STT_FUNC",
+      "size": 44,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN27_MSG_PIN_REQUEST_DISCONNECTC1Ev",
+      "new_name": "_ZN27_MSG_PIN_REQUEST_DISCONNECTC1FU",
+      "gnu_hash": "0xbcdcfaa1",
+      "type": "STT_FUNC",
+      "size": 32,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN27_MSG_PIN_REQUEST_DISCONNECTC2Ev",
+      "new_name": "_ZN27_MSG_PIN_REQUEST_DISCONNECTC2FU",
+      "gnu_hash": "0xbcdcfee2",
+      "type": "STT_FUNC",
+      "size": 32,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN29_MSG_PIN_REQUEST_CONNECT_COMPC1Ev",
+      "new_name": "_ZN29_MSG_PIN_REQUEST_CONNECT_COMPC1FU",
+      "gnu_hash": "0xc1b6feb1",
+      "type": "STT_FUNC",
+      "size": 40,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN29_MSG_PIN_REQUEST_CONNECT_COMPC2Ev",
+      "new_name": "_ZN29_MSG_PIN_REQUEST_CONNECT_COMPC2FU",
+      "gnu_hash": "0xc1b702f2",
+      "type": "STT_FUNC",
+      "size": 40,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core13GraphicsImage4copyEPvS2_",
+      "new_name": "_ZN2ux4core13GraphicsImage4copyEPvRS_",
+      "gnu_hash": "0x4afa0ffe",
+      "type": "STT_FUNC",
+      "size": 16,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core13GraphicsImage4copyEPvssS2_ssss",
+      "new_name": "_ZN2ux4core13GraphicsImage4copyEPvssS2_sstR",
+      "gnu_hash": "0x9475fa10",
+      "type": "STT_FUNC",
+      "size": 50,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core2IDC1Ev",
+      "new_name": "_ZN2ux4core2IDC1FU",
+      "gnu_hash": "0x50e11196",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core5ColorC1ERKS1_",
+      "new_name": "_ZN2ux4core5ColorC1ERKRR_",
+      "gnu_hash": "0x67d86795",
+      "type": "STT_FUNC",
+      "size": 22,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core5ColorC1Ev",
+      "new_name": "_ZN2ux4core5ColorC1FU",
+      "gnu_hash": "0xa2f0440b",
+      "type": "STT_FUNC",
+      "size": 16,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core7Vector2C1Eff",
+      "new_name": "_ZN2ux4core7Vector2C1EgE",
+      "gnu_hash": "0xaeb5d109",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core7Vector2C1Ev",
+      "new_name": "_ZN2ux4core7Vector2C1FU",
+      "gnu_hash": "0x4b1cc853",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core7Vector2mIERKS1_",
+      "new_name": "_ZN2ux4core7Vector2mIERKRR_",
+      "gnu_hash": "0x9a006edf",
+      "type": "STT_FUNC",
+      "size": 38,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux4core7Vector2pLERKS1_",
+      "new_name": "_ZN2ux4core7Vector2pLERKRR_",
+      "gnu_hash": "0x45b4a3c5",
+      "type": "STT_FUNC",
+      "size": 38,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6gfxeng10TextSprite11getRotationEv",
+      "new_name": "_ZN2ux6gfxeng10TextSprite11getRotationFU",
+      "gnu_hash": "0xdc3a06aa",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6gfxeng10TextSprite14freezeDrawTextEv",
+      "new_name": "_ZN2ux6gfxeng10TextSprite14freezeDrawTextFU",
+      "gnu_hash": "0x47233571",
+      "type": "STT_FUNC",
+      "size": 34,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6gfxeng15ResourceUpdater5visitERN9andromeda8NodeBaseE",
+      "new_name": "_ZN2ux6gfxeng15ResourceUpdater5visitERN9andromeda8NodeBasdf",
+      "gnu_hash": "0xce2a8c4e",
+      "type": "STT_FUNC",
+      "size": 18,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6gfxeng6Sprite18setPatchImageCacheEb",
+      "new_name": "_ZN2ux6gfxeng6Sprite18setPatchImageCacheFA",
+      "gnu_hash": "0xce4301d0",
+      "type": "STT_FUNC",
+      "size": 18,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay13AnimationMove10setStopPosENS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtlay13AnimationMove10setStopPosENS_4core7Vector1f",
+      "gnu_hash": "0xad69d4bc",
+      "type": "STT_FUNC",
+      "size": 38,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay13AnimationMove11setStartPosENS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtlay13AnimationMove11setStartPosENS_4core7Vector1f",
+      "gnu_hash": "0x8ae30b65",
+      "type": "STT_FUNC",
+      "size": 30,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay13AnimationMove21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE",
+      "new_name": "_ZN2ux6wgtlay13AnimationMove21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
+      "gnu_hash": "0xa0bad7af",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay13AnimationMove9setEndPosENS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtlay13AnimationMove9setEndPosENS_4core7Vector1f",
+      "gnu_hash": "0x469389e5",
+      "type": "STT_FUNC",
+      "size": 48,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay13AnimationSize21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE",
+      "new_name": "_ZN2ux6wgtlay13AnimationSize21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
+      "gnu_hash": "0x17d4973",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationAlpha11setEndAlphaEh",
+      "new_name": "_ZN2ux6wgtlay14AnimationAlpha11setEndAlphaFG",
+      "gnu_hash": "0xe29cd3fc",
+      "type": "STT_FUNC",
+      "size": 20,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationAlpha12setStopAlphaEh",
+      "new_name": "_ZN2ux6wgtlay14AnimationAlpha12setStopAlphaFG",
+      "gnu_hash": "0xa77738ac",
+      "type": "STT_FUNC",
+      "size": 16,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationAlpha13setStartAlphaEh",
+      "new_name": "_ZN2ux6wgtlay14AnimationAlpha13setStartAlphaFG",
+      "gnu_hash": "0x6d4e05d5",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationAlpha21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE",
+      "new_name": "_ZN2ux6wgtlay14AnimationAlpha21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
+      "gnu_hash": "0x600505ff",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationParts12setStartTimeEj",
+      "new_name": "_ZN2ux6wgtlay14AnimationParts12setStartTimeFI",
+      "gnu_hash": "0x16b31ca3",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationParts15setDurationTimeEj",
+      "new_name": "_ZN2ux6wgtlay14AnimationParts15setDurationTimeFI",
+      "gnu_hash": "0xd307d1fe",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationParts18setDynamicEndValueEb",
+      "new_name": "_ZN2ux6wgtlay14AnimationParts18setDynamicEndValueFA",
+      "gnu_hash": "0x85bfdfd",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationParts20setDynamicStartValueEb",
+      "new_name": "_ZN2ux6wgtlay14AnimationParts20setDynamicStartValueFA",
+      "gnu_hash": "0x58db70ed",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationScale11setEndScaleENS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtlay14AnimationScale11setEndScaleENS_4core7Vector1f",
+      "gnu_hash": "0x2f58c76",
+      "type": "STT_FUNC",
+      "size": 48,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationScale12setStopScaleENS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtlay14AnimationScale12setStopScaleENS_4core7Vector1f",
+      "gnu_hash": "0x36dd1566",
+      "type": "STT_FUNC",
+      "size": 38,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationScale13setStartScaleENS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtlay14AnimationScale13setStartScaleENS_4core7Vector1f",
+      "gnu_hash": "0xefc560cf",
+      "type": "STT_FUNC",
+      "size": 30,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay14AnimationScale21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE",
+      "new_name": "_ZN2ux6wgtlay14AnimationScale21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
+      "gnu_hash": "0x7655e8a1",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay15LayoutConverter20isValidWidgetVersionEjjjjPKc",
+      "new_name": "_ZN2ux6wgtlay15LayoutConverter20isValidWidgetVersionEjjjjPLB",
+      "gnu_hash": "0x8c7e0458",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay15LayoutConverter23isValidAnimationVersionEjjjjPKc",
+      "new_name": "_ZN2ux6wgtlay15LayoutConverter23isValidAnimationVersionEjjjjPLB",
+      "gnu_hash": "0xd8e79857",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay17AnimationMovePath10setStopPosENS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtlay17AnimationMovePath10setStopPosENS_4core7Vector1f",
+      "gnu_hash": "0x50af4d4d",
+      "type": "STT_FUNC",
+      "size": 38,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay17AnimationMovePath11setMovePathEjNS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtlay17AnimationMovePath11setMovePathEjNS_4core7Vector1f",
+      "gnu_hash": "0xccca4124",
+      "type": "STT_FUNC",
+      "size": 50,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay17AnimationMovePath21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE",
+      "new_name": "_ZN2ux6wgtlay17AnimationMovePath21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
+      "gnu_hash": "0xe3ce94a0",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay18AnimationClassInfo25setConverterFactoryMethodEPFPNS0_23AnimationPartsConverterEvE",
+      "new_name": "_ZN2ux6wgtlay18AnimationClassInfo25setConverterFactoryMethodEPFPNS0_23AnimationPartsConverterEuf",
+      "gnu_hash": "0xa0bc572a",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay21AnimationTriggerParts21setTimeTranslatorTypeENS0_18TimeTranslatorEnumE",
+      "new_name": "_ZN2ux6wgtlay21AnimationTriggerParts21setTimeTranslatorTypeENS0_18TimeTranslatorEnulf",
+      "gnu_hash": "0xe1f9ce75",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtlay23AnimationPartsConverter13getPropertiesEv",
+      "new_name": "_ZN2ux6wgtlay23AnimationPartsConverter13getPropertiesFU",
+      "gnu_hash": "0x4a9a09cc",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase10onKeyEventERKNS0_8KeyEventE",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase10onKeyEventERKNS0_8KeyEvensf",
+      "gnu_hash": "0xda9f6255",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase11onUserEventERKNS0_9UserEventE",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase11onUserEventERKNS0_9UserEvensf",
+      "gnu_hash": "0x409bd643",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase12onDrawNoticeEv",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase12onDrawNoticeFU",
+      "gnu_hash": "0xb2af0afd",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase12onMouseEventERKNS0_10MouseEventE",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase12onMouseEventERKNS0_10MouseEvensf",
+      "gnu_hash": "0x2f7fb660",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase13ActionHandlerC1Ev",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase13ActionHandlerC1FU",
+      "gnu_hash": "0xa0ae8b81",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase16onMouseEventHookERKNS0_10MouseEventE",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase16onMouseEventHookERKNS0_10MouseEvensf",
+      "gnu_hash": "0x53592395",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase17setMouseEventHookEb",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase17setMouseEventHookFA",
+      "gnu_hash": "0x358b8b49",
+      "type": "STT_FUNC",
+      "size": 26,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase7onResetEb",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase7onResetFA",
+      "gnu_hash": "0xd050f5b0",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase7onTimerERKNS_4core2IDEy",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase7onTimerERKNS_4core2IDFX",
+      "gnu_hash": "0x7981b043",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase9onAnimateEv",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase9onAnimateFU",
+      "gnu_hash": "0x2bfdc722",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector2E",
+      "new_name": "_ZN2ux6wgtsys10WidgetBase9sys_isHitERKNS_4core7Vector1f",
+      "gnu_hash": "0x29b4420a",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys12WidgetSystem18getGestureAnalyzerEv",
+      "new_name": "_ZN2ux6wgtsys12WidgetSystem18getGestureAnalyzerFU",
+      "gnu_hash": "0x7322287",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys15GestureAnalyzer9setConfigENS1_13GestureConfigEt",
+      "new_name": "_ZN2ux6wgtsys15GestureAnalyzer9setConfigENS1_13GestureConfigFS",
+      "gnu_hash": "0x2980de60",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys5Layer9setActiveEb",
+      "new_name": "_ZN2ux6wgtsys5Layer9setActiveFA",
+      "gnu_hash": "0x4482348c",
+      "type": "STT_FUNC",
+      "size": 14,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Action13sys_setCalleeEPv",
+      "new_name": "_ZN2ux6wgtsys6Action13sys_setCalleeEQU",
+      "gnu_hash": "0xc88bd085",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Action13sys_setCallerEPNS0_6WidgetE",
+      "new_name": "_ZN2ux6wgtsys6Action13sys_setCallerEPNS0_6Widgesf",
+      "gnu_hash": "0x7ef23a0b",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Action15sys_setActionIDERKNS_4core2IDE",
+      "new_name": "_ZN2ux6wgtsys6Action15sys_setActionIDERKNS_4core2ICf",
+      "gnu_hash": "0x69fe63e4",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Widget12setHitMarginEssss",
+      "new_name": "_ZN2ux6wgtsys6Widget12setHitMarginEsstR",
+      "gnu_hash": "0x591c0def",
+      "type": "STT_FUNC",
+      "size": 24,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Widget17getUserWidgetTypeEv",
+      "new_name": "_ZN2ux6wgtsys6Widget17getUserWidgetTypeFU",
+      "gnu_hash": "0xbf3378f4",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Widget23sys_isDropReceiveWidgetERKNS1_8DropInfoE",
+      "new_name": "_ZN2ux6wgtsys6Widget23sys_isDropReceiveWidgetERKNS1_8DropInfnf",
+      "gnu_hash": "0xc434e918",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Widget6onDropERKNS1_8DropInfoE",
+      "new_name": "_ZN2ux6wgtsys6Widget6onDropERKNS1_8DropInfnf",
+      "gnu_hash": "0x4dac4325",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Widget6onDumpERN5libra10DictionaryE",
+      "new_name": "_ZN2ux6wgtsys6Widget6onDumpERN5libra10Dictionarxf",
+      "gnu_hash": "0x5384d5",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN2ux6wgtsys6Widget7setModeENS1_10WidgetModeE",
+      "new_name": "_ZN2ux6wgtsys6Widget7setModeENS1_10WidgetModdf",
+      "gnu_hash": "0x76ff9f19",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN32_MSG_PIN_REQUEST_DISCONNECT_COMPC1Ev",
+      "new_name": "_ZN32_MSG_PIN_REQUEST_DISCONNECT_COMPC1FU",
+      "gnu_hash": "0xfd11568b",
+      "type": "STT_FUNC",
+      "size": 40,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN32_MSG_PIN_REQUEST_DISCONNECT_COMPC2Ev",
+      "new_name": "_ZN32_MSG_PIN_REQUEST_DISCONNECT_COMPC2FU",
+      "gnu_hash": "0xfd115acc",
+      "type": "STT_FUNC",
+      "size": 40,
+      "defined_in": "AdjChkConfig.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5alcor19FontAttributeWriter11setEllipsisEb",
+      "new_name": "_ZN5alcor19FontAttributeWriter11setEllipsisFA",
+      "gnu_hash": "0x91c2563e",
+      "type": "STT_FUNC",
+      "size": 52,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5alcor19FontAttributeWriter11setFontSizeEh",
+      "new_name": "_ZN5alcor19FontAttributeWriter11setFontSizeFG",
+      "gnu_hash": "0xd6350811",
+      "type": "STT_FUNC",
+      "size": 30,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5alcor19FontAttributeWriter12setForeColorERKN6stella5ColorE",
+      "new_name": "_ZN5alcor19FontAttributeWriter12setForeColorERKN6stella5Coloqf",
+      "gnu_hash": "0x8016362",
+      "type": "STT_FUNC",
+      "size": 62,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5alcor19FontAttributeWriter9setFontIDEj",
+      "new_name": "_ZN5alcor19FontAttributeWriter9setFontIDFI",
+      "gnu_hash": "0x167c2e9c",
+      "type": "STT_FUNC",
+      "size": 30,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5alcor21LayoutAttributeWriter10setLineGapEh",
+      "new_name": "_ZN5alcor21LayoutAttributeWriter10setLineGapFG",
+      "gnu_hash": "0xa295637e",
+      "type": "STT_FUNC",
+      "size": 16,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5alcor21LayoutAttributeWriter16setLineBreakTypeENS_15LayoutAttribute13LineBreakTypeE",
+      "new_name": "_ZN5alcor21LayoutAttributeWriter16setLineBreakTypeENS_15LayoutAttribute13LineBreakTypdf",
+      "gnu_hash": "0xddb62db",
+      "type": "STT_FUNC",
+      "size": 26,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5alcor21LayoutAttributeWriter16setVerticalAlignENS_15LayoutAttribute13VerticalAlignE",
+      "new_name": "_ZN5alcor21LayoutAttributeWriter16setVerticalAlignENS_15LayoutAttribute13VerticalAligmf",
+      "gnu_hash": "0xf5ae0b87",
+      "type": "STT_FUNC",
+      "size": 26,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5alcor21LayoutAttributeWriterD1Ev",
+      "new_name": "_ZN5alcor21LayoutAttributeWriterD1FU",
+      "gnu_hash": "0x512c8894",
+      "type": "STT_FUNC",
+      "size": 14,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5libra16CreateImageParamC1Etti",
+      "new_name": "_ZN5libra16CreateImageParamC1EtuH",
+      "gnu_hash": "0xd7103204",
+      "type": "STT_FUNC",
+      "size": 30,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5libra9RecordPtrC1Ev",
+      "new_name": "_ZN5libra9RecordPtrC1FU",
+      "gnu_hash": "0x1b8413c8",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN5libra9RecordPtrD1Ev",
+      "new_name": "_ZN5libra9RecordPtrD1FU",
+      "gnu_hash": "0x1b84a029",
+      "type": "STT_FUNC",
+      "size": 14,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZN6stella6CColorC1Ehhhh",
+      "new_name": "_ZN6stella6CColorC1EhhiG",
+      "gnu_hash": "0x40a58ab8",
+      "type": "STT_FUNC",
+      "size": 18,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux4core2ID8getValueEv",
+      "new_name": "_ZNK2ux4core2ID8getValueFU",
+      "gnu_hash": "0x75b3fa02",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux4core2IDeqES1_",
+      "new_name": "_ZNK2ux4core2IDeqERR_",
+      "gnu_hash": "0x1d7dd3b0",
+      "type": "STT_FUNC",
+      "size": 16,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux4core2IDneES1_",
+      "new_name": "_ZNK2ux4core2IDneERR_",
+      "gnu_hash": "0x31a31b4d",
+      "type": "STT_FUNC",
+      "size": 14,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6gfxeng7Element11getLocalPosEv",
+      "new_name": "_ZNK2ux6gfxeng7Element11getLocalPosFU",
+      "gnu_hash": "0x69f0a946",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys10MouseEvent12getEventTypeEv",
+      "new_name": "_ZNK2ux6wgtsys10MouseEvent12getEventTypeFU",
+      "gnu_hash": "0x55107dcb",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys10MouseEvent8getMouseEv",
+      "new_name": "_ZNK2ux6wgtsys10MouseEvent8getMouseFU",
+      "gnu_hash": "0x4a998b85",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys10MouseEvent9getButtonEv",
+      "new_name": "_ZNK2ux6wgtsys10MouseEvent9getButtonFU",
+      "gnu_hash": "0x738ab499",
+      "type": "STT_FUNC",
+      "size": 16,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys10MouseEvent9getParam1Ev",
+      "new_name": "_ZNK2ux6wgtsys10MouseEvent9getParam1FU",
+      "gnu_hash": "0x55935abf",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys10WidgetBase10isWidget3DEv",
+      "new_name": "_ZNK2ux6wgtsys10WidgetBase10isWidget3DFU",
+      "gnu_hash": "0x692f8990",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys10WidgetBase9isAnimateEv",
+      "new_name": "_ZNK2ux6wgtsys10WidgetBase9isAnimateFU",
+      "gnu_hash": "0x9b56c5cc",
+      "type": "STT_FUNC",
+      "size": 14,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys12WidgetSystem8getLayerERKNS_4core2IDE",
+      "new_name": "_ZNK2ux6wgtsys12WidgetSystem8getLayerERKNS_4core2ICf",
+      "gnu_hash": "0x723552c1",
+      "type": "STT_FUNC",
+      "size": 30,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys12WidgetSystem9getWidgetERKNS_4core2IDE",
+      "new_name": "_ZNK2ux6wgtsys12WidgetSystem9getWidgetERKNS_4core2ICf",
+      "gnu_hash": "0x8687ce9",
+      "type": "STT_FUNC",
+      "size": 30,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys6Widget22getLastChildWidgetBaseEv",
+      "new_name": "_ZNK2ux6wgtsys6Widget22getLastChildWidgetBaseFU",
+      "gnu_hash": "0x5f75122d",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "AdjChkConfig.so",
+        "appFw.so",
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys8KeyEvent12getEventTypeEv",
+      "new_name": "_ZNK2ux6wgtsys8KeyEvent12getEventTypeFU",
+      "gnu_hash": "0xc276c822",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys8KeyEvent6getKeyEv",
+      "new_name": "_ZNK2ux6wgtsys8KeyEvent6getKeyFU",
+      "gnu_hash": "0x1201ba3a",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "_ZNK2ux6wgtsys9UserEvent12getUserValueEv",
+      "new_name": "_ZNK2ux6wgtsys9UserEvent12getUserValueFU",
+      "gnu_hash": "0xe7498311",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "core_sync_set_event",
+      "new_name": "core_sync_set_eveoS",
+      "gnu_hash": "0x2e8170d6",
+      "type": "STT_FUNC",
+      "size": 8,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "logrec",
+      "new_name": "logrfB",
+      "gnu_hash": "0xbdf3601",
+      "type": "STT_FUNC",
+      "size": 20,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "smf_AviEa_SetThumbPictFileAccessFlag",
+      "new_name": "smf_AviEa_SetThumbPictFileAccessFlbF",
+      "gnu_hash": "0x3ee4b8b7",
+      "type": "STT_FUNC",
+      "size": 10,
+      "defined_in": "libmp5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libmp5.so"
+      ]
+    },
+    {
+      "symbol": "udtr_senser_init",
+      "new_name": "uduQ_senser_init",
+      "gnu_hash": "0x952d28c6",
+      "type": "STT_FUNC",
+      "size": 184,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "uiresp_init",
+      "new_name": "uiresp_injS",
+      "gnu_hash": "0x3d1f1310",
+      "type": "STT_FUNC",
+      "size": 12,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "unigi_exit",
+      "new_name": "unigi_exjS",
+      "gnu_hash": "0xf787b45a",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "unigi_init",
+      "new_name": "unigi_injS",
+      "gnu_hash": "0xf789bb54",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "uniinfra_init",
+      "new_name": "uniinfra_injS",
+      "gnu_hash": "0x77b20b94",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "unimodel_exit",
+      "new_name": "unimodel_exjS",
+      "gnu_hash": "0x54c6b97b",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "unimodel_init",
+      "new_name": "unimodel_injS",
+      "gnu_hash": "0x54c8c075",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "uniobj_exit",
+      "new_name": "uniobj_exjS",
+      "gnu_hash": "0x48e73ce5",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "uniobj_init",
+      "new_name": "uniobj_injS",
+      "gnu_hash": "0x48e943df",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "uxengine_app_fw_init",
+      "new_name": "uxengine_app_fw_injS",
+      "gnu_hash": "0x6c61dad7",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "uxengine_exit",
+      "new_name": "uxengine_exjS",
+      "gnu_hash": "0xcabdc221",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "uxengine_init",
+      "new_name": "uxengine_injS",
+      "gnu_hash": "0xcabfc91b",
+      "type": "STT_FUNC",
+      "size": 6,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
+      "impacted_files": [
+        "libOb5.so"
+      ]
+    },
+    {
+      "symbol": "TsOtOS_2_init",
+      "new_name": "TsOtP2_2_init",
+      "gnu_hash": "0xa1304f5",
+      "type": "STT_FUNC",
+      "size": 598,
+      "defined_in": "libOb5.so",
+      "conflicting_g4_libs": [
+        "libObj.so"
+      ],
+      "reason": "G4_HOST_COLLISION_PATCH2",
       "impacted_files": [
         "libOb5.so"
       ]

@@ -77,7 +77,7 @@
         "mode": "0755",
         "uid": 0,
         "gid": 0,
-        "description": "五代符号桩 libObjShim.so (10,608 B)"
+        "description": "五代符号桩 libObjShim.so (10,920 B)"
       },
       {
         "host_path": "build_out/AdjChkConfig.so",

@@ -124,6 +124,14 @@ def rename(in_path: Path, out_path: Path, names: list, forbidden_extra: set = fr
     existing = {s.name.encode() for s in dynsym.iter_symbols() if s.name}
     forbidden = existing | set(forbidden_extra)
     refs = dynstr_refs(elf)
+    spans = []
+    seen_ro = set()
+    for (_, _, ro) in refs:
+        if ro == 0 or ro in seen_ro:
+            continue
+        seen_ro.add(ro)
+        nul_rel = raw.index(b"\x00", ds_off + ro) - ds_off
+        spans.append((ro, nul_rel - 1))
     result = {}
     for nm in names:
         name = nm.encode() if isinstance(nm, str) else nm
@@ -138,11 +146,13 @@ def rename(in_path: Path, out_path: Path, names: list, forbidden_extra: set = fr
         new = new.encode() if new else pick_new_name(name, forbidden)
         assert len(new) == len(name) and gnu_hash(new) == gnu_hash(name), "映射名必须等长且同 GNU hash"
         changed = [j for j in range(len(name)) if name[j] != new[j]]
+        if not changed:
+            continue
         lo, hi = o + changed[0], o + changed[-1]
-        # 后缀共享检查：任何其它引用若指向 [o+1, hi] 区间内，会被连带改坏
-        for (k, i, ro) in refs:
-            if ro != o and o < ro <= hi:
-                raise SystemExit(f"[!] 后缀共享冲突: {name!r} 被 {k}#{i} (dynstr+0x{ro:x}) 共享，放弃")
+        # 双向区间重叠检查：任何其它引用区间 [ro, rend] 若与修改区间 [lo, hi] 相交，会被连带改坏
+        for (ro, rend) in spans:
+            if ro != o and ro <= hi and rend >= lo:
+                raise SystemExit(f"[!] 字符串双向重叠冲突: {name!r} (dynstr+0x{o:x}..0x{hi:x}) 与 dynstr+0x{ro:x}..0x{rend:x} 重叠，放弃")
         raw[ds_off + o: ds_off + o + len(new)] = new
         forbidden.add(new)
         result[name.decode()] = {"new": new.decode(), "dynstr_off": hex(o), "sym_indices": [i for (_, i, _) in hits],

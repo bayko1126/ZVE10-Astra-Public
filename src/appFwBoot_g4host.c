@@ -2718,8 +2718,21 @@ static draw_fb_fn_t g_orig_draw_framebuffer = NULL;
 
 static volatile uint32_t g_sync_rpc_cnt = 0;
 static volatile uint32_t g_sync_time_fix_cnt = 0;
+static volatile uint32_t g_sync_time_fast_cnt = 0;
 static volatile uint32_t g_grm_chk_cnt = 0;
 static volatile uint32_t g_draw_fb_cnt = 0;
+static volatile int g_sync_time_mode = 0; /* 0=待校准, 1=校准中, 2=已校准单调偏移, 3=纯用户态回退 */
+static int64_t g_sync_time_mono_offset_us = 0;
+
+static inline uint64_t g5_monotonic_us_fast(void) {
+    struct timespec ts;
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) == 0) {
+        return (uint64_t)ts.tv_sec * 1000000ULL + (uint64_t)(ts.tv_nsec / 1000L);
+    }
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (uint64_t)tv.tv_sec * 1000000ULL + (uint64_t)tv.tv_usec;
+}
 
 /* 统一 GOT 槽位改写辅助，避免多处重复 mprotect/log 样板代码 */
 static void hook_got_slot(uintptr_t fbase, uintptr_t got_off, void *new_fn, const char *label) {
@@ -2866,6 +2879,7 @@ static uintptr_t get_module_base_maps(const char *name)
 #include "g4host_bridge_optics.h"
 #include "g4host_bridge_usb.h"
 #include "g4host_bridge_isp.h"
+#include "g4host_bridge_input.h"
 
 static int stub_mpr_log_queue_read(void)
 {
@@ -2945,8 +2959,27 @@ static int hook_pthread_create_tracker(pthread_t *thread, const pthread_attr_t *
     return g_orig_pthread_create ? g_orig_pthread_create(thread, attr, start_routine, arg) : -1;
 }
 
-/* 拦截 appFw.so GOT[osal_snd_sync_direct]：定位失败 RPC，并为 0x910042 与 DISP_MODE_OPTION 提供正常应答 */
+/* 拦截 appFw.so GOT[osal_snd_sync_direct]：高频 0x910042 取时初次校准内核时间基后全走用户态直返，消除 ~960/s 内核 UIPC 往返 */
 static int g5_hook_osal_snd_sync_direct(uint32_t qid, void *msg) {
+    if (qid == 0x910042u && msg != NULL && *(uint32_t *)msg >= 0x20u) {
+        int mode = __atomic_load_n(&g_sync_time_mode, __ATOMIC_ACQUIRE);
+        if (mode == 2) {
+            uint64_t now_us = (uint64_t)((int64_t)g5_monotonic_us_fast() + g_sync_time_mono_offset_us);
+            *(int32_t *)((uint8_t *)msg + 0x14) = 0;
+            *(uint64_t *)((uint8_t *)msg + 0x18) = now_us;
+            __atomic_add_fetch(&g_sync_time_fast_cnt, 1u, __ATOMIC_RELAXED);
+            return 0;
+        }
+        if (mode == 3) {
+            struct timeval tv;
+            gettimeofday(&tv, NULL);
+            *(int32_t *)((uint8_t *)msg + 0x14) = 0;
+            *(uint64_t *)((uint8_t *)msg + 0x18) = (uint64_t)tv.tv_sec * 1000000ULL + (uint64_t)tv.tv_usec;
+            __atomic_add_fetch(&g_sync_time_fast_cnt, 1u, __ATOMIC_RELAXED);
+            return 0;
+        }
+    }
+
     uintptr_t lr = (uintptr_t)__builtin_return_address(0) & ~(uintptr_t)1u;
     uintptr_t off = (g_appfw_base && lr >= g_appfw_base) ? (lr - g_appfw_base) : lr;
     int rc = g_orig_osal_snd_sync_direct ? g_orig_osal_snd_sync_direct(qid, msg) : -1;
@@ -2954,19 +2987,32 @@ static int g5_hook_osal_snd_sync_direct(uint32_t qid, void *msg) {
     if (qid == 0x910042u && msg != NULL && *(uint32_t *)msg >= 0x20u) {
         uint64_t ts_val = *(uint64_t *)((uint8_t *)msg + 0x18);
         int inner_rc = *(int32_t *)((uint8_t *)msg + 0x14);
-        if (rc != 0 || inner_rc != 0 || ts_val == 0) {
-            struct timeval tv;
-            gettimeofday(&tv, NULL);
-            uint64_t now_us = (uint64_t)tv.tv_sec * 1000000ULL + (uint64_t)tv.tv_usec;
-            *(int32_t *)((uint8_t *)msg + 0x14) = 0;
-            *(uint64_t *)((uint8_t *)msg + 0x18) = now_us;
-            uint32_t fc = __sync_add_and_fetch(&g_sync_time_fix_cnt, 1);
-            if (fc <= 10 || (fc % 200) == 0) {
-                logf_("PATCH: G5_SYNC_TIME 0x910042 失效(rc=%d inner=%d ts=%llu)，已注入 us=%llu (#%u off=0x%lx)",
-                      rc, inner_rc, (unsigned long long)ts_val, (unsigned long long)now_us, fc, (unsigned long)off);
+        if (rc == 0 && inner_rc == 0 && ts_val != 0) {
+            int expected = 0;
+            if (__atomic_compare_exchange_n(&g_sync_time_mode, &expected, 1, 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED)) {
+                uint64_t mono_us = g5_monotonic_us_fast();
+                g_sync_time_mono_offset_us = (int64_t)ts_val - (int64_t)mono_us;
+                __atomic_store_n(&g_sync_time_mode, 2, __ATOMIC_RELEASE);
+                logf_("PERF: G5_SYNC_TIME 0x910042 已校准内核时间基 (kernel_us=%llu mono_us=%llu off=%lld)，后续走用户态零拷贝直返",
+                      (unsigned long long)ts_val, (unsigned long long)mono_us, (long long)g_sync_time_mono_offset_us);
             }
             return 0;
         }
+        struct timeval tv;
+        gettimeofday(&tv, NULL);
+        uint64_t now_us = (uint64_t)tv.tv_sec * 1000000ULL + (uint64_t)tv.tv_usec;
+        *(int32_t *)((uint8_t *)msg + 0x14) = 0;
+        *(uint64_t *)((uint8_t *)msg + 0x18) = now_us;
+        uint32_t fc = __sync_add_and_fetch(&g_sync_time_fix_cnt, 1);
+        if (fc <= 3 || (fc % 200) == 0) {
+            logf_("PATCH: G5_SYNC_TIME 0x910042 失效(rc=%d inner=%d ts=%llu)，已注入 us=%llu (#%u off=0x%lx)",
+                  rc, inner_rc, (unsigned long long)ts_val, (unsigned long long)now_us, fc, (unsigned long)off);
+        }
+        if (fc >= 3u) {
+            int expected = 0;
+            __atomic_compare_exchange_n(&g_sync_time_mode, &expected, 3, 0, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED);
+        }
+        return 0;
     }
 
     /* 拦截并模拟应答 DISP_MODE_OPTION (0x267 / 0x268) */
@@ -3343,6 +3389,15 @@ static void *dummy_context_getter(void)
 
 static void install_g4_key_intercept(uintptr_t libobj_base);
 
+__attribute__((minsize, cold))
+static int match_ctx_getter_sig(uintptr_t va)
+{
+    const uint16_t *h = (const uint16_t *)va;
+    return h[0] == 0x4b02u && h[1] == 0xb580u && h[2] == 0x447bu && h[3] == 0xaf00u &&
+           h[16] == 0x4b03u && h[17] == 0xb580u && h[18] == 0x447bu && h[19] == 0x681bu;
+}
+
+__attribute__((minsize, cold))
 static void init_libobj_context_stub(void)
 {
     /* 1. 初始化虚表与大容量全零安全对象结构 (ASTRA-06 彻底免疫修复) */
@@ -3369,17 +3424,15 @@ static void init_libobj_context_stub(void)
     uint32_t *sub_obj_40 = (uint32_t *)(s_dummy_context_blob + 16384);
     sub_obj_40[0] = (uint32_t)(uintptr_t)s_dummy_vtable;
 
-    /* 补齐 libObj+0x85470c..0x85474a 等全部 getter 访问的指针槽位 */
-    ctx[0x04 / 4] = (uint32_t)(uintptr_t)sub_obj_common;
-    ctx[0x08 / 4] = (uint32_t)(uintptr_t)sub_obj_common;
-    ctx[0x0c / 4] = (uint32_t)(uintptr_t)sub_obj_common;
+    /* 补齐 ctx[0x04..0xfc] 全部指针槽位，并覆盖 libObj+0x85470c..0x85474a 等全部 getter 访问 */
+#pragma clang loop unroll(disable)
+    for (size_t off = 0x04u; off < 0x100u; off += 4u) {
+        ctx[off / 4u] = (uint32_t)(uintptr_t)sub_obj_common;
+    }
     ctx[0x10 / 4] = (uint32_t)(uintptr_t)sub_obj_10;
-    ctx[0x14 / 4] = (uint32_t)(uintptr_t)sub_obj_common;
-    ctx[0x18 / 4] = (uint32_t)(uintptr_t)sub_obj_common;
-    ctx[0x1c / 4] = (uint32_t)(uintptr_t)sub_obj_common;
 
-    /* 严格保持 +0x20 字节为 0，防止 0x8547c6 ldrb r4, [r0, #0x20] 触发数组循环越界 */
-    *((uint8_t *)s_dummy_context_blob + 0x20) = 0;
+    /* 严格保持 +0x20 整个 4 字节槽位为 0，防止 0x8547c6 ldrb r4, [r0, #0x20] 触发数组循环越界 */
+    ctx[0x20 / 4] = 0u;
 
     ctx[0x30 / 4] = (uint32_t)(uintptr_t)sub_obj_30;
     ctx[0x34 / 4] = (uint32_t)(uintptr_t)sub_obj_30;
@@ -3409,36 +3462,56 @@ static void init_libobj_context_stub(void)
         return;
     }
 
-    /* 在 libObj.so 中，Application_System_InjS 偏移为 0x8a2408 (Thumb 0x8a2409) */
-    uintptr_t base = ((uintptr_t)pInjS & ~1u) - 0x8a2408u;
+    /* 优先通过 dladdr 获取 libObj.so 真实基址，回退 /proc/self/maps 与基准偏移 0x8a2408 */
+    uintptr_t base = 0;
+    Dl_info obj_dli = {0};
+    if (dladdr(pInjS, &obj_dli) && obj_dli.dli_fbase) {
+        base = (uintptr_t)obj_dli.dli_fbase;
+    } else {
+        base = get_module_base_maps("libObj.so");
+        if (!base) {
+            base = ((uintptr_t)pInjS & ~1u) - 0x8a2408u;
+        }
+    }
 #ifdef ZVE10_REAL_DEVICE
     g_libobj_base_real = base;
     g_hLibObj_real = hObj;
 #endif
     logf_("STUB: libObj.so 探测成功: pInjS=%p, base=%p", pInjS, (void *)base);
 
-    /* 3. 动态验证并调用 SetContextGetter (偏移 0x854670, Thumb 0x854671)
-     * 避免直接硬编码写 base + 0x148a6bc，杜绝在不同字节尺寸/变种的 libObj 固件上踩踏邻近数据 */
-    uintptr_t set_getter_va = base + 0x854670u;
-    const uint8_t *cg_code = (const uint8_t *)set_getter_va;
-    if (cg_code[0] == 0x02 && cg_code[1] == 0x4b && cg_code[2] == 0x80 && cg_code[3] == 0xb5) {
-        typedef void (*set_getter_fn)(void *(*)(void));
-        set_getter_fn set_getter = (set_getter_fn)(set_getter_va + 1u);
-        set_getter(dummy_context_getter);
-        logf_("STUB: 前言特征匹配，调用 SetContextGetter(0x854671) 成功，空指针防护已全面就绪");
+    /* 3. 动态验证并调用 SetContextGetter (基准偏移 0x854670, Thumb 0x854671)
+     * 采用 SetContextGetter(+0x00, 8B) + GetContext(+0x20, 8B) 全库唯一组合签名验证与窗口自适配定位 */
+    uintptr_t matched_off = 0;
+    const uintptr_t default_off = 0x854670u;
+    if (match_ctx_getter_sig(base + default_off)) {
+        matched_off = default_off;
     } else {
-        logf_("STUB_WARN: 0x854670 前言指令不匹配，回退写入基准 getter 变量 (0x148a6bc)");
+        for (uintptr_t off = 0x830000u; off + 0x30u < 0x870000u; off += 2u) {
+            if (match_ctx_getter_sig(base + off)) {
+                matched_off = off;
+                break;
+            }
+        }
+    }
+    if (matched_off != 0) {
+        typedef void (*set_getter_fn)(void *(*)(void));
+        set_getter_fn set_getter = (set_getter_fn)(base + matched_off + 1u);
+        set_getter(dummy_context_getter);
+        logf_("STUB: SetContextGetter(0x%lx) OK", (unsigned long)(matched_off + 1u));
+    } else {
+        logf_("STUB_WARN: fallback getter var 0x148a6bc");
         void **pGetterVar = (void **)(base + 0x148a6bcu);
         *pGetterVar = (void *)dummy_context_getter;
     }
 
-    /* 5. 唤醒并安全停靠四代 libObj.so 遗留的 RM 阻塞线程，释放核内 mlock(2) */
+    /* 4. 唤醒并安全停靠四代 libObj.so 遗留的 RM 阻塞线程，释放核内 mlock(2) */
     park_libobj_rm_thread(base);
 
-    /* 6. 安装四代 InputService::callback_direct 拦截钩子，开启物理按键到五代桥接 */
+    /* 5. 安装四代 InputService::callback_direct 拦截钩子，开启物理按键到五代桥接 */
     install_g4_key_intercept(base);
 }
 
+__attribute__((minsize, cold))
 static int fallback_g4(const char *why);
 
 /* ---------- 增强崩溃取证：宿主免疫模式 ---------- */
@@ -3936,6 +4009,18 @@ static void g5_sb_stub_cb(void *arg)
 }
 #endif
 
+/* 五代 libOb5:InfraInput 事件结构 (24B，QEMU 与真机共用) */
+typedef struct {
+    uint32_t event_code;  /* +0x00 (raw code 或 raw2id 转换后的 id) */
+    int16_t  tp_x;        /* +0x04 */
+    int16_t  tp_y;        /* +0x06 */
+    int32_t  status;      /* +0x08 (按键 1/0；拨轮有符号增量) */
+    uint32_t prev_status; /* +0x0c */
+    uint32_t ex_info;     /* +0x10 */
+    uint32_t repeat;      /* +0x14 */
+} g5_infra_input_ev_t;
+_Static_assert(sizeof(g5_infra_input_ev_t) == 24u, "g5_infra_input_ev_t must be 24 bytes");
+
 #ifdef ZVE10_REAL_DEVICE
 /* =========================================================================
  * 真机 (ZVE10_REAL_DEVICE) Gen4->Gen5 安全交接、纯透传链路观测与输入激活
@@ -4083,6 +4168,7 @@ static void g4_retire_duplicate_input_threads(uintptr_t g4base)
     logf_("G4_INPUT_RETIRE: 扫描 Gen4 输入单例 pInfraTp=%p pInfraInput=%p", pTp, pIn);
 
     if ((uintptr_t)pTp > 0x10000u) {
+        /* 触屏已交由五代 libOb5:InfraTp 原生独占，先于五代启动前干净退役四代 I-TpMain/I-TpRecv 防止双活抢占 0x007b0026/0x007b002b */
         g4_stop_one_input_thread(g4base, pTp, 0x28u, 0x007b002bu, 0x0cu, "I-TpMain", "I-TpMain");
         g4_stop_one_input_thread(g4base, pTp, 0x24u, 0x007b0026u, 0x10u, "I-TpRecv", "I-TpRecv");
     }
@@ -4107,6 +4193,18 @@ static void g4_retire_duplicate_input_threads(uintptr_t g4base)
         real_drain_sentinel_queue(qs[i].qid, pRcvTmo, pFreeMsg, pSndMsg, qs[i].name);
     }
 }
+
+/* 释放前先记录 Gen4 pInfraTp 硬件工作模式与参数，供五代 InfraTp 继承 */
+static volatile int      g_g4_tp_saved_valid = 0;
+static volatile uint32_t g_g4_tp_saved_mode  = 0;
+static volatile uint32_t g_g4_tp_saved_s0    = 0;
+static volatile uint32_t g_g4_tp_saved_s1    = 0;
+static volatile uint32_t g_g4_tp_saved_s2    = 0;
+static volatile uint8_t  g_g4_tp_saved_sus   = 0;
+static volatile uint8_t  g_g4_tp_saved_dir0  = 1;
+static volatile uint8_t  g_g4_tp_saved_dir1  = 1;
+static volatile uint8_t  g_g4_tp_saved_sw    = 0;
+static volatile uint8_t  g_g4_tp_saved_raw   = 0;
 
 static void g4_handoff_real_device(void)
 {
@@ -4143,10 +4241,42 @@ static void g4_handoff_real_device(void)
     logf_("G4_HANDOFF [2/5]: libObj:grm_term(0x6f923d) rc=%d elapsed=%llu ms (OSD 图层仲裁已成功释放)",
           grm_rc, (unsigned long long)(g5_msec_now() - t0));
 
-    /* [3/5]~[4/5] 保持物理触屏与按键硬件中断活跃（严禁调用 infra_tp_sus / infra_input_sus），
-     * 同时通过退出哨兵优雅退役四代 4 个抢包输入线程，将 OSAL 队列独占权交还五代 libOb5 */
+    /* [3/5]~[4/5] 先采集四代 pInfraTp 配置，再通过 infra_tp_sus(0) 释放并退役抢包线程 */
+    {
+        void *pG4Tp = *(void *volatile *)(g4base + 0x014924b0u);
+        if ((uintptr_t)pG4Tp > 0x10000u) {
+            g_g4_tp_saved_sus  = *(const volatile uint8_t  *)((uintptr_t)pG4Tp + 0x20u);
+            g_g4_tp_saved_dir0 = *(const volatile uint8_t  *)((uintptr_t)pG4Tp + 0x30u);
+            g_g4_tp_saved_dir1 = *(const volatile uint8_t  *)((uintptr_t)pG4Tp + 0x31u);
+            g_g4_tp_saved_sw   = *(const volatile uint8_t  *)((uintptr_t)pG4Tp + 0x32u);
+            g_g4_tp_saved_raw  = *(const volatile uint8_t  *)((uintptr_t)pG4Tp + 0x35u);
+            g_g4_tp_saved_s0   = *(const volatile uint32_t *)((uintptr_t)pG4Tp + 0x38u);
+            g_g4_tp_saved_s1   = *(const volatile uint32_t *)((uintptr_t)pG4Tp + 0x3cu);
+            g_g4_tp_saved_s2   = *(const volatile uint32_t *)((uintptr_t)pG4Tp + 0x40u);
+            g_g4_tp_saved_mode = *(const volatile uint32_t *)((uintptr_t)pG4Tp + 0x44u);
+            g_g4_tp_saved_valid = 1;
+            logf_("G4_HANDOFF [3/5]: 采集 Gen4 pInfraTp=%p 状态: sus=%u dir=(%u,%u) sw=%u raw=%u mode=%u settings=(%u,%u,%u)",
+                  pG4Tp, (unsigned)g_g4_tp_saved_sus, (unsigned)g_g4_tp_saved_dir0, (unsigned)g_g4_tp_saved_dir1,
+                  (unsigned)g_g4_tp_saved_sw, (unsigned)g_g4_tp_saved_raw,
+                  g_g4_tp_saved_mode, g_g4_tp_saved_s0, g_g4_tp_saved_s1, g_g4_tp_saved_s2);
+        }
+    }
+    g_real_handoff_stage = "3_infra_tp_sus";
+    {
+        static const unsigned char exp_tp_sus[8] = {0xb0u, 0xb5u, 0x84u, 0xb0u, 0x04u, 0xafu, 0x05u, 0x46u};
+        uintptr_t tp_sus_va = g4base + 0x008b9e54u;
+        if (memcmp((const void *)tp_sus_va, exp_tp_sus, sizeof(exp_tp_sus)) == 0) {
+            typedef int (*g4_u32_fn_t)(uint32_t);
+            t0 = g5_msec_now();
+            int tp_rc = ((g4_u32_fn_t)(tp_sus_va | 1u))(0u);
+            logf_("G4_HANDOFF [3/5]: libObj:infra_tp_sus(0) rc=%d elapsed=%llu ms",
+                  tp_rc, (unsigned long long)(g5_msec_now() - t0));
+        } else {
+            logf_("G4_HANDOFF [3/5] WARN: libObj:infra_tp_sus (+0x8b9e54) 前言字节不匹配，跳过");
+        }
+    }
     g_real_handoff_stage = "3_4_retire_g4_input_threads";
-    logf_("G4_HANDOFF [3/5]: 保持四代硬件触屏与按键中断活跃，退役四代双活抢包线程...");
+    logf_("G4_HANDOFF [3/5]: 退役四代抢包线程（含 I-TpMain/I-TpRecv），交由五代 libOb5 原生接管触屏...");
     g4_retire_duplicate_input_threads(g4base);
 
     /* 安装 libmpr.so SIGSEGV 崩溃免疫桩 (彻底杜绝 0x7ef05e 野指针崩溃，保全媒体主进程) */
@@ -4239,6 +4369,280 @@ static void install_real_ob5_observers(uintptr_t ob5_base, void *hMwf)
     init_bridge_sched(ob5_base);
 }
 
+static void * volatile     g_real_g5_tp_obj = NULL;
+static volatile uint32_t   g_g5tp_vt4_cnt = 0;
+static volatile uint32_t   g_g5_mouse_press_cnt = 0;
+static volatile uint32_t   g_g5_mouse_rel_cnt = 0;
+static uintptr_t           g_g5tp_vtable_storage[12];
+typedef int (*g5_tp_vt4_fn_t)(void *self, uint32_t msg0);
+static g5_tp_vt4_fn_t      g_g5tp_orig_vt4 = NULL;
+typedef int (*g5_ob5_send_msg_fn_t)(void *pThis, uint32_t qid, void *buf, uint32_t size, uint32_t flags, uint32_t magic_hdr);
+static g5_ob5_send_msg_fn_t g_g5tp_ob5_send_msg = NULL;
+static volatile int         g_g5tp_hb_retried = 0;
+
+static int real_g5tp_vt4_hook(void *self, uint32_t msg0)
+{
+    int idx = g_g5tp_orig_vt4 ? g_g5tp_orig_vt4(self, msg0) : -1;
+    uint32_t cnt = __sync_add_and_fetch(&g_g5tp_vt4_cnt, 1u);
+    if (cnt <= 12u) {
+        uint8_t sus_b = *(const volatile uint8_t  *)((uintptr_t)self + 0x20u);
+        uint8_t sw_b  = *(const volatile uint8_t  *)((uintptr_t)self + 0x32u);
+        uint8_t raw_b = *(const volatile uint8_t  *)((uintptr_t)self + 0x35u);
+        uint32_t mode = *(const volatile uint32_t *)((uintptr_t)self + 0x44u);
+        logf_("G5_TP_RECV #%u: I-TpRecv 收到 0x7b0026 包 msg0=0x%08x -> map_idx=%d (sus=%u ev_sw=%u raw=%u mode=%u)",
+              cnt, msg0, idx, (unsigned)sus_b, (unsigned)sw_b, (unsigned)raw_b, mode);
+    }
+    return idx;
+}
+
+static void real_appfw_post_mouse_press(void *ws, uint8_t id, uint8_t btn, const uint64_t *tm)
+{
+    uint32_t cnt = __sync_add_and_fetch(&g_g5_mouse_press_cnt, 1u);
+    if (cnt <= 10u) {
+        logf_("G5_APPFW_TOUCH #%u: postMousePress(ws=%p, id=%u, btn=%u)", cnt, ws, (unsigned)id, (unsigned)btn);
+    }
+    if (g_pPress) g_pPress(ws, id, btn, tm);
+}
+
+static void real_appfw_post_mouse_release(void *ws, uint8_t id, uint8_t btn, const uint64_t *tm)
+{
+    uint32_t cnt = __sync_add_and_fetch(&g_g5_mouse_rel_cnt, 1u);
+    if (cnt <= 10u) {
+        logf_("G5_APPFW_TOUCH #%u: postMouseRelease(ws=%p, id=%u, btn=%u)", cnt, ws, (unsigned)id, (unsigned)btn);
+    }
+    if (g_pRel) g_pRel(ws, id, btn, tm);
+}
+
+/* 五代 libOb5:InfraInput <-> appFw.so 按键回调探针与电源拨片桥接 */
+typedef void *(*g5_infra_get_inst_fn_t)(void);
+typedef int   (*g5_infra_set_cb_fn_t)(void *self, int *out_id, void (*cb)(int, void *));
+typedef int   (*g5_infra_set_keylist_fn_t)(void *self, int cb_id, const void *list, int count);
+typedef int   (*g5_infra_set_keylist_all_fn_t)(void *self, int cb_id);
+typedef void  (*g5_in_user_cb_t)(int ch, void *ev);
+
+static int g5_send_internal_event(uint32_t event_id);
+
+static g5_infra_set_cb_fn_t          g_orig_g5_in_set_cb = NULL;
+static g5_infra_set_keylist_fn_t     g_orig_g5_in_set_keylist = NULL;
+static g5_infra_set_keylist_all_fn_t g_g5_in_set_keylist_all = NULL;
+static void * volatile               g_real_g5_in_obj = NULL;
+static int                           g_real_g5_diag_cb_id = -1;
+static volatile uint32_t             g_g5_in_raw_cnt = 0;
+
+#define G5_APPFW_IN_MAX_SLOTS 8
+static g5_in_user_cb_t               g_g5_appfw_in_orig_cbs[G5_APPFW_IN_MAX_SLOTS];
+static int                           g_g5_appfw_in_cb_ids[G5_APPFW_IN_MAX_SLOTS];
+static volatile uint32_t             g_g5_appfw_in_slot_cnt = 0;
+static volatile uint32_t             g_g5_appfw_in_ev_cnt = 0;
+static volatile int                  g_g5_appfw_has_kuru_left = 0;
+
+static int g5_inject_raw_infra_event(uint32_t raw_code, int32_t status, uint32_t prev_status)
+{
+    if (!g_appfw_base) return -1;
+
+    g5_in_user_cb_t target_cb = (g5_in_user_cb_t)(g_appfw_base + 0x0054e789u);
+    g5_in_user_cb_t cb = NULL;
+    for (unsigned i = 0; i < G5_APPFW_IN_MAX_SLOTS; i++) {
+        if (g_g5_appfw_in_orig_cbs[i] == target_cb) {
+            cb = target_cb;
+            break;
+        }
+    }
+    if (!cb) {
+        static const uint8_t exp_cb[8] = { 0x2du, 0xe9u, 0xf0u, 0x41u, 0x82u, 0xb0u, 0x00u, 0xafu };
+        const uint8_t *fn_addr = (const uint8_t *)(g_appfw_base + 0x0054e788u);
+        if (memcmp(fn_addr, exp_cb, sizeof(exp_cb)) == 0) {
+            cb = target_cb;
+        } else {
+            logf_("G5_IN_INJECT_ERR: appFw+0x54e788 签名不匹配 (%02x %02x %02x %02x)",
+                  fn_addr[0], fn_addr[1], fn_addr[2], fn_addr[3]);
+        }
+    }
+    if (!cb) return -1;
+
+    g5_infra_input_ev_t ev;
+    memset(&ev, 0, sizeof(ev));
+    ev.event_code  = raw_code;
+    ev.status      = status;
+    ev.prev_status = prev_status;
+    cb(0, &ev);
+    return 0;
+}
+
+static void g5_appfw_in_dispatch(unsigned slot, int ch, void *ev_ptr)
+{
+    if (ev_ptr) {
+        const g5_infra_input_ev_t *ev = (const g5_infra_input_ev_t *)ev_ptr;
+        /* 0x18000001 为 10Hz 传感器高频事件，直接跳过计数与日志以免耗尽上限 */
+        if (ev->event_code != 0x18000001u) {
+            uint32_t cnt = __sync_add_and_fetch(&g_g5_appfw_in_ev_cnt, 1u);
+            if (cnt <= 240u) {
+                logf_("G5_IN_APPFW_CB[#%u slot=%u cb_id=%d ch=%d]: code=0x%08x st=%d prev=0x%x ex=0x%x rep=%u tp=(%d,%d)",
+                      cnt, slot, g_g5_appfw_in_cb_ids[slot], ch,
+                      ev->event_code, ev->status, ev->prev_status, ev->ex_info, ev->repeat,
+                      (int)ev->tp_x, (int)ev->tp_y);
+            }
+        }
+    }
+    g5_in_user_cb_t orig = (slot < G5_APPFW_IN_MAX_SLOTS) ? g_g5_appfw_in_orig_cbs[slot] : NULL;
+    if (orig) orig(ch, ev_ptr);
+}
+
+#define G5_DEFINE_APPFW_IN_WRAP(N) \
+    static void g5_appfw_in_wrap_##N(int ch, void *ev_ptr) { g5_appfw_in_dispatch(N##u, ch, ev_ptr); }
+G5_DEFINE_APPFW_IN_WRAP(0)
+G5_DEFINE_APPFW_IN_WRAP(1)
+G5_DEFINE_APPFW_IN_WRAP(2)
+G5_DEFINE_APPFW_IN_WRAP(3)
+G5_DEFINE_APPFW_IN_WRAP(4)
+G5_DEFINE_APPFW_IN_WRAP(5)
+G5_DEFINE_APPFW_IN_WRAP(6)
+G5_DEFINE_APPFW_IN_WRAP(7)
+#undef G5_DEFINE_APPFW_IN_WRAP
+
+static const g5_in_user_cb_t g_g5_appfw_in_wrappers[G5_APPFW_IN_MAX_SLOTS] = {
+    g5_appfw_in_wrap_0, g5_appfw_in_wrap_1, g5_appfw_in_wrap_2, g5_appfw_in_wrap_3,
+    g5_appfw_in_wrap_4, g5_appfw_in_wrap_5, g5_appfw_in_wrap_6, g5_appfw_in_wrap_7,
+};
+
+static int g5_hook_appfw_in_set_cb(void *self, int *out_id, g5_in_user_cb_t cb)
+{
+    if (!g_orig_g5_in_set_cb) {
+        logf_("G5_IN_WARN: g_orig_g5_in_set_cb 为 NULL");
+        if (out_id) *out_id = -1;
+        return 0;
+    }
+    unsigned slot = __sync_fetch_and_add(&g_g5_appfw_in_slot_cnt, 1u);
+    g5_in_user_cb_t reg_cb = cb;
+    if (slot < G5_APPFW_IN_MAX_SLOTS && cb) {
+        g_g5_appfw_in_orig_cbs[slot] = cb;
+        reg_cb = g_g5_appfw_in_wrappers[slot];
+    }
+    int rc = g_orig_g5_in_set_cb(self, out_id, reg_cb);
+    int cb_id = out_id ? *out_id : -1;
+    if (slot < G5_APPFW_IN_MAX_SLOTS) {
+        g_g5_appfw_in_cb_ids[slot] = cb_id;
+    }
+    Dl_info dli = {0};
+    dladdr((void *)cb, &dli);
+    uintptr_t off = (dli.dli_fbase && (uintptr_t)cb >= (uintptr_t)dli.dli_fbase)
+        ? ((uintptr_t)cb - (uintptr_t)dli.dli_fbase) : (uintptr_t)cb;
+    logf_("G5_IN_SETCALLBACK[slot=%u]: self=%p rc=%d cb_id=%d orig_cb=%p (%s+0x%lx)",
+          slot, self, rc, cb_id, (void *)cb,
+          dli.dli_fname ? dli.dli_fname : "?", (unsigned long)off);
+    return rc;
+}
+
+static int g5_hook_appfw_in_set_keylist(void *self, int cb_id, const void *list, int count)
+{
+    logf_("G5_IN_SETKEYLIST: self=%p cb_id=%d list=%p count=%d", self, cb_id, list, count);
+    if (list && count > 0) {
+        int lim = (count > 256) ? 256 : count;
+        char buf[256];
+        int pos = 0;
+        for (int i = 0; i < count; i++) {
+            const uint32_t *ent = (const uint32_t *)((const uint8_t *)list + (size_t)i * 12u);
+            if (ent[0] == 0x10000000u) {
+                g_g5_appfw_has_kuru_left = 1;
+            }
+            if (i < lim) {
+                int n = snprintf(buf + pos, sizeof(buf) - (size_t)pos, "%s0x%x(%x,%x)",
+                                 (i % 8 == 0) ? "" : " ", ent[0], ent[1], ent[2]);
+                if (n > 0) pos += (pos + n < (int)sizeof(buf)) ? n : ((int)sizeof(buf) - pos - 1);
+                if ((i % 8 == 7) || (i + 1 == lim)) {
+                    logf_("G5_IN_KEYLIST[cb=%d %d..%d]: %s", cb_id, (i / 8) * 8, i, buf);
+                    pos = 0;
+                }
+            }
+        }
+    }
+    return g_orig_g5_in_set_keylist ? g_orig_g5_in_set_keylist(self, cb_id, list, count) : 0;
+}
+
+static void g5_real_diag_input_cb(int ch, void *ev_ptr)
+{
+    if (!ev_ptr) return;
+    const g5_infra_input_ev_t *ev = (const g5_infra_input_ev_t *)ev_ptr;
+    /* 0x18000001 为 10Hz 高频传感器事件，直接忽略，避免耗尽输入日志上限 */
+    if (ev->event_code == 0x18000001u) return;
+
+    uint32_t cnt = __sync_add_and_fetch(&g_g5_in_raw_cnt, 1u);
+    if (cnt <= 240u || ev->event_code == 0x01d2u || ev->event_code == 0x01d1u ||
+        ev->event_code == 0x0066u || ev->event_code == 0x01f0u || ev->event_code == 0x01f1u ||
+        ev->event_code == 0x01f7u || ev->event_code == 0x01f8u || ev->event_code == 0x01f9u ||
+        (ev->event_code >= 0x10000000u && ev->event_code <= 0x10000020u)) {
+        logf_("G5_IN_ALL_RAW[#%u ch=%d]: code=0x%08x st=%d prev=0x%x ex=0x%x rep=%u tp=(%d,%d)",
+              cnt, ch, ev->event_code, ev->status, ev->prev_status, ev->ex_info, ev->repeat,
+              (int)ev->tp_x, (int)ev->tp_y);
+    }
+
+    /* 若 appFw 原生 SetEventKeyList 未订阅 KURU_LEFT (0x10000000)，由诊断全键回调转发至 appFw */
+    if (!g_g5_appfw_has_kuru_left && ev->event_code == 0x10000000u &&
+        g_real_handoff_stage && strcmp(g_real_handoff_stage, "g5_main_loop") == 0) {
+        g5_inject_raw_infra_event(ev->event_code, ev->status, ev->prev_status);
+    }
+
+    /* ZV-E10 二段电源拨片 OFF (0x01d2): 注入五代原始 KEY_TACT_POWER (0x0002) st=1->0 触发正常关机 */
+    if (ev->event_code == 0x01d2u && ev->status == 1 && ev->prev_status != 1u &&
+        g_real_handoff_stage && strcmp(g_real_handoff_stage, "g5_main_loop") == 0) {
+        logf_("G5_IN_POWER_OFF_BRIDGE: 检测到电源拨片拨至 OFF (0x01d2 st=1 prev=%u)，注入五代 KEY_TACT_POWER (0x0002)!",
+              ev->prev_status);
+        if (g5_inject_raw_infra_event(0x0002u, 1, 0u) == 0) {
+            usleep(30000);
+            g5_inject_raw_infra_event(0x0002u, 0, 1u);
+        } else {
+            g5_send_internal_event(0x020f0005u);
+            usleep(30000);
+            g5_send_internal_event(0x020f0004u);
+        }
+    }
+}
+
+static void g5_init_real_g5_input_probe(uintptr_t ob5_base)
+{
+    static const unsigned char exp_get[8]  = {0xb0u, 0xb5u, 0x84u, 0xb0u, 0x24u, 0x49u, 0x04u, 0xafu};
+    static const unsigned char exp_scb[8]  = {0x2du, 0xe9u, 0xf0u, 0x41u, 0x04u, 0x46u, 0x84u, 0xb0u};
+    static const unsigned char exp_sall[8] = {0xb0u, 0xb5u, 0x0cu, 0x46u, 0x00u, 0xafu, 0x05u, 0x46u};
+    static const unsigned char exp_skl[8]  = {0x2du, 0xe9u, 0xf0u, 0x4fu, 0xa3u, 0xb0u, 0x04u, 0xafu};
+
+    uintptr_t get_va  = ob5_base + 0x00208004u;
+    uintptr_t scb_va  = ob5_base + 0x002085b4u;
+    uintptr_t sall_va = ob5_base + 0x002089e8u;
+    uintptr_t skl_va  = ob5_base + 0x002092d0u;
+
+    if (memcmp((const void *)scb_va, exp_scb, sizeof(exp_scb)) == 0) {
+        g_orig_g5_in_set_cb = (g5_infra_set_cb_fn_t)(scb_va | 1u);
+    } else {
+        logf_("REAL_INPUT_WARN: libOb5 InfraInput::SetCallback (+0x2085b4) 前言不匹配");
+    }
+    if (memcmp((const void *)skl_va, exp_skl, sizeof(exp_skl)) == 0) {
+        g_orig_g5_in_set_keylist = (g5_infra_set_keylist_fn_t)(skl_va | 1u);
+    } else {
+        logf_("REAL_INPUT_WARN: libOb5 InfraInput::SetEventKeyList (+0x2092d0) 前言不匹配");
+    }
+    if (memcmp((const void *)sall_va, exp_sall, sizeof(exp_sall)) == 0) {
+        g_g5_in_set_keylist_all = (g5_infra_set_keylist_all_fn_t)(sall_va | 1u);
+    }
+
+    if (memcmp((const void *)get_va, exp_get, sizeof(exp_get)) == 0 && g_orig_g5_in_set_cb) {
+        void *pG5In = ((g5_infra_get_inst_fn_t)(get_va | 1u))();
+        g_real_g5_in_obj = pG5In;
+        if (pG5In) {
+            int rc = g_orig_g5_in_set_cb(pG5In, &g_real_g5_diag_cb_id, g5_real_diag_input_cb);
+            int all_rc = -1;
+            if (g_g5_in_set_keylist_all && g_real_g5_diag_cb_id >= 0) {
+                all_rc = g_g5_in_set_keylist_all(pG5In, g_real_g5_diag_cb_id);
+            }
+            logf_("REAL_INPUT: libOb5 InfraInput 全键诊断探针已注册 pIn=%p cb_id=%d rc=%d all_rc=%d",
+                  pG5In, g_real_g5_diag_cb_id, rc, all_rc);
+        } else {
+            logf_("REAL_INPUT_WARN: libOb5 InfraInput::GetInstance 返回 NULL");
+        }
+    } else {
+        logf_("REAL_INPUT_WARN: libOb5 InfraInput::GetInstance (+0x208004) 前言不匹配");
+    }
+}
+
 static void g5_start_real_input_services(uintptr_t ob5_base)
 {
     static const struct {
@@ -4269,6 +4673,132 @@ static void g5_start_real_input_services(uintptr_t ob5_base)
         logf_("REAL_INPUT: %s rc=%d elapsed=%llu ms",
               steps[i].name, rc, (unsigned long long)(g5_msec_now() - t0));
     }
+
+    /* 主动激活五代 libOb5:InfraTp 硬件工作模式 (0x01010227) 与事件开关，并挂载零侵入 vtable[4] 收包探针 */
+    {
+        static const unsigned char exp_get[8]  = {0xb0u, 0xb5u, 0x84u, 0xb0u, 0x21u, 0x49u, 0x04u, 0xafu};
+        static const unsigned char exp_sw[8]   = {0xb0u, 0xb5u, 0x84u, 0xb0u, 0x17u, 0x4bu, 0x0cu, 0x46u};
+        static const unsigned char exp_raw[8]  = {0xb0u, 0xb5u, 0x84u, 0xb0u, 0x09u, 0x4bu, 0x05u, 0x46u};
+        static const unsigned char exp_mode[8] = {0xf0u, 0xb5u, 0x87u, 0xb0u, 0x04u, 0xafu, 0x02u, 0x23u};
+        static const unsigned char exp_set[8]  = {0x2du, 0xe9u, 0xf0u, 0x43u, 0x89u, 0xb0u, 0x04u, 0xafu};
+        uintptr_t get_va  = ob5_base + 0x00201218u;
+        uintptr_t sw_va   = ob5_base + 0x002007a4u;
+        uintptr_t raw_va  = ob5_base + 0x001fef3cu;
+        uintptr_t mode_va = ob5_base + 0x001ff060u;
+        uintptr_t set_va  = ob5_base + 0x001fefb0u;
+        if (memcmp((const void *)get_va, exp_get, sizeof(exp_get)) == 0) {
+            typedef void *(*g5_tp_get_fn_t)(void);
+            typedef void  (*g5_tp_sw_fn_t)(void *self, uint32_t enable);
+            typedef int   (*g5_tp_mode_fn_t)(void *self, uint32_t mode);
+            typedef int   (*g5_tp_set_fn_t)(void *self, uint32_t a, uint32_t b, uint32_t c);
+            void *pG5Tp = ((g5_tp_get_fn_t)(get_va | 1u))();
+            if (pG5Tp) {
+                g_real_g5_tp_obj = pG5Tp;
+                uint8_t  sus_b   = *(const volatile uint8_t  *)((uintptr_t)pG5Tp + 0x20u);
+                uint8_t  dir0    = *(const volatile uint8_t  *)((uintptr_t)pG5Tp + 0x30u);
+                uint8_t  dir1    = *(const volatile uint8_t  *)((uintptr_t)pG5Tp + 0x31u);
+                uint8_t  sw_b    = *(const volatile uint8_t  *)((uintptr_t)pG5Tp + 0x32u);
+                uint8_t  raw_b   = *(const volatile uint8_t  *)((uintptr_t)pG5Tp + 0x35u);
+                uint32_t s0      = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x38u);
+                uint32_t s1      = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x3cu);
+                uint32_t s2      = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x40u);
+                uint32_t mode    = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x44u);
+                uint32_t mx      = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x58u);
+                uint32_t my      = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x5cu);
+                uint32_t key_cnt = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x1cu);
+                logf_("REAL_INPUT: libOb5 InfraTp=%p 初始状态: sus=%u dir=(%u,%u) ev_sw=%u raw=%u mode=%u settings=(%u,%u,%u) max=(%u,%u) keys=%u",
+                      pG5Tp, (unsigned)sus_b, (unsigned)dir0, (unsigned)dir1,
+                      (unsigned)sw_b, (unsigned)raw_b, mode, s0, s1, s2, mx, my, key_cnt);
+
+                if (g_g4_tp_saved_valid && (g_g4_tp_saved_s0 | g_g4_tp_saved_s1 | g_g4_tp_saved_s2) != 0u &&
+                    memcmp((const void *)set_va, exp_set, sizeof(exp_set)) == 0) {
+                    int set_rc = ((g5_tp_set_fn_t)(set_va | 1u))(pG5Tp, g_g4_tp_saved_s0, g_g4_tp_saved_s1, g_g4_tp_saved_s2);
+                    logf_("REAL_INPUT: libOb5 InfraTp::SetResourceTpSettings(%u,%u,%u) rc=%d",
+                          g_g4_tp_saved_s0, g_g4_tp_saved_s1, g_g4_tp_saved_s2, set_rc);
+                }
+
+                uint32_t target_mode = (g_g4_tp_saved_valid && g_g4_tp_saved_mode >= 1u && g_g4_tp_saved_mode <= 4u)
+                                           ? g_g4_tp_saved_mode : 1u;
+                if (memcmp((const void *)mode_va, exp_mode, sizeof(exp_mode)) == 0) {
+                    int mode_rc = ((g5_tp_mode_fn_t)(mode_va | 1u))(pG5Tp, target_mode);
+                    logf_("REAL_INPUT: libOb5 InfraTp::SetResourceTpMode(%u) -> rc=%d (new mode=%u)",
+                          target_mode, mode_rc, *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x44u));
+                } else {
+                    logf_("REAL_INPUT_WARN: SetResourceTpMode (+0x1ff060) 前言不匹配，跳过");
+                }
+
+                /* 先置 0 再置 1，强制穿透 SetTpEventSw 的 old==new 短路检查并向 0x7a0020 发送刷新包 */
+                if (memcmp((const void *)sw_va, exp_sw, sizeof(exp_sw)) == 0) {
+                    ((g5_tp_sw_fn_t)(sw_va | 1u))(pG5Tp, 0u);
+                    ((g5_tp_sw_fn_t)(sw_va | 1u))(pG5Tp, 1u);
+                }
+                /* 关闭冗余 raw 包 (0x06000002)，避免 I-TpRecv -> I-InputRecv -> appFw 队列吞吐翻倍 */
+                if (memcmp((const void *)raw_va, exp_raw, sizeof(exp_raw)) == 0) {
+                    ((g5_tp_sw_fn_t)(raw_va | 1u))(pG5Tp, 0u);
+                }
+
+                /* 克隆 InfraTp vtable 以非侵入方式拦截 vtable[4] 观测 I-TpRecv 真实收包 */
+                uintptr_t *orig_vt = *(uintptr_t **)pG5Tp;
+                if (orig_vt && ((orig_vt[4] & ~(uintptr_t)1u) == ob5_base + 0x001fe4f2u)) {
+                    for (int vi = -2; vi < 8; vi++) {
+                        g_g5tp_vtable_storage[vi + 2] = orig_vt[vi];
+                    }
+                    g_g5tp_orig_vt4 = (g5_tp_vt4_fn_t)orig_vt[4];
+                    g_g5tp_vtable_storage[4 + 2] = (uintptr_t)real_g5tp_vt4_hook;
+                    __sync_synchronize();
+                    *(uintptr_t **)pG5Tp = &g_g5tp_vtable_storage[2];
+                    logf_("REAL_INPUT: libOb5 InfraTp vtable[4] (0x%lx) 收包探针已挂载", (unsigned long)orig_vt[4]);
+                }
+
+                /* 打印校准/有效区参数，确认 I-TpRecv 坐标映射缩放系数不为 0 */
+                {
+                    uint32_t area0 = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x48u);
+                    uint32_t area1 = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x4cu);
+                    uint32_t area2 = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x50u);
+                    uint32_t area3 = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x54u);
+                    int32_t  off_x = *(const volatile int32_t  *)((uintptr_t)pG5Tp + 0x60u);
+                    int32_t  off_y = *(const volatile int32_t  *)((uintptr_t)pG5Tp + 0x64u);
+                    int32_t  min_x = *(const volatile int32_t  *)((uintptr_t)pG5Tp + 0x68u);
+                    int32_t  min_y = *(const volatile int32_t  *)((uintptr_t)pG5Tp + 0x6cu);
+                    int32_t  scl_x = *(const volatile int32_t  *)((uintptr_t)pG5Tp + 0x80u);
+                    int32_t  scl_y = *(const volatile int32_t  *)((uintptr_t)pG5Tp + 0x84u);
+                    logf_("REAL_INPUT: libOb5 InfraTp 校准参数: area=(%u,%u,%u,%u) off=(%d,%d) raw_min=(%d,%d) scale=(%d,%d)",
+                          area0, area1, area2, area3, off_x, off_y, min_x, min_y, scl_x, scl_y);
+                }
+
+                /* 向 LIRO 0x01010227 下发 VdfDisplayCmdSetPanelOut(cmd=4,1) 与 VdfInputCmdSetTouchPanel(cmd=3,1) 唤醒物理触摸 IC */
+                {
+                    static const unsigned char exp_send[12] = {
+                        0x2du, 0xe9u, 0xf0u, 0x47u, 0x8au, 0xb0u, 0x04u, 0xafu, 0x91u, 0x46u, 0x1du, 0x46u
+                    };
+                    uintptr_t send_va = ob5_base + 0x0020d094u;
+                    if (memcmp((const void *)send_va, exp_send, sizeof(exp_send)) == 0) {
+                        g_g5tp_ob5_send_msg = (g5_ob5_send_msg_fn_t)(send_va | 1u);
+                        uint32_t cmd4[2] = { 4u, 1u };
+                        uint32_t cmd3[2] = { 3u, 1u };
+                        int rc4 = g_g5tp_ob5_send_msg(pG5Tp, 0x01010227u, cmd4, (uint32_t)sizeof(cmd4), 2u, 0u);
+                        usleep(50000);
+                        int rc3 = g_g5tp_ob5_send_msg(pG5Tp, 0x01010227u, cmd3, (uint32_t)sizeof(cmd3), 2u, 0u);
+                        logf_("REAL_INPUT: LIRO 0x01010227 硬件唤醒 cmd=4(1)->rc=%d, cmd=3(1)->rc=%d", rc4, rc3);
+                    } else {
+                        logf_("REAL_INPUT_WARN: libOb5 ob5_send_msg (+0x20d094) 12B 前言不匹配，跳过 0x01010227 硬件唤醒");
+                    }
+                }
+
+                sw_b  = *(const volatile uint8_t  *)((uintptr_t)pG5Tp + 0x32u);
+                raw_b = *(const volatile uint8_t  *)((uintptr_t)pG5Tp + 0x35u);
+                mode  = *(const volatile uint32_t *)((uintptr_t)pG5Tp + 0x44u);
+                logf_("REAL_INPUT: libOb5 InfraTp 激活完成: sus=%u ev_sw=%u raw=%u mode=%u",
+                      (unsigned)*(const volatile uint8_t *)((uintptr_t)pG5Tp + 0x20u),
+                      (unsigned)sw_b, (unsigned)raw_b, mode);
+            } else {
+                logf_("REAL_INPUT_WARN: libOb5 InfraTp::GetInstance 返回 NULL");
+            }
+        } else {
+            logf_("REAL_INPUT_WARN: libOb5 InfraTp::GetInstance (+0x201218) 前言字节不匹配，跳过开关激活");
+        }
+    }
+    g5_init_real_g5_input_probe(ob5_base);
     g_real_in_init_done = 1;
     g_real_handoff_stage = "g5_input_ready";
 }
@@ -4351,9 +4881,9 @@ static void *astra_thread(void *unused)
         g_pProcessEvent  = (void (*)(void *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem12processEventEv");
         g_pUpdateFrame   = (void (*)(void *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem11updateFrameEv");
         g_pNotifyDraw    = (void (*)(void *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem10notifyDrawEv");
-        g_pPress         = (void (*)(void *, uint8_t, uint8_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimdf");
-        g_pMove          = (void (*)(void *, uint8_t, int16_t, int16_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimdf");
-        g_pRel           = (void (*)(void *, uint8_t, uint8_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem16postMouseReleaseEhhNS_4core8MsecTimdf");
+        g_pPress         = (void (*)(void *, uint8_t, uint8_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimeE");
+        g_pMove          = (void (*)(void *, uint8_t, int16_t, int16_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimeE");
+        g_pRel           = (void (*)(void *, uint8_t, uint8_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem16postMouseReleaseEhhNS_4core8MsecTimeE");
         __sync_synchronize();
         g_ws_syms_ready = 1;
         logf_("SYM_CACHE: WidgetSystem 符号已缓存 (GetWS=%p Update=%p Notify=%p Press=%p)",
@@ -4361,9 +4891,9 @@ static void *astra_thread(void *unused)
 #else
         g_pGetWS = (void *(*)(void))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem15sys_getInstanceFU");
         if (!g_pGetWS) g_pGetWS = (void *(*)(void))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem15sys_getInstanceEv");
-        g_pPress = (void (*)(void *, uint8_t, uint8_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimdf");
-        g_pMove  = (void (*)(void *, uint8_t, int16_t, int16_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimdf");
-        g_pRel   = (void (*)(void *, uint8_t, uint8_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem16postMouseReleaseEhhNS_4core8MsecTimdf");
+        g_pPress = (void (*)(void *, uint8_t, uint8_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem14postMousePressEhhNS_4core8MsecTimeE");
+        g_pMove  = (void (*)(void *, uint8_t, int16_t, int16_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem13postMouseMoveEhssNS_4core8MsecTimeE");
+        g_pRel   = (void (*)(void *, uint8_t, uint8_t, const uint64_t *))dlsym(hOb5, "_ZN2ux6wgtsys12WidgetSystem16postMouseReleaseEhhNS_4core8MsecTimeE");
         Dl_info ob5_info = {0};
         if (g_pGetWS && dladdr((void *)g_pGetWS, &ob5_info) && ob5_info.dli_fbase) {
             uintptr_t ob5_base = (uintptr_t)ob5_info.dli_fbase;
@@ -4429,6 +4959,15 @@ static void *astra_thread(void *unused)
         g_orig_draw_framebuffer = (draw_fb_fn_t)dlsym(hOb5 ? hOb5 : RTLD_DEFAULT, "_ZN2ux6gfxeng14GraphicsEngine15drawFramebufferEv");
         hook_got_slot(app_base, 0x0377afe0u, (void *)g5_hook_appfw_draw_framebuffer, "appFw.so GOT[GraphicsEngine::drawFramebuffer]");
 
+#ifdef ZVE10_REAL_DEVICE
+        if (g_pPress) hook_got_slot(app_base, 0x0377b664u, (void *)real_appfw_post_mouse_press, "appFw.so GOT[postMousePress]");
+        if (g_pRel)   hook_got_slot(app_base, 0x0377af4cu, (void *)real_appfw_post_mouse_release, "appFw.so GOT[postMouseRelease]");
+#ifndef ZVE10_USB_SANDBOX
+        if (g_orig_g5_in_set_cb)      hook_got_slot(app_base, 0x0377ac34u, (void *)g5_hook_appfw_in_set_cb, "appFw.so GOT[InfraInput::SetCallback]");
+        if (g_orig_g5_in_set_keylist) hook_got_slot(app_base, 0x0377b640u, (void *)g5_hook_appfw_in_set_keylist, "appFw.so GOT[InfraInput::SetEventKeyList]");
+#endif
+#endif
+
         patch_thumb_jump((void *)(app_base + 0x02ce5f24u + 1u), (void *)g5_hook_appfw_dbglog, "appFw.so dbglog_sink");
         g_orig_seqlog_send = (seqlog_send_fn_t)make_thumb_trampoline_8(app_base + 0x02c2af70u, (void *)g5_hook_appfw_seqlog, "appFw.so seqlog_send");
 
@@ -4452,6 +4991,9 @@ static void *astra_thread(void *unused)
         /* DAG 2: 存储挂载与拍摄联锁层 (根除 No SD Card，获取 DCF 句柄，解锁 allowRecord: 1) */
         uintptr_t mpr_base = get_module_base_maps("libmpr.so");
         init_bridge_media(app_base, mpr_base);
+        uintptr_t v30_mp5_base = get_module_base_maps("libmp5.so");
+        uintptr_t v30_ob5_base = get_module_base_maps("libOb5.so");
+        g4media_install_c_fsys_got_hooks(app_base, v30_mp5_base, v30_ob5_base);
 
         /* DAG 3: 光学拓扑与镜头控制层 (消除 mwf_err[0x9004]，广播镜头 ROM，解除 F--) */
         uintptr_t mwf_base = get_module_base_maps("libMWF.so");
@@ -4522,7 +5064,8 @@ static int g5_send_internal_event(uint32_t event_id)
     }
     typedef int (*g5_send_ev_fn_t)(const void *payload, uint32_t size);
     g5_send_ev_fn_t send_fn = (g5_send_ev_fn_t)(g_appfw_base + 0x0054e9d9u);
-    uint32_t pkt[6] = { event_id, 0u, 0u, 1u, 0u, 0u };
+    /* pkt[0]=event_id, pkt[1]=0, pkt[2]=status(1), pkt[3]=prev_status(0) */
+    uint32_t pkt[6] = { event_id, 0u, 1u, 0u, 0u, 0u };
     return send_fn(pkt, (uint32_t)sizeof(pkt));
 }
 
@@ -4545,7 +5088,7 @@ static const g4_to_g5_key_map_t g_key_bridge_map[] = {
     { "FN",          0x7095u, 0x02020000u, 0x02020001u },
     { "PLAY",        0x01f7u, 0x02020003u, 0x02020004u },
     { "DELETE",      0x01f8u, 0x02030000u, 0x02030001u },
-    { "DISP",        0x01f9u, 0x02010000u, 0x02010001u },
+    { "DISP",        0x01f9u, 0x02010000u, 0x02010001u }, /* FIXME: 0x02010000u 与 UP 冲突，待从真机 G5_IN 探针确认 DISP 事件 ID */
     { "C1",          0x0066u, 0x02060000u, 0x02060001u }, /* 自定义/虚化键，兼容 0x02060000/0x02150000 */
     { "C2",          0x70e7u, 0x02030000u, 0x02030001u }, /* 自定义2/垃圾桶 */
     { "C3",          0x70ecu, 0x02150006u, 0x02150007u },
@@ -4702,8 +5245,6 @@ static int g5_inject_g4_key(uint32_t g4_code, int is_press)
 }
 
 #ifndef ZVE10_REAL_DEVICE
-static int g_g4_infra_cb_id = -1;
-
 /* 四代 InfraInput 底层事件正式回调：void (*cb)(int channel, void *ev) */
 static void g4_real_infra_input_cb(int channel, void *ev_ptr)
 {
@@ -4893,33 +5434,13 @@ static void install_g4_key_intercept(uintptr_t libobj_base)
     static volatile int s_installed = 0;
     if (__sync_lock_test_and_set(&s_installed, 1)) return;
 
-#ifndef ZVE10_REAL_DEVICE
-    /* 1. 非真机模式保留四代 InfraInput 事件回调注册 */
-    typedef void *(*get_instance_fn_t)(void);
-    typedef int (*set_callback_fn_t)(void *self, int *out_id, void (*cb)(int, void *));
+    /* 1. 初始化真机触屏/按键/电源桥接层 (模块 6) */
+    init_bridge_input(libobj_base, g_appfw_base);
 
-    get_instance_fn_t pGetInstance = (get_instance_fn_t)(libobj_base + 0x8c22a1u);
-    set_callback_fn_t pSetCallback = (set_callback_fn_t)(libobj_base + 0x8c2825u);
-
-    void *pInfraInput = pGetInstance();
-    if (pInfraInput) {
-        int rc = pSetCallback(pInfraInput, &g_g4_infra_cb_id, g4_real_infra_input_cb);
-        logf_("G4_KEY_BRIDGE: InfraInput::SetCallback 注册成功！pInfra=%p cb_id=%d rc=%d",
-              pInfraInput, g_g4_infra_cb_id, rc);
-    } else {
-        logf_("G4_KEY_BRIDGE_ERR: InfraInput::GetInstance 返回 NULL！");
-    }
-#else
-    /* 真机模式下四代抢包线程已优雅退役，跳过向四代 InfraInput 注册回调，100% 交由五代 libOb5 原生接收 */
-    logf_("G4_KEY_BRIDGE: 真机模式跳过四代 InfraInput::SetCallback 注册 (五代 libOb5 原生独占队列)");
-#endif
-
-    /* 2. 双保险与防唤醒隔离：hook callback_direct / callback_panel / callback_dial_signed_speed / callback_tp_raw */
+    /* 2. 双保险与防唤醒隔离：保留 callback_direct 与 callback_dial_signed_speed，取消对 callback_panel / callback_tp_raw 的拦截，让触屏由五代 libOb5 原生独占 */
     patch_thumb_jump_unaligned12(libobj_base + 0x11fd46u, (void *)hook_callback_direct, "libObj:InputService::callback_direct");
-    patch_thumb_jump_unaligned12(libobj_base + 0x11fae1u, (void *)hook_callback_panel, "libObj:InputService::callback_panel");
     patch_thumb_jump_unaligned12(libobj_base + 0x11ece5u, (void *)hook_callback_direct, "libObj:InputService::callback_dial_signed_speed");
-    patch_thumb_jump_unaligned12(libobj_base + 0x11cb75u, (void *)hook_callback_tp_raw, "libObj:InputService::callback_tp_raw");
-    logf_("G4_TP_BRIDGE: InputService::callback_tp_raw (0x11cb75) 触屏隔离/桥接桩已挂载");
+    logf_("G4_TP_BRIDGE: 已放行 callback_panel 与 callback_tp_raw，触屏硬件通路完全交还五代 libOb5:InfraTp");
 }
 
 #ifndef ZVE10_REAL_DEVICE
@@ -5328,15 +5849,21 @@ static void g5_dump_threads_wchan(int sample_app_stacks)
 #define ASTRA_SCR_MENU_SUB  0x300u
 #define ASTRA_SCR_MENU_UI   0x27fu
 
-#define APPFW_OFF_PCM_OPEN_SCREEN   0x0167b514u
-#define APPFW_OFF_PCM_ENQUEUE_OPEN  0x0167c968u
-#define APPFW_OFF_PCM_GET_TOP_SCR   0x0165d9f6u
-#define APPFW_OFF_SCR0039_OPEN      0x0184e4e4u
-#define APPFW_OFF_REP_BOOT_INIT     0x017f95a8u
-#define APPFW_OFF_REP_BOOT_CAN_OPEN 0x017f91b0u
-#define APPFW_OFF_APP_GET_NEXT_EVT  0x0054f548u
-#define APPFW_OFF_BOOT_INFO_BSS     0x0742d18cu
-#define ASTRA_WAKE_EVT_ID           0x5a564551u
+#define APPFW_OFF_PCM_OPEN_SCREEN          0x0167b514u
+#define APPFW_OFF_PCM_ENQUEUE_OPEN         0x0167c968u
+#define APPFW_OFF_PCM_GET_TOP_SCR          0x0165d9f6u
+#define APPFW_OFF_SCR0039_OPEN             0x0184e4e4u
+#define APPFW_OFF_REP_BOOT_INIT            0x017f95a8u
+#define APPFW_OFF_REP_BOOT_CAN_OPEN        0x017f91b0u
+#define APPFW_OFF_APP_GET_NEXT_EVT         0x0054f548u
+#define APPFW_OFF_VENEER_TRANSLATE_3_EVS   0x01910410u
+#define APPFW_OFF_TRANSLATE_3_EVS_TGT      0x0054bb78u
+#define APPFW_OFF_VENEER_CUSTOM_KEY_REMAP  0x01910708u
+#define APPFW_OFF_CUSTOM_KEY_REMAP_TGT     0x0054c940u
+#define APPFW_OFF_VENEER_INHIBIT_FILTER    0x0190f288u
+#define APPFW_OFF_INHIBIT_FILTER_TGT       0x0054fe40u
+#define APPFW_OFF_BOOT_INFO_BSS            0x0742d18cu
+#define ASTRA_WAKE_EVT_ID                  0x5a564551u
 
 typedef int  (*pcm_open_screen_fn_t)(void *pcm_obj, const uint32_t *cur_scr, const uint32_t *next_scr,
                                      const uint32_t *opt_scr, uint32_t a4, uint32_t b1, uint32_t b2,
@@ -5347,6 +5874,11 @@ typedef int  (*rep_boot_init_fn_t)(void *rep_obj);
 typedef int  (*rep_boot_can_open_fn_t)(void *rep_obj);
 /* ARM AAPCS: uint64_t timeout 为第 4 参数(8B对齐跳过r3，经栈传递) */
 typedef int  (*app_get_next_evt_fn_t)(void *ctx, uint32_t *out_evt, int wait_flag, uint64_t timeout);
+typedef void (*g5_translate_3_evs_fn_t)(void *mgr, uint32_t *ev1, uint32_t *ev2, uint32_t *ev3,
+                                        const g5_infra_input_ev_t *raw_ev);
+typedef void (*g5_custom_key_remap_fn_t)(void *mgr, uint32_t *out_ev, uint32_t *out_saved,
+                                         const void *raw_ptr, uint32_t mode_arg);
+typedef void (*g5_global_inhibit_fn_t)(void *mgr, uint32_t *out_evt);
 
 static void *volatile g_pcm_obj = NULL;
 static volatile uint32_t g_last_cur_scr = ASTRA_SCR_INVALID;
@@ -5361,11 +5893,152 @@ static volatile int g_rep_boot_key_patched = 0;
 static volatile int g_menu_boot_completed = 0;
 static volatile int g_menu_fallback_queued = 0;
 
-static pcm_open_screen_fn_t   g_orig_pcm_open_screen = NULL;
-static scr0039_open_fn_t      g_orig_scr0039_open = NULL;
-static rep_boot_init_fn_t     g_orig_rep_boot_init = NULL;
-static rep_boot_can_open_fn_t g_orig_rep_boot_can_open = NULL;
-static app_get_next_evt_fn_t  g_orig_app_get_next_evt = NULL;
+static pcm_open_screen_fn_t     g_orig_pcm_open_screen = NULL;
+static scr0039_open_fn_t        g_orig_scr0039_open = NULL;
+static rep_boot_init_fn_t       g_orig_rep_boot_init = NULL;
+static rep_boot_can_open_fn_t   g_orig_rep_boot_can_open = NULL;
+static app_get_next_evt_fn_t    g_orig_app_get_next_evt = NULL;
+static g5_translate_3_evs_fn_t  g_orig_translate_3_evs = NULL;
+static g5_custom_key_remap_fn_t g_orig_custom_key_remap = NULL;
+static g5_global_inhibit_fn_t   g_orig_global_inhibit = NULL;
+
+static volatile uint32_t g_g5_tr3_dial_log_cnt = 0;
+static volatile uint32_t g_g5_remap_log_cnt = 0;
+static volatile uint32_t g_g5_remap_same_log_cnt = 0;
+static volatile uint32_t g_g5_inhibit_bypass_cnt = 0;
+
+/* 安全替换 16 字节 ARM PLT/long-branch veneer（前 8B 为 ldr pc, [pc, #-4] + 目标地址），直接返回原 Thumb 目标 (+1) */
+static void *patch_arm_veneer_jump(uintptr_t veneer_va, const uint8_t exp_veneer16[16],
+                                   uintptr_t target_va, const uint8_t exp_target8[8],
+                                   void *hook_fn, const char *name)
+{
+    if ((veneer_va & 3u) != 0u) {
+        logf_("HOOK_VENEER_ERR: %s veneer=%p 非 4B 对齐", name, (void *)veneer_va);
+        return NULL;
+    }
+    if (memcmp((const void *)veneer_va, exp_veneer16, 16) != 0) {
+        const uint8_t *v = (const uint8_t *)veneer_va;
+        logf_("HOOK_VENEER_WARN: %s veneer 签名不匹配 (%02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x)",
+              name, v[0], v[1], v[2], v[3], v[4], v[5], v[6], v[7],
+              v[8], v[9], v[10], v[11], v[12], v[13], v[14], v[15]);
+        return NULL;
+    }
+    if (memcmp((const void *)target_va, exp_target8, 8) != 0) {
+        const uint8_t *t = (const uint8_t *)target_va;
+        logf_("HOOK_VENEER_WARN: %s target 签名不匹配 (%02x%02x%02x%02x %02x%02x%02x%02x)",
+              name, t[0], t[1], t[2], t[3], t[4], t[5], t[6], t[7]);
+        return NULL;
+    }
+    uintptr_t page = veneer_va & ~(uintptr_t)4095u;
+    if (mprotect((void *)page, 4096 * 2, PROT_READ | PROT_WRITE | PROT_EXEC) != 0) {
+        logf_("HOOK_VENEER_ERR: %s mprotect(%p) 失败 errno=%d", name, (void *)page, errno);
+        return NULL;
+    }
+    volatile uint32_t *p32 = (volatile uint32_t *)veneer_va;
+    p32[0] = 0xe51ff004u; /* ldr pc, [pc, #-4] */
+    p32[1] = (uint32_t)(uintptr_t)hook_fn;
+    __builtin___clear_cache((char *)veneer_va, (char *)veneer_va + 8);
+    logf_("HOOK_VENEER: %s (%p -> %p, orig_thumb=%p) 安装成功",
+          name, (void *)veneer_va, hook_fn, (void *)(target_va | 1u));
+    return (void *)(target_va | 1u);
+}
+
+static void g5_hook_translate_3_evs(void *mgr, uint32_t *ev1, uint32_t *ev2, uint32_t *ev3,
+                                    const g5_infra_input_ev_t *raw_ev)
+{
+    if (g_orig_translate_3_evs) {
+        g_orig_translate_3_evs(mgr, ev1, ev2, ev3, raw_ev);
+    }
+    if (!raw_ev || !ev1) return;
+
+    uint32_t orig_ev1 = *ev1;
+    uint32_t code = raw_ev->event_code;
+    int32_t  st   = raw_ev->status;
+    uint32_t mapped = orig_ev1;
+
+    /* 补充 ZV-E10 物理拨轮/转盘与电源拨片事件映射（解决命中 default->0x143 或仅发 WHEEL3 失效的问题） */
+    if (code == 0x10000000u) {
+        if (st != 0) mapped = 0x02050001u; /* KURU_LEFT -> WHEEL_LEFT */
+    } else if (code == 0x02d2u || code == 0x10000001u) {
+        if (st != 0) mapped = 0x02050000u; /* KURU_RIGHT -> WHEEL_RIGHT */
+    } else if (code == 0x02d3u || code == 0x10000003u) {
+        if (st != 0) mapped = 0x02050003u; /* KURU2_LEFT -> WHEEL2_LEFT */
+    } else if (code == 0x02d4u || code == 0x10000004u) {
+        if (st != 0) mapped = 0x02050002u; /* KURU2_RIGHT -> WHEEL2_RIGHT */
+    } else if (code == 0x02e1u || code == 0x10000011u) {
+        if (st != 0) mapped = (st > 0) ? 0x02050000u : 0x02050001u;
+    } else if (code == 0x02e7u || code == 0x10000016u) {
+        /* 0x02e7 原被译为 WHEEL3 (0x02050004/5)，但拍摄与菜单控制器监听 WHEEL2 (0x02050002/3) */
+        if (st != 0) mapped = (st > 0) ? 0x02050002u : 0x02050003u;
+    } else if (code == 0x02e9u || code == 0x10000017u) {
+        /* 0x02e9 原仅接受 st==±30 且只发 WHEEL3，统一兼容任意非零增量并映射为 WHEEL */
+        if (st != 0) mapped = (st > 0) ? 0x02050000u : 0x02050001u;
+    } else if (code == 0x01d2u && orig_ev1 == 0x143u) {
+        mapped = (st != 0) ? 0x020f0005u : 0x020f0004u;
+    }
+
+    if (mapped != orig_ev1) {
+        *ev1 = mapped;
+        uint32_t cnt = __sync_add_and_fetch(&g_g5_tr3_dial_log_cnt, 1u);
+        if (cnt <= 80u || (cnt % 40u) == 0u) {
+            logf_("G5_TR3_DIAL[#%u]: code=0x%08x st=%d orig=0x%08x -> mapped=0x%08x",
+                  cnt, code, st, orig_ev1, mapped);
+        }
+    }
+}
+
+static int g5_is_shooting_diag_key(uint32_t ev)
+{
+    return (ev == 0x02010003u || ev == 0x02010006u || ev == 0x02010009u ||
+            ev == 0x0201000cu || ev == 0x02030000u || ev == 0x02150000u ||
+            ev == 0x0215000fu);
+}
+
+static void g5_hook_custom_key_remap(void *mgr, uint32_t *out_ev, uint32_t *out_saved,
+                                     const void *raw_ptr, uint32_t mode_arg)
+{
+    uint32_t before = out_ev ? *out_ev : 0x143u;
+    if (g_orig_custom_key_remap) {
+        g_orig_custom_key_remap(mgr, out_ev, out_saved, raw_ptr, mode_arg);
+    }
+    uint32_t after = out_ev ? *out_ev : 0x143u;
+    if (after != before) {
+        uint32_t cnt = __sync_add_and_fetch(&g_g5_remap_log_cnt, 1u);
+        if (cnt <= 80u || (cnt % 50u) == 0u) {
+            uint32_t saved = out_saved ? *out_saved : 0x143u;
+            logf_("G5_KEY_REMAP[#%u mode=0x%x]: 0x%08x -> 0x%08x (saved=0x%08x)",
+                  cnt, mode_arg, before, after, saved);
+        }
+    } else if (after != 0x143u && (after & 0xff000000u) == 0x02000000u &&
+               (mode_arg == 0u || mode_arg == 1u || g5_is_shooting_diag_key(after))) {
+        uint32_t cnt = __sync_add_and_fetch(&g_g5_remap_same_log_cnt, 1u);
+        if (cnt <= 40u) {
+            uint32_t saved = out_saved ? *out_saved : 0x143u;
+            logf_("G5_KEY_REMAP_SAME[#%u mode=0x%x]: 0x%08x -> 0x%08x (saved=0x%08x)",
+                  cnt, mode_arg, before, after, saved);
+        }
+    }
+}
+
+static void g5_hook_global_inhibit_filter(void *mgr, uint32_t *out_evt)
+{
+    uint32_t orig_type = out_evt ? out_evt[0] : 0u;
+    uint32_t orig_ev   = out_evt ? out_evt[2] : 0x143u;
+    if (g_orig_global_inhibit) {
+        g_orig_global_inhibit(mgr, out_evt);
+    }
+    if (out_evt && orig_ev != 0x143u && out_evt[2] != orig_ev &&
+        (orig_ev & 0xff000000u) == 0x02000000u) {
+        uint32_t suppressed_to = out_evt[2];
+        out_evt[0] = orig_type;
+        out_evt[2] = orig_ev;
+        uint32_t cnt = __sync_add_and_fetch(&g_g5_inhibit_bypass_cnt, 1u);
+        if (cnt <= 80u || (cnt % 50u) == 0u) {
+            logf_("G5_INHIBIT_BYPASS[#%u]: type=%u ev=0x%08x (原被抑制为 0x%08x -> 已恢复)",
+                  cnt, orig_type, orig_ev, suppressed_to);
+        }
+    }
+}
 
 static int g5_is_wizard_screen(uint32_t scr_id)
 {
@@ -5654,9 +6327,12 @@ static int g5_hook_app_get_next_evt(void *ctx, uint32_t *out_evt, int wait_flag,
         }
 
         if (pcm_tid == 0 || pcm_tid == tid) {
-            uint32_t top = ASTRA_SCR_INVALID;
-            if (g5_get_active_screen_id(&top) == 0 && top > 0u && top < ASTRA_SCR_INVALID) {
-                __atomic_store_n(&g_cached_top_scr, top, __ATOMIC_RELEASE);
+            static volatile uint32_t s_top_poll_div = 0;
+            if (ret != 0 || (__atomic_add_fetch(&s_top_poll_div, 1u, __ATOMIC_RELAXED) & 63u) == 0u) {
+                uint32_t top = ASTRA_SCR_INVALID;
+                if (g5_get_active_screen_id(&top) == 0 && top > 0u && top < ASTRA_SCR_INVALID) {
+                    __atomic_store_n(&g_cached_top_scr, top, __ATOMIC_RELEASE);
+                }
             }
         }
         return ret;
@@ -5707,6 +6383,36 @@ static void g5_install_menu_boot_hooks(uintptr_t app_base)
     } else {
         logf_("HOOK_WARN: appFw+0x%x 签名不匹配，跳过 app_get_next_evt hook", (unsigned)APPFW_OFF_APP_GET_NEXT_EVT);
     }
+
+    static const uint8_t ven_tr3[16] = {
+        0x04u, 0xc0u, 0x9fu, 0xe5u, 0x0cu, 0xc0u, 0x8fu, 0xe0u,
+        0x1cu, 0xffu, 0x2fu, 0xe1u, 0x5du, 0xb7u, 0xc3u, 0xfeu
+    };
+    static const uint8_t tgt_tr3[8]  = { 0x2du, 0xe9u, 0xf8u, 0x4fu, 0x00u, 0xafu, 0xdfu, 0xf8u };
+    g_orig_translate_3_evs = (g5_translate_3_evs_fn_t)patch_arm_veneer_jump(
+        app_base + APPFW_OFF_VENEER_TRANSLATE_3_EVS, ven_tr3,
+        app_base + APPFW_OFF_TRANSLATE_3_EVS_TGT, tgt_tr3,
+        (void *)g5_hook_translate_3_evs, "appFw.so translate_3_evs");
+
+    static const uint8_t ven_remap[16] = {
+        0x04u, 0xc0u, 0x9fu, 0xe5u, 0x0cu, 0xc0u, 0x8fu, 0xe0u,
+        0x1cu, 0xffu, 0x2fu, 0xe1u, 0x2du, 0xc2u, 0xc3u, 0xfeu
+    };
+    static const uint8_t tgt_remap[8]  = { 0x2du, 0xe9u, 0xf0u, 0x43u, 0x89u, 0xb0u, 0x05u, 0x46u };
+    g_orig_custom_key_remap = (g5_custom_key_remap_fn_t)patch_arm_veneer_jump(
+        app_base + APPFW_OFF_VENEER_CUSTOM_KEY_REMAP, ven_remap,
+        app_base + APPFW_OFF_CUSTOM_KEY_REMAP_TGT, tgt_remap,
+        (void *)g5_hook_custom_key_remap, "appFw.so custom_key_remap");
+
+    static const uint8_t ven_inhibit[16] = {
+        0x04u, 0xc0u, 0x9fu, 0xe5u, 0x0cu, 0xc0u, 0x8fu, 0xe0u,
+        0x1cu, 0xffu, 0x2fu, 0xe1u, 0xadu, 0x0bu, 0xc4u, 0xfeu
+    };
+    static const uint8_t tgt_inhibit[8]  = { 0xb0u, 0xb5u, 0x8eu, 0xb0u, 0x00u, 0xafu, 0x07u, 0xf1u };
+    g_orig_global_inhibit = (g5_global_inhibit_fn_t)patch_arm_veneer_jump(
+        app_base + APPFW_OFF_VENEER_INHIBIT_FILTER, ven_inhibit,
+        app_base + APPFW_OFF_INHIBIT_FILTER_TGT, tgt_inhibit,
+        (void *)g5_hook_global_inhibit_filter, "appFw.so global_inhibit_filter");
 }
 
 #ifndef ZVE10_REAL_DEVICE
@@ -6132,11 +6838,32 @@ static void *real_heartbeat_thread(void *unused)
         sleep(points[i].wait_s);
         if (!g_astra_running) break;
         void *ws = (g_ws_syms_ready && g_pGetWS) ? g_pGetWS() : NULL;
-        logf_("REAL_HB [+%us]: stage=%s running=%d ws=%p in_ok=%d drawfb=%u/%u grm_chk=%u pres=%u rpc=%u wait=%u/%u mmap_err=%u",
+        logf_("REAL_HB [+%us]: stage=%s running=%d ws=%p in_ok=%d drawfb=%u/%u grm_chk=%u pres=%u rpc=%u fast_t=%u wait=%u/%u mmap_err=%u",
               points[i].elapsed_s, g_real_handoff_stage, g_astra_running, ws, g_real_in_init_done,
               g_draw_fb_cnt, g_real_drawfb_done_cnt, g_grm_chk_cnt,
-              g_real_present_cnt, g_sync_rpc_cnt,
+              g_real_present_cnt, g_sync_rpc_cnt, __atomic_load_n(&g_sync_time_fast_cnt, __ATOMIC_RELAXED),
               g_model_wait_hit, g_model_wait_timeout, g_ob5_mmap_fail_cnt);
+        {
+            void *tp = g_real_g5_tp_obj;
+            if (tp) {
+                logf_("REAL_TP_HB [+%us]: vt4=%u press=%u rel=%u sus=%u dir=(%u,%u) ev_sw=%u raw=%u mode=%u",
+                      points[i].elapsed_s, g_g5tp_vt4_cnt, g_g5_mouse_press_cnt, g_g5_mouse_rel_cnt,
+                      (unsigned)*(const volatile uint8_t  *)((uintptr_t)tp + 0x20u),
+                      (unsigned)*(const volatile uint8_t  *)((uintptr_t)tp + 0x30u),
+                      (unsigned)*(const volatile uint8_t  *)((uintptr_t)tp + 0x31u),
+                      (unsigned)*(const volatile uint8_t  *)((uintptr_t)tp + 0x32u),
+                      (unsigned)*(const volatile uint8_t  *)((uintptr_t)tp + 0x35u),
+                      *(const volatile uint32_t *)((uintptr_t)tp + 0x44u));
+                /* 若启动 10s 后 LIRO 仍未上报任何触摸包，补发一次 cmd=3(1) 防止启动阶段后续流程重置 TouchPanel 状态 */
+                if (points[i].elapsed_s == 10u && g_g5tp_vt4_cnt == 0u &&
+                    g_g5tp_ob5_send_msg != NULL && !g_g5tp_hb_retried) {
+                    g_g5tp_hb_retried = 1;
+                    uint32_t cmd3_retry[2] = { 3u, 1u };
+                    int rc3 = g_g5tp_ob5_send_msg(tp, 0x01010227u, cmd3_retry, (uint32_t)sizeof(cmd3_retry), 2u, 0u);
+                    logf_("REAL_TP_HB: +10s vt4 仍为 0，一次性补发 0x01010227 cmd=3(1) -> rc=%d", rc3);
+                }
+            }
+        }
         if (points[i].elapsed_s == 20u && g_real_drawfb_done_cnt == 0u && !dumped_stuck) {
             dumped_stuck = 1;
             logf_("REAL_HB: 20s 仍未观察到 libOb5:drawFramebuffer 完成，转储线程状态快照...");
@@ -6148,6 +6875,7 @@ static void *real_heartbeat_thread(void *unused)
 
 #endif /* !ZVE10_REAL_DEVICE */
 
+__attribute__((minsize, cold))
 static void *watchdog_thread(void *unused)
 {
     (void)unused;
@@ -6161,6 +6889,7 @@ static void *watchdog_thread(void *unused)
 }
 
 /* [scr0039_boot] 初次向导直通与主动脏矩形触发（双保险） */
+__attribute__((minsize, cold))
 static void *wizard_bypass_thread(void *unused)
 {
     (void)unused;
@@ -6172,6 +6901,15 @@ static void *wizard_bypass_thread(void *unused)
             break;
         }
         usleep(50000); /* 50ms */
+    }
+    g5_boot_mode_t mode = g5_get_boot_mode();
+    if (mode != ASTRA_BOOT_MENU) {
+        logf_("WIZARD_BYPASS: boot_mode=%d keep normal path", (int)mode);
+#ifndef ZVE10_REAL_DEVICE
+        __atomic_store_n(&g_boost_render_flag, 1, __ATOMIC_RELEASE);
+        g5_wake_render_driver();
+#endif
+        return NULL;
     }
     /* 进入主事件循环后延迟 1.5 秒，让初次向导 (scr0039_boot) 稳定展现 */
     usleep(1500000);
@@ -6203,6 +6941,7 @@ static int spawn(void *(*fn)(void *), size_t stack, const char *name)
     return rc;
 }
 
+__attribute__((minsize, cold))
 static int fallback_g4(const char *why)
 {
     logf_("FALLBACK -> 四代 UI (%s)", why);

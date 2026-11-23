@@ -742,3 +742,45 @@ _ZN4GCM_19GOConnectionManager8GetBSSIDEv:
 mcmn_mon_rwprint_setflag:
     mov r0, #0
     bx lr
+
+    .globl Fsys_Lock
+    .type Fsys_Lock, %function
+    .align 2
+Fsys_Lock:
+    mov r0, #0
+    bx lr
+
+    .globl Fsys_Combine
+    .type Fsys_Combine, %function
+    .align 2
+Fsys_Combine:
+    mov r0, #0
+    bx lr
+
+    .globl Fsys_PGEnter
+    .type Fsys_PGEnter, %function
+    .align 2
+Fsys_PGEnter:
+    mov r0, #0
+    bx lr
+
+    .globl Fsys_PGExit
+    .type Fsys_PGExit, %function
+    .align 2
+Fsys_PGExit:
+    mov r0, #0
+    bx lr
+
+    .globl Fsys_PGStartWriteThru
+    .type Fsys_PGStartWriteThru, %function
+    .align 2
+Fsys_PGStartWriteThru:
+    mov r0, #0
+    bx lr
+
+    .globl Fsys_PGStopWriteThru
+    .type Fsys_PGStopWriteThru, %function
+    .align 2
+Fsys_PGStopWriteThru:
+    mov r0, #0
+    bx lr

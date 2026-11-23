@@ -25,7 +25,7 @@
  * 1. 修正五代 USB 插拔事件码与 InfraInput::GetPhyKeyStatus (623/626) 状态校准：
  *    - USB_JACK_ON=0x02100001, USB_JACK_OFF=0x02100000
  *    - CHARGER_ON=0x020f0056, CHARGER_OFF=0x020f0055
- * 2. 修复 GetMediaIDByAttribute (0x02b1afc8) / GetMediaMountInfo (0x02b1b19c) / UpmSet (0x02b1e450)：
+ * 2. 修复 GetMediaIDByAttribute (0x02b1afc8) / Cmd_11008_02b1b19c (0x02b1b19c) / UpmSet (0x02b1e450)：
  *    - 真机宿主存在时透传四代 libObj::InfraMediaConfig (0x00cf016d, cmd=0x1004) 返回真实 Slot1 media_id；
  *    - QEMU 模式下安全清零完整 0x48B 响应区，避免同步队列阻塞。
  * 3. 解除 BusPower (mask=0x4, 054C:096F) 对 libUsbControl 状态机的抢占并清洗 MscConfigureFunc media_id_list：
@@ -70,7 +70,8 @@ static volatile int g_g4usb_jack_state[5] = { 0, 0, 0, 0, 0 }; /* 索引 1..4 �
 static volatile int g_g4usb_jack_seen = 0;
 static volatile uint32_t g_g4usb_last_expected_mask = 0u;
 static volatile uint32_t g_g4usb_last_started_mask = 0u;
-static volatile uint32_t g_g4usb_cached_slot1_media_id = 0x00001004u;
+static volatile uint32_t g_g4usb_cached_slot1_media_id = 0x00001000u;
+static volatile uint32_t g_g4usb_cached_simulate_media_id = 0u;
 static volatile int g_g4usb_real_media_seen = 0;
 
 /* seq 0x297 (MSC) / 0x294 (MTP) / 0x298 (MSC Stop) 全链路追踪与防卡死状态 */
@@ -644,6 +645,40 @@ static int g4usb_hook_IfStartGadget(void *this_ptr, int mask, int param)
 typedef int (*g4usb_media_by_attr_fn_t)(uint32_t *attr_in, uint32_t *resp_0x48);
 static g4usb_media_by_attr_fn_t g4usb_orig_GetMediaIDByAttribute = NULL;
 
+static inline int g4usb_is_simulate_id(uint32_t id)
+{
+    if (id == 0u || id == 0xffffffffu) {
+        return 0;
+    }
+    if (g_g4usb_cached_simulate_media_id != 0u && id == g_g4usb_cached_simulate_media_id) {
+        return 1;
+    }
+#ifdef G4HOST_BRIDGE_MEDIA_H
+    if (g4media_is_simulate_media(id)) {
+        return 1;
+    }
+#endif
+    return 0;
+}
+
+static inline void g4usb_ensure_simulate_id_cached(void)
+{
+    if (g_g4usb_cached_simulate_media_id != 0u || !g4usb_orig_GetMediaIDByAttribute) {
+        return;
+    }
+    uint32_t sim_attr = 0x27u;
+    uint32_t sim_resp[18];
+    memset(sim_resp, 0, sizeof(sim_resp));
+    (void)g4usb_orig_GetMediaIDByAttribute(&sim_attr, sim_resp);
+    if (sim_resp[0] > 0u && sim_resp[1] != 0u && sim_resp[1] != 0xffffffffu) {
+        g_g4usb_cached_simulate_media_id = sim_resp[1];
+#ifdef G4HOST_BRIDGE_MEDIA_H
+        g4media_set_simulate_media_id(sim_resp[1]);
+#endif
+        g4usb_log("预缓存 SIMULATE media_id=0x%x (用于 attr=0x8 过滤)", sim_resp[1]);
+    }
+}
+
 /* appFw.so @ 0x02b1afc8 -> GetMediaIDByAttribute(attr_in, resp_0x48) */
 static int g4usb_hook_GetMediaIDByAttribute(uint32_t *attr_in, uint32_t *resp_0x48)
 {
@@ -664,37 +699,116 @@ static int g4usb_hook_GetMediaIDByAttribute(uint32_t *attr_in, uint32_t *resp_0x
         uint32_t err   = resp_0x48[17]; /* +0x44 */
         g4usb_log("GetMediaIDByAttribute(attr=0x%x) -> rc=%d count=%u id=[0x%x,0x%x] err=0x%x",
                   attr, rc, count, id0, id1, err);
-        if (attr != 9u && count > 0u && id0 != 0u && id0 != 0xffffffffu) {
-            g_g4usb_cached_slot1_media_id = id0;
-            g_g4usb_real_media_seen = 1;
-            g4usb_log("缓存真实 Slot1 media_id=0x%x (attr=0x%x)", id0, attr);
+
+        if (attr == 0x27u) {
+            /* SIMULATE (/nondev/simulate): 与 Slot1 严格隔离，绝不污染真实 SD 缓存 */
+            if (count > 0u && id0 != 0u && id0 != 0xffffffffu) {
+                g_g4usb_cached_simulate_media_id = id0;
+#ifdef G4HOST_BRIDGE_MEDIA_H
+                g4media_set_simulate_media_id(id0);
+#endif
+                g4usb_log("记录 SIMULATE media_id=0x%x (严格隔离，不写入 Slot1 缓存)", id0);
+            }
         } else if (attr == 8u) {
-            /* 首次查 Slot1(attr=0x8) 且尚未缓存真实卡时，内部先以 attr=0x27 探测真实是否有卡 */
-            if (g_g4usb_real_media_seen == 0) {
-                uint32_t probe_attr = 0x27u;
+            /* 若尚未感知 simulate_id，先查询一次 0x27 缓存，防止冷启动顺序倒置导致 0x4000 漏网 */
+            g4usb_ensure_simulate_id_cached();
+            /* Gen5 SLOT_1 (0x08) -> 跨代映射 Gen4 ADJ_SLOT_1 (0x48) / REMOVABLEMEDIA1 (0x42)，严禁映射到 0x27 */
+            if (count > 0u && id0 != 0u && id0 != 0xffffffffu && !g4usb_is_simulate_id(id0)) {
+                g_g4usb_cached_slot1_media_id = id0;
+                g_g4usb_real_media_seen = 1;
+#ifdef G4HOST_BRIDGE_MEDIA_H
+                g4media_set_slot1_media_id(id0);
+#endif
+                g4usb_log("直接命中真实 Slot1 media_id=0x%x (attr=0x8)", id0);
+            } else {
+                static const uint32_t g4_slot1_attrs[2] = { 0x48u, 0x42u };
+                uint32_t valid_ids[16];
+                uint32_t valid_cnt = 0u;
+                uint32_t hit_attr = 0u;
+
+                for (size_t a = 0u; a < 2u && valid_cnt == 0u; a++) {
+                    uint32_t probe_attr = g4_slot1_attrs[a];
+                    uint32_t probe_resp[18];
+                    memset(probe_resp, 0, sizeof(probe_resp));
+                    (void)g4usb_orig_GetMediaIDByAttribute(&probe_attr, probe_resp);
+
+                    uint32_t p_cnt = probe_resp[0];
+                    if (p_cnt > 16u) {
+                        p_cnt = 16u;
+                    }
+                    for (uint32_t i = 0u; i < p_cnt; i++) {
+                        uint32_t cand_id = probe_resp[1u + i];
+                        if (cand_id == 0u || cand_id == 0xffffffffu) {
+                            continue;
+                        }
+                        if (g4usb_is_simulate_id(cand_id)) {
+                            continue;
+                        }
+                        valid_ids[valid_cnt++] = cand_id;
+                    }
+                    if (valid_cnt > 0u) {
+                        hit_attr = probe_attr;
+                    }
+                }
+
+                if (valid_cnt > 0u) {
+                    resp_0x48[0] = valid_cnt;
+                    for (uint32_t i = 0u; i < valid_cnt; i++) {
+                        resp_0x48[1u + i] = valid_ids[i];
+                    }
+                    for (uint32_t i = valid_cnt; i < 16u; i++) {
+                        resp_0x48[1u + i] = 0u;
+                    }
+                    resp_0x48[17] = 0u;
+                    err = 0u;
+                    g_g4usb_cached_slot1_media_id = valid_ids[0];
+                    g_g4usb_real_media_seen = 1;
+#ifdef G4HOST_BRIDGE_MEDIA_H
+                    g4media_set_slot1_media_id(valid_ids[0]);
+#endif
+                    g4usb_log("GetMediaIDByAttribute(attr=0x8) 跨代映射 attr=0x%x 命中 Slot1 (cnt=%u, id0=0x%x)",
+                              hit_attr, valid_cnt, valid_ids[0]);
+                } else {
+                    memset(resp_0x48, 0, 0x48u);
+                    err = 0u;
+                    g_g4usb_real_media_seen = 0;
+#ifdef G4HOST_BRIDGE_MEDIA_H
+                    g_g4usb_cached_slot1_media_id = g4media_get_slot1_media_id();
+#else
+                    g_g4usb_cached_slot1_media_id = 0x00001000u;
+#endif
+                    g4usb_log("GetMediaIDByAttribute(attr=0x8) 探测 attr=0x48/0x42 无真实 Slot1");
+                }
+            }
+        } else if (attr == 9u) {
+            /* Gen5 SLOT_2 (0x09) -> 尝试 Gen4 ADJ_SLOT_2 (0x49)，单卡机无卡槽保持 count=0 并清零数组，绝不伪造或污染 Slot1 */
+            if (count == 0u) {
+                uint32_t probe_attr = 0x49u;
                 uint32_t probe_resp[18];
                 memset(probe_resp, 0, sizeof(probe_resp));
                 (void)g4usb_orig_GetMediaIDByAttribute(&probe_attr, probe_resp);
-                if (probe_resp[0] > 0u && probe_resp[1] != 0u && probe_resp[1] != 0xffffffffu) {
-                    g_g4usb_cached_slot1_media_id = probe_resp[1];
-                    g_g4usb_real_media_seen = 1;
-                    g4usb_log("GetMediaIDByAttribute(attr=0x8) 预探测 attr=0x27 发现 Slot1 真实 media_id=0x%x",
-                              probe_resp[1]);
+                if (probe_resp[0] > 0u && probe_resp[1] != 0u && probe_resp[1] != 0xffffffffu &&
+                    !g4usb_is_simulate_id(probe_resp[1])) {
+                    uint32_t p_cnt = (probe_resp[0] > 16u) ? 16u : probe_resp[0];
+                    resp_0x48[0] = p_cnt;
+                    for (uint32_t i = 0u; i < p_cnt; i++) {
+                        resp_0x48[1u + i] = probe_resp[1u + i];
+                    }
+                    for (uint32_t i = p_cnt; i < 16u; i++) {
+                        resp_0x48[1u + i] = 0u;
+                    }
+                    resp_0x48[17] = 0u;
+                    err = 0u;
+                    g4usb_log("GetMediaIDByAttribute(attr=0x9) 映射 attr=0x49 命中 Slot2 (id0=0x%x)",
+                              resp_0x48[1]);
                 } else {
-                    g4usb_log("GetMediaIDByAttribute(attr=0x8) 预探测 attr=0x27 无卡 (count=%u id0=0x%x)",
-                              probe_resp[0], probe_resp[1]);
+                    memset(resp_0x48, 0, 0x48u);
+                    err = 0u;
                 }
             }
-            if (g_g4usb_real_media_seen != 0) {
-                resp_0x48[0]  = 1u;
-                resp_0x48[1]  = g_g4usb_cached_slot1_media_id;
-                resp_0x48[17] = 0u;
-                err = 0u;
-                g4usb_log("GetMediaIDByAttribute(attr=0x8) 跨代校准: 回填 count=1 id0=0x%x",
-                          g_g4usb_cached_slot1_media_id);
-            }
         }
-        /* 严禁为 attr == 9 (Slot2) 伪造卡；仅对所有属性兜底清零 err 规避断言 */
+
+        /* 兜底清零 err 规避 0x02aeadd8 FATAL 断言 */
         if (err != 0u) {
             g4usb_log("警告: GetMediaIDByAttribute(attr=0x%x) 返回 err=0x%x，兜底清零 err 规避 0x02aeadd8 断言",
                       attr, err);
@@ -707,7 +821,7 @@ static int g4usb_hook_GetMediaIDByAttribute(uint32_t *attr_in, uint32_t *resp_0x
 typedef int (*g4usb_media_mount_info_fn_t)(uint32_t *req, uint32_t *status_out);
 static g4usb_media_mount_info_fn_t g4usb_orig_GetMediaMountInfo = NULL;
 
-/* appFw.so @ 0x02b1b19c -> MediaMount::GetMediaInfo(req, status_out) */
+/* appFw.so @ 0x02b1b19c -> Cmd_11008 wrapper (bl #0x2b738c8, req={media_id, out_name}, status_out) */
 static int g4usb_hook_GetMediaMountInfo(uint32_t *req, uint32_t *status_out)
 {
     uint32_t media_id = req ? req[0] : 0u;
@@ -718,7 +832,7 @@ static int g4usb_hook_GetMediaMountInfo(uint32_t *req, uint32_t *status_out)
         return 0;
     }
     int rc = g4usb_orig_GetMediaMountInfo(req, status_out);
-    g4usb_log("GetMediaMountInfo(media_id=0x%x) -> rc=%d status=%u",
+    g4usb_log("Cmd_11008_02b1b19c(media_id=0x%x) -> rc=%d status=%u",
               media_id, rc, status_out ? *status_out : 0u);
     return rc;
 }
@@ -785,6 +899,14 @@ static int g4usb_hook_MscConfigureFunc(uint32_t *media_req, void *out)
             if (id == 0u || id == 0xffffffffu) {
                 continue;
             }
+            if (g_g4usb_cached_simulate_media_id != 0u && id == g_g4usb_cached_simulate_media_id) {
+                continue;
+            }
+#ifdef G4HOST_BRIDGE_MEDIA_H
+            if (g4media_is_simulate_media(id)) {
+                continue;
+            }
+#endif
             bool dup = false;
             for (uint32_t j = 0u; j < out_cnt; j++) {
                 if (clean_req[j] == id) {
@@ -798,25 +920,34 @@ static int g4usb_hook_MscConfigureFunc(uint32_t *media_req, void *out)
         }
     }
 
-    /* 有卡/识别到媒体项时若列表被滤空，自动补 Slot1；无卡 (raw_cnt==0 && !real_media_seen) 先以 0 项尝试，失败再回退 */
+    uint32_t slot1_id = g_g4usb_cached_slot1_media_id;
+    int phys_present = 1;
+#ifdef G4HOST_BRIDGE_MEDIA_H
+    slot1_id = g4media_get_slot1_media_id();
+    phys_present = g4media_probe_phys_card_present_in_g4(slot1_id, NULL, 0u, NULL);
+#else
+    phys_present = (g_g4usb_real_media_seen != 0);
+#endif
+
+    /* 仅当确认物理卡在位时才在列表被滤空时补真实 Slot1；无卡时保持 n=0，严禁塞入假卡或 simulate */
     int used_fallback = 0;
-    if (out_cnt == 0u && (g_g4usb_real_media_seen != 0 || raw_cnt > 0u)) {
-        clean_req[0] = g_g4usb_cached_slot1_media_id;
+    if (out_cnt == 0u && phys_present && (g_g4usb_real_media_seen != 0 || raw_cnt > 0u)) {
+        clean_req[0] = slot1_id;
         out_cnt = 1u;
         used_fallback = 1;
     }
     clean_req[3] = out_cnt;
 
-    g4usb_log("MscConfigureFunc: raw=[0x%x,0x%x,0x%x](n=%u) -> clean=[0x%x,0x%x,0x%x](n=%u, seen=%d)",
+    g4usb_log("MscConfigureFunc: raw=[0x%x,0x%x,0x%x](n=%u) -> clean=[0x%x,0x%x,0x%x](n=%u, seen=%d, phys=%d)",
               raw0, raw1, raw2, raw_cnt, clean_req[0], clean_req[1], clean_req[2], clean_req[3],
-              g_g4usb_real_media_seen);
+              g_g4usb_real_media_seen, phys_present);
 
     int rc = g4usb_orig_MscConfigureFunc(clean_req, out);
     uint32_t out_err = out ? *(const volatile uint32_t *)out : 0u;
-    if (out_cnt == 0u && !used_fallback && (rc != 0 || out_err != 0u)) {
-        clean_req[0] = g_g4usb_cached_slot1_media_id;
+    if (out_cnt == 0u && !used_fallback && phys_present && (rc != 0 || out_err != 0u)) {
+        clean_req[0] = slot1_id;
         clean_req[3] = 1u;
-        g4usb_log("MscConfigureFunc 无卡模式(n=0) 返回 rc=%d err=0x%x，尝试回退 Slot1=0x%x",
+        g4usb_log("MscConfigureFunc 物理卡在位但 n=0 返回 rc=%d err=0x%x，尝试回退 Slot1=0x%x",
                   rc, out_err, clean_req[0]);
         rc = g4usb_orig_MscConfigureFunc(clean_req, out);
         out_err = out ? *(const volatile uint32_t *)out : 0u;
@@ -1274,7 +1405,7 @@ static inline void init_bridge_usb(uintptr_t app_base, uintptr_t usb_base)
             app_base + 0x02b1afc8u, sig_wrap, (void *)g4usb_hook_GetMediaIDByAttribute, "appFw:GetMediaIDByAttribute_02b1afc8");
 
         g4usb_orig_GetMediaMountInfo = (g4usb_media_mount_info_fn_t)g4usb_install_tramp8_checked(
-            app_base + 0x02b1b19cu, sig_wrap, (void *)g4usb_hook_GetMediaMountInfo, "appFw:FsysMount_02b1b19c");
+            app_base + 0x02b1b19cu, sig_wrap, (void *)g4usb_hook_GetMediaMountInfo, "appFw:Cmd_11008_02b1b19c");
 
         g4usb_orig_FsysUnmount = (g4usb_msc_2arg_fn_t)g4usb_install_tramp8_checked(
             app_base + 0x02b1b1e4u, sig_wrap, (void *)g4usb_hook_FsysUnmount, "appFw:FsysUnmount_02b1b1e4");

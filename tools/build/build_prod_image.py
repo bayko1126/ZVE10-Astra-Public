@@ -175,7 +175,7 @@ if grep -E "^(write|symlink|sif|mkdir|rmdir|ln):" "$DBG_LOG"; then
     echo "ERROR: debugfs 写入/属性操作存在报错" >&2
     exit 1
 fi
-if grep -v -E "^(debugfs |rm: .*File not found|Allocated inode:)" "$DBG_LOG" | grep -qE "[A-Za-z0-9]"; then
+if grep -v -E "^(debugfs:? |rm: .*File not found|Allocated inode:)" "$DBG_LOG" | grep -qE "[A-Za-z0-9]"; then
     echo "ERROR: debugfs 存在未预期输出:" >&2
     cat "$DBG_LOG" >&2
     exit 1
