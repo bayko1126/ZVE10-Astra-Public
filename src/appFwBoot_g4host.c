@@ -4164,8 +4164,18 @@ static void g4_retire_duplicate_input_threads(uintptr_t g4base)
 {
     if (!g4base) return;
     void *pTp = *(void *volatile *)(g4base + 0x014924b0u);
-    void *pIn = *(void *volatile *)(g4base + 0x014924dcu);
-    logf_("G4_INPUT_RETIRE: 扫描 Gen4 输入单例 pInfraTp=%p pInfraInput=%p", pTp, pIn);
+    /* 兼容不同底包 libObj.so 的 InfraInput 单例槽位：
+     * 2025-03 底包在 0x014924dc，2026-06 底包在 0x01492524。 */
+    void *pIn = NULL;
+    void *pIn_24dc = *(void *volatile *)(g4base + 0x014924dcu);
+    void *pIn_2524 = *(void *volatile *)(g4base + 0x01492524u);
+    if ((uintptr_t)pIn_24dc > 0x10000u) {
+        pIn = pIn_24dc;
+    } else if ((uintptr_t)pIn_2524 > 0x10000u) {
+        pIn = pIn_2524;
+    }
+    logf_("G4_INPUT_RETIRE: 扫描 Gen4 输入单例 pInfraTp=%p pInfraInput=%p (slot24dc=%p slot2524=%p)",
+          pTp, pIn, pIn_24dc, pIn_2524);
 
     if ((uintptr_t)pTp > 0x10000u) {
         /* 触屏已交由五代 libOb5:InfraTp 原生独占，先于五代启动前干净退役四代 I-TpMain/I-TpRecv 防止双活抢占 0x007b0026/0x007b002b */
@@ -5437,10 +5447,10 @@ static void install_g4_key_intercept(uintptr_t libobj_base)
     /* 1. 初始化真机触屏/按键/电源桥接层 (模块 6) */
     init_bridge_input(libobj_base, g_appfw_base);
 
-    /* 2. 双保险与防唤醒隔离：保留 callback_direct 与 callback_dial_signed_speed，取消对 callback_panel / callback_tp_raw 的拦截，让触屏由五代 libOb5 原生独占 */
-    patch_thumb_jump_unaligned12(libobj_base + 0x11fd46u, (void *)hook_callback_direct, "libObj:InputService::callback_direct");
-    patch_thumb_jump_unaligned12(libobj_base + 0x11ece5u, (void *)hook_callback_direct, "libObj:InputService::callback_dial_signed_speed");
-    logf_("G4_TP_BRIDGE: 已放行 callback_panel 与 callback_tp_raw，触屏硬件通路完全交还五代 libOb5:InfraTp");
+    /* 2. 移除 libObj callback_direct / callback_dial_signed_speed 冲突跳板，
+     * 避免四代与五代 libOb5 争抢物理按键/拨轮事件；触屏与按键输入全权由五代 libOb5 原生处理。 */
+    (void)hook_callback_direct;
+    logf_("G4_TP_BRIDGE: 已移除 libObj callback_direct/callback_dial_signed_speed 冲突跳板，输入全权由五代 libOb5 处理");
 }
 
 #ifndef ZVE10_REAL_DEVICE
